@@ -11,8 +11,6 @@
     <script src="js/jquery.min.js"></script>
     <script src="bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bootstrap-3.4.1-dist/css/bootstrap.min.css"/>
-
-
     <style>
         .box{
             width: 100%;
@@ -35,6 +33,12 @@
          id="clock"></div>
     <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
          id="count"></div>
+    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
+         id="continual"></div>
+    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
+         id="level"></div>
+    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
+         id="score"></div>
     <div class="box" id="cardBox">
     <div class="cardModule" style="width: 200px;height: 200px;" id="gone"></div>
     <div class="cardModule" style="width: 200px;height: 200px;" id="save"></div>
@@ -45,12 +49,22 @@
     // var saveNode = $("#save");
     var goneNode = document.getElementById("gone");
 
+    var continualNode = document.getElementById("continual");
+    var levelNode = document.getElementById("level");
+    var scoreNode = document.getElementById("score");
+
     //初始化今日牌堆
     var todayCardStack = initialCardsStack()
     //弹出的数值
     var popNb = null;
     //过去的数值
     var goneValue = null;
+
+    //分数相关
+    var continualNb = 0;
+    var scoreLevel = 1;
+    var baseScore = 50;
+    var allScore = 0;
 
     //展示卡牌堆顶
     showSave(todayCardStack.peek())
@@ -59,20 +73,55 @@
     clock()
     var countTime = null;
 
+
+    var scoreFlag = null;
+
     //监听键盘 并翻牌
     $(document).keydown(function (event) {
         if (event.keyCode == 37) {
             console.log('你按下了left arrow');
-            judgementLeft()
+            var cent = judgementLeft()
+            if (cent>0){
+                continualNb+=cent
+                scoreFlag =1;
+            }else{
+                continualNb=0;
+                scoreLevel==1?scoreLevel=1:scoreLevel--;
+                scoreFlag = 0;
+            }
             cardPop()
         }
         if (event.keyCode == 39) {
             console.log('你按下了right arrow');
-            judgementRight()
+            var cent = judgementRight()
+            if (cent>0){
+                continualNb+=cent
+                scoreFlag = 1;
+            }else{
+                continualNb=0;
+                scoreLevel==1?scoreLevel=1:scoreLevel--;
+                scoreFlag= 0;
+            }
             cardPop()
         }
-    });
+        if(continualNb==0){
+            console.log("score level will be decrease")
+        }else{
+            if (continualNb%4.0==0){
+                scoreLevel++;
+                console.log("new score level:"+scoreLevel)
+            }
+        }
+        //分数基数50
+        allScore += scoreLevel*baseScore*scoreFlag;
+        continualNode.innerText="连续答对数量:"+continualNb
+        scoreNode.innerText="全部分数:"+allScore
+        levelNode.innerText="分数等级:"+scoreLevel
+        console.log("continualNb:"+continualNb)
+        console.log("scoreLevel:"+scoreLevel)
 
+        //163900
+    });
 
 </script>
 
