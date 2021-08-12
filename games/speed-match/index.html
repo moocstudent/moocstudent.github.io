@@ -3,104 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <title>speed match</title>
-    <script src="../speed-match/cards.js"></script>
-    <script src="../speed-match/control.js"></script>
-    <script src="../speed-match/score.js"></script>
-    <script src="../speed-match/initial.js"></script>
-    <script src="../speed-match/stack.js"></script>
-    <script src="../speed-match/jquery-3.5.1.min.js"></script>
+    <script src="js/cards.js"></script>
+    <script src="js/control.js"></script>
+    <script src="js/score.js"></script>
+    <script src="js/initial.js"></script>
+    <script src="js/stack.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap-3.4.1-dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="slider/css/jquery.booklet.1.1.0.css"/>
+    <link rel="stylesheet" type="text/css" href="slider/css/style.css"/>
 
+    <style>
+        .col-center-block {
+            float: none;
+            display: block;
+            margin: 0 auto;
+            /* margin-left: auto; margin-right: auto; */
+        }
+    </style>
 </head>
 <body>
-
-<div style="width: 300px;height: 20px;background-color: yellow" id="clock"></div>
-<div style="width: 300px;height: 20px;background-color: yellow" id="count"></div>
-<div style="width: 200px;height: 200px;background-color: red" id="gone"></div>
-<div style="width: 200px;height: 200px;background-color: blue" id="save"></div>
-
+<div class="container-fluid">
+    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
+         id="clock"></div>
+    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
+         id="count"></div>
+    <div class="col-center-block" style="width: 200px;height: 200px;" id="gone"></div>
+    <div class="col-center-block" style="width: 200px;height: 200px;" id="save"></div>
+</div>
 <script>
     var saveNode = document.getElementById("save");
+    // var saveNode = $("#save");
     var goneNode = document.getElementById("gone");
-    var todayCardStack = initialCardsStack()
-    var popNb = null;
-    var goneValue = null;
-    showSave(todayCardStack.peek())
-    function pop(){
-        popNb = todayCardStack.pop();
-        goneValue=popNb;
-        showGone(goneValue)
-        popNb = todayCardStack.peek();
-        showSave(popNb)
-    }
 
-    var int=self.setInterval("clock()",1000);
-    var countIntervalId=self.setInterval("count()",1000);
-    function clock()
-    {
-        var d=new Date();
-        var t=d.toLocaleTimeString();
-        document.getElementById("clock").innerHTML=t;
-    }
-    function count(){
-        document.getElementById("count").innerHTML=countDown(6);
-    }
+    //初始化今日牌堆
+    var todayCardStack = initialCardsStack()
+    //弹出的数值
+    var popNb = null;
+    //过去的数值
+    var goneValue = null;
+
+    //展示卡牌堆顶
+    showSave(todayCardStack.peek())
+
+    //计时
     clock()
     var countTime = null;
 
-    //倒计时
-    function countDown(time) {
-        if (countTime == null) {
-            countTime = time;
-        }
-        if (countTime==0){
-            clearInterval(countIntervalId)
-            showGone(goneValue)
-            pop()
-            return "start";
-        }
-        console.log("game start with :" + countTime + "second after")
-        countTime--;
-        return "game start with :" + countTime + "second after"
-    }
-
-    function showSave(cardId) {
-        saveNode.innerHTML = cardId
-    }
-
-    function showGone(goneCardId){
-        goneNode.innerHTML = goneCardId;
-    }
-
-    $(document).keydown(function(event){
-        if(event.keyCode == 37){
+    //监听键盘 并翻牌
+    $(document).keydown(function (event) {
+        if (event.keyCode == 37) {
             console.log('你按下了left arrow');
             judgementLeft()
-            pop()
+            cardPop()
         }
-        if(event.keyCode == 39){
+        if (event.keyCode == 39) {
             console.log('你按下了right arrow');
             judgementRight()
-            pop()
+            cardPop()
         }
     });
 
-    function judgementRight(){
-        if (countTime!=0 || countTime==null){
-            return;
-        }
-        if(popNb===goneValue){
-            console.log("correct!!!!!")
-        }
-    }
-
-    function judgementLeft(){
-        if (countTime!=0 || countTime==null){
-            return;
-        }
-        if(popNb!=goneValue){
-            console.log("correct!!!!!")
-        }
-    }
 
 </script>
 
