@@ -11,15 +11,21 @@
     <script src="js/jquery.min.js"></script>
     <script src="bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bootstrap-3.4.1-dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" type="text/css" href="slider/css/jquery.booklet.1.1.0.css"/>
-    <link rel="stylesheet" type="text/css" href="slider/css/style.css"/>
+
 
     <style>
-        .col-center-block {
-            float: none;
-            display: block;
-            margin: 0 auto;
-            /* margin-left: auto; margin-right: auto; */
+        .box{
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            height: 50vh;
+        }
+        .cardModule{
+            width: 200px;
+            height: 200px;
+            border: 1px solid white;
         }
     </style>
 </head>
@@ -29,8 +35,10 @@
          id="clock"></div>
     <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
          id="count"></div>
-    <div class="col-center-block" style="width: 200px;height: 200px;" id="gone"></div>
-    <div class="col-center-block" style="width: 200px;height: 200px;" id="save"></div>
+    <div class="box" id="cardBox">
+    <div class="cardModule" style="width: 200px;height: 200px;" id="gone"></div>
+    <div class="cardModule" style="width: 200px;height: 200px;" id="save"></div>
+    </div>
 </div>
 <script>
     var saveNode = document.getElementById("save");
