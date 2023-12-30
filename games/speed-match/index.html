@@ -28,6 +28,10 @@
     </style>
 </head>
 <body>
+<audio id="notifyAudio" hidden="hidden">
+    <source src="audio/notify.mp3" type="audio/mpeg">
+    您的浏览器不支持 audio 与元素。
+</audio>
 <div class="container-fluid">
     <p style="text-align: center">通过键盘(不一致)←左右→(一致)键来判定后出现的图形是否跟前面的图形一致</p>
     <p style="text-align: center">请留意游戏开始前的第一个图形!</p>
@@ -47,6 +51,8 @@
     </div>
 </div>
 <script>
+    const notify_audio = document.getElementById('notifyAudio')
+
     var saveNode = document.getElementById("save");
     // var saveNode = $("#save");
     var goneNode = document.getElementById("gone");
@@ -81,6 +87,7 @@
     //监听键盘 并翻牌
     $(document).keydown(function (event) {
         if (event.keyCode == 37) {
+            notify_audio.play();
             console.log('你按下了left arrow');
             var cent = judgementLeft()
             if (cent>0){
@@ -95,6 +102,7 @@
             cardPop()
         }
         if (event.keyCode == 39) {
+            notify_audio.play();
             console.log('你按下了right arrow');
             var cent = judgementRight()
             if (cent>0){

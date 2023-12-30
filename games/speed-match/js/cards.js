@@ -25,7 +25,12 @@ var squareCard = {
     path:rootPath+"/img/square.png"
 }
 
-var cardStack = [circleCard,triangleCard,clubsCard,starCard,squareCard]
+var glassCard = {
+    symbolId:5,color:"green",
+    path:rootPath+"/img/glass.png"
+}
+
+var cardStack = [circleCard,triangleCard,clubsCard,starCard,squareCard,glassCard]
 
 function getCard(symbolId){
     return cardStack[symbolId]
