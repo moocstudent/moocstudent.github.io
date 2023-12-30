@@ -18,7 +18,7 @@ function initialCardsStack(){
 
 
 function randomCardId(){
-    return Math.floor(Math.random()*5);
+    return Math.floor(Math.random()*6);
 }
 
 
