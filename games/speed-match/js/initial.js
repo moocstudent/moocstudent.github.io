@@ -46,6 +46,7 @@ function initialCardsStack(){
     return stack;
 }
 
+//标准正态分布占比
 const gaussianDistribution = [100-68.268949,100-95.449974,100-99.730020,100-99.993666]
 
 function adjustmentRatio(stack,currentRatioMole){
