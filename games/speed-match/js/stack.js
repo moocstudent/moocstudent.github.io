@@ -24,6 +24,11 @@ function Stack(){
         this.items.push(element)
     }
 
+    Stack.prototype.get = (index) => {
+        // console.log('index' ,index)
+        return this.items[index]
+    }
+
     // 2.pop():从栈中取出元素
     Stack.prototype.pop = () => {
         // 利用数组item的pop方法实现Stack类的pop方法
