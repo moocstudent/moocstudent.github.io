@@ -90,7 +90,7 @@
 
     //监听键盘 并翻牌
     $(document).keydown(function (event) {
-        if (event.keyCode == 37) {
+        if (event.keyCode === 37) {
             notify_audio.play();
             console.log('你按下了left arrow');
             var cent = judgementLeft()
@@ -105,7 +105,7 @@
             }
             cardPop()
         }
-        if (event.keyCode == 39) {
+        if (event.keyCode === 39) {
             notify_audio.play();
             console.log('你按下了right arrow');
             var cent = judgementRight()
@@ -120,10 +120,10 @@
             }
             cardPop()
         }
-        if(continualNb==0){
+        if(continualNb===0){
             console.log("score level will be decrease")
         }else{
-            if (continualNb%4.0==0){
+            if (continualNb%4.0===0){
                 scoreLevel++;
                 console.log("new score level:"+scoreLevel)
             }
