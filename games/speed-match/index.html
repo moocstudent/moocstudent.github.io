@@ -11,6 +11,9 @@
     <script src="js/jquery.min.js"></script>
     <script src="bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bootstrap-3.4.1-dist/css/bootstrap.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"
+            integrity="sha512-EmNxF3E6bM0Xg1zvmkeYD3HDBeGxtsG92IxFt1myNZhXdCav9MzvuH/zNMBU1DmIPN6njrhX1VTbqdJxQ2wHDg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         .box{
             width: 100%;
@@ -49,6 +52,8 @@
     <div class="cardModule" style="width: 200px;height: 200px;" id="gone"></div>
     <div class="cardModule" style="width: 200px;height: 200px;" id="save"></div>
     </div>
+    <div id="chart" style="width:50%;min-height:300px">
+    </div>
 </div>
 <script>
     const notify_audio = document.getElementById('notifyAudio')
@@ -80,7 +85,6 @@
     //计时
     clock()
     var countTime = null;
-
 
     var scoreFlag = null;
 
@@ -137,8 +141,123 @@
     }
 
 
-</script>
+    function generateData() {
+        adjustmentGaussianLikeLength()
+        let data = [];
+        for(var i=repeatContinuous.length-1;i>=0;i--){
+            if(i!==0){
+                data.push([-i,repeatContinuous[i]])
+            }else if(i===0){
+                data.push([i,repeatContinuous[i]])
+            }
+        }
+        for(var i=0;i<repeatContinuous.length;i++){
+            if(i!==0){
+                data.push([i,repeatContinuous[i]])
+            }
+        }
+        console.log('data ',data)
+        return data;
+    }
 
+    function standardGaussianRatio(){
+        adjustmentGaussianLikeLength()
+        let data = [];
+        for(var i=gaussianDistribution.length-1;i>=0;i--){
+            if(i!==0){
+                data.push([-i,gaussianDistribution[i]])
+            }else if(i===0){
+                data.push([i,gaussianDistribution[i]])
+            }
+        }
+        for(var i=0;i<gaussianDistribution.length;i++){
+            if(i!==0){
+                data.push([i,gaussianDistribution[i]])
+            }
+        }
+        return data;
+    }
+
+
+    var myChart = echarts.init(document.getElementById("chart"));
+    myChart.showLoading();
+
+    optionOfGaussian = {
+        title: {
+            text: '重复率'
+        },
+        legend: {
+            data: ['重复率分布', '标准正态分布']
+        },
+        animation: false,
+        grid: {
+            top: 40,
+            left: 50,
+            right: 40,
+            bottom: 50
+        },
+        xAxis: {
+            name: 'x',
+            minorTick: {
+                show: true
+            },
+            minorSplitLine: {
+                show: true
+            }
+        },
+        yAxis: {
+            name: 'y',
+            min: -100,
+            max: 100,
+            minorTick: {
+                show: true
+            },
+            minorSplitLine: {
+                show: true
+            }
+        },
+        dataZoom: [
+            {
+                show: true,
+                type: 'inside',
+                filterMode: 'none',
+                xAxisIndex: [0],
+                startValue: -20,
+                endValue: 20
+            },
+            {
+                show: true,
+                type: 'inside',
+                filterMode: 'none',
+                yAxisIndex: [0],
+                startValue: 0,
+                endValue: 50
+            }
+        ],
+        series: [
+            {
+                name:'重复率分布',
+                type: 'line',
+                showSymbol: false,
+                clip: true,
+                data: generateData()
+            },
+            {
+                name: '标准正态分布',
+                type: 'line',
+                showSymbol: false,
+                clip: true,
+                data: standardGaussianRatio()
+            }
+        ]
+    };
+
+    myChart.setOption(optionOfGaussian);
+    myChart.hideLoading();
+
+
+
+</script>
 
 </body>
 </html>
