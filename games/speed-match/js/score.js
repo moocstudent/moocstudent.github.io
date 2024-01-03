@@ -1,7 +1,5 @@
 function judgementRight(){
-    if (countTime!=0 || countTime==null){
-        return;
-    }
+
     if(popNb===goneValue){
         console.log("correct!!!!!")
         return 1;
@@ -10,9 +8,7 @@ function judgementRight(){
 }
 
 function judgementLeft(){
-    if (countTime!=0 || countTime==null){
-        return;
-    }
+
     if(popNb!=goneValue){
         console.log("correct!!!!!")
         return 1;
