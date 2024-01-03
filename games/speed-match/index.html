@@ -89,11 +89,11 @@
     var scoreFlag = null;
 
     //监听键盘 并翻牌
-    $(document).keydown(function (event) {
+    $(document).onkeydown(function (event) {
         if (event.keyCode === 37) {
             notify_audio.play();
             console.log('你按下了left arrow');
-            var cent = judgementLeft()
+            let cent = judgementLeft()
             if (cent>0){
                 continualNb+=cent
                 scoreFlag =1;
@@ -108,7 +108,7 @@
         if (event.keyCode === 39) {
             notify_audio.play();
             console.log('你按下了right arrow');
-            var cent = judgementRight()
+            let cent = judgementRight()
             if (cent>0){
                 continualNb+=cent
                 scoreFlag = 1;
