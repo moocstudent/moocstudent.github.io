@@ -8,6 +8,7 @@
     <script src="js/score.js"></script>
     <script src="js/initial.js"></script>
     <script src="js/stack.js"></script>
+<!--    <script src="godb/godbManager.js"></script> todo Vue -->
     <script src="js/jquery.min.js"></script>
     <script src="layui/layui.js"></script>
     <link rel="stylesheet" type="text/css" href="layui/css/layui.css"/>
@@ -50,12 +51,13 @@
          id="level"></div>
     <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
          id="score"></div>
-    <div class="box" id="cardBox">
-    <div class="cardModule" style="width: 200px;height: 200px;" id="gone"></div>
-    <div class="cardModule" style="width: 200px;height: 200px;" id="save"></div>
+    <div class="box ws-docs-anim" id="cardBox">
+    <div class="cardModule" style="width: 200px;height: 200px;" id="gone" onclick="window.open('http://8.136.81.58:3000/')"></div>
+    <div class="layui-anim" data-anim="layui-anim-left" style="width: 200px;height: 200px;" id="save"></div>
     </div>
     <div id="chart" style="width:50%;min-height:300px">
     </div>
+
 </div>
 <script>
     // const notify_audio = document.getElementById('notifyAudio')
@@ -86,14 +88,41 @@
 
     //计时
     clock()
-    var countTime = null;
-
     var scoreFlag = null;
 
     var gameBegin = false;
+    function animFunc(ele){
+        var othis = $(ele), anim = othis.data('anim');
+
+        //停止循环
+        if(othis.hasClass('layui-anim-loop')){
+            return othis.removeClass(anim);
+        }
+
+        othis.removeClass(anim);
+
+        setTimeout(function(){
+            othis.addClass(anim);
+        });
+        //恢复渐隐
+        if(anim === 'layui-anim-fadeout'){
+            setTimeout(function(){
+                othis.removeClass(anim);
+            }, 1300);
+        }
+    }
 
     layui.use(function(){
         var layer = layui.layer;
+        var $ = layui.$;
+        //演示动画
+        // $('.ws-docs-anim .layui-anim').on('click', function(){
+        //     animFunc(saveNode)
+        // });
+        layer.tips('点击logo访问作者最新开源成果', goneNode, {
+            tips: 4,
+            time:20000
+        });
         let countDownAlert = layer.alert('通过键盘(不一致)←左右→(一致)键来判定后出现的图形是否跟前面的图形一致，<br>请留意游戏开始前的第一个图形!', {
             time: 5*1000,
             btn:'现在开始',
@@ -118,11 +147,22 @@
             offset: [$(window).height() - 700, $(window).width() - 1090]
         });
 
-
+        // if (navigator.geolocation) {
+        //     navigator.geolocation.getCurrentPosition(function(position) {
+        //         var latitude = position.coords.latitude; // 经度
+        //         var longitude = position.coords.longitude; // 纬度
+        //
+        //         console.log("当前用户所在位置的经度为：" + latitude);
+        //         console.log("当前用户所在位置的纬度为：" + longitude);
+        //     });
+        // } else {
+        //     console.log('Geolocation is not supported by this browser');
+        // }
     //监听键盘 并翻牌
     $(document).keydown(function (event) {
         if(!gameBegin){return}
         if (event.keyCode === 37) {
+            animFunc(saveNode)
             // notify_audio.play();
             console.log('你按下了left arrow');
             let cent = judgementLeft()
@@ -140,6 +180,7 @@
             cardPop()
         }
         if (event.keyCode === 39) {
+            animFunc(saveNode)
             // notify_audio.play();
             console.log('你按下了right arrow');
             let cent = judgementRight()
@@ -291,6 +332,8 @@
 
     myChart.setOption(optionOfGaussian);
     myChart.hideLoading();
+
+
 
 
 
