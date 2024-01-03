@@ -9,26 +9,26 @@ function clock()
 var int=self.setInterval("clock()",1000);
 
 //倒计时count
-function count(){
-    document.getElementById("count").innerHTML=countDown(6);
-}
-var countIntervalId=self.setInterval("count()",1000);
+// function count(){
+//     document.getElementById("count").innerHTML=countDown(6);
+// }
+// var countIntervalId=self.setInterval("count()",1000);
 
 //倒计时
-function countDown(time) {
-    if (countTime == null) {
-        countTime = time;
-    }
-    if (countTime==0){
-        clearInterval(countIntervalId)
-        // showGone(goneValue)
-        cardPop()
-        return "start";
-    }
-    console.log("game start with :" + countTime + "second after")
-    countTime--;
-    return "game start with :" + countTime + "second after"
-}
+// function countDown(time) {
+//     if (countTime == null) {
+//         countTime = time;
+//     }
+//     if (countTime==0){
+//         clearInterval(countIntervalId)
+//         // showGone(goneValue)
+//         cardPop()
+//         return "start";
+//     }
+//     console.log("game start with :" + countTime + "second after")
+//     countTime--;
+//     return "game start with :" + countTime + "second after"
+// }
 
 //展示stack存货
 function showSave(cardId) {

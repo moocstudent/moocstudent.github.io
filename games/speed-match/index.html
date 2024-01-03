@@ -9,6 +9,8 @@
     <script src="js/initial.js"></script>
     <script src="js/stack.js"></script>
     <script src="js/jquery.min.js"></script>
+    <script src="layui/layui.js"></script>
+    <link rel="stylesheet" type="text/css" href="layui/css/layui.css"/>
     <script src="bootstrap-3.4.1-dist/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="bootstrap-3.4.1-dist/css/bootstrap.min.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"
@@ -40,8 +42,8 @@
     <p style="text-align: center">请留意游戏开始前的第一个图形!</p>
     <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
          id="clock"></div>
-    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
-         id="count"></div>
+<!--    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"-->
+<!--         id="count"></div>-->
     <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
          id="continual"></div>
     <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
@@ -56,7 +58,7 @@
     </div>
 </div>
 <script>
-    const notify_audio = document.getElementById('notifyAudio')
+    // const notify_audio = document.getElementById('notifyAudio')
 
     var saveNode = document.getElementById("save");
     // var saveNode = $("#save");
@@ -88,17 +90,49 @@
 
     var scoreFlag = null;
 
+    var gameBegin = false;
+
+    layui.use(function(){
+        var layer = layui.layer;
+        let countDownAlert = layer.alert('通过键盘(不一致)←左右→(一致)键来判定后出现的图形是否跟前面的图形一致，<br>请留意游戏开始前的第一个图形!', {
+            time: 5*1000,
+            btn:'现在开始',
+            success: function(layero, index){
+                var timeNum = this.time/1000, setText = function(start){
+                    layer.title('<span class="layui-font-red">'+ (start ? timeNum : --timeNum) + '</span> 秒后自动开始', index);
+                };
+                setText(!0);
+                this.timer = setInterval(setText, 1000);
+                if(timeNum <= 0) clearInterval(this.timer);
+            },
+            end: function(){
+                clearInterval(this.timer);
+                gameBegin=true
+                cardPop()
+            },
+            yes:function(){
+                clearInterval(this.timer);
+                layer.close(countDownAlert)
+                gameBegin=true
+            },
+            offset: [$(window).height() - 700, $(window).width() - 1090]
+        });
+
+
     //监听键盘 并翻牌
-    $(document).onkeydown(function (event) {
+    $(document).keydown(function (event) {
+        if(!gameBegin){return}
         if (event.keyCode === 37) {
-            notify_audio.play();
+            // notify_audio.play();
             console.log('你按下了left arrow');
             let cent = judgementLeft()
             if (cent>0){
+                layer.msg('correct～～:)',{ offset: [$(window).height() - 500, $(window).width() - 1000] })
                 continualNb+=cent
                 scoreFlag =1;
                 calculateScore();
             }else{
+                layer.msg('wrong！:(',{ offset: [$(window).height() - 500, $(window).width() - 1000] })
                 continualNb=0;
                 scoreLevel==1?scoreLevel=1:scoreLevel--;
                 scoreFlag = 0;
@@ -106,14 +140,16 @@
             cardPop()
         }
         if (event.keyCode === 39) {
-            notify_audio.play();
+            // notify_audio.play();
             console.log('你按下了right arrow');
             let cent = judgementRight()
             if (cent>0){
+                layer.msg('correct～～:)',{ offset: [$(window).height() - 500, $(window).width() - 1000] })
                 continualNb+=cent
                 scoreFlag = 1;
                 calculateScore();
             }else{
+                layer.msg('wrong！:(',{ offset: [$(window).height() - 500, $(window).width() - 1000] })
                 continualNb=0;
                 scoreLevel==1?scoreLevel=1:scoreLevel--;
                 scoreFlag= 0;
@@ -129,6 +165,7 @@
             }
         }
         //163900
+    });
     });
     function calculateScore(){
         //分数基数50
