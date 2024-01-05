@@ -1,6 +1,7 @@
 
 // var initCards = initialCardsStack()
 
+
 var repeatRatioMole = 0;
 var repeatContinuous = [];
 const cardsTotal = 200;
@@ -9,8 +10,12 @@ let expectRatioMole = 30;
  * 初始化卡片id
  * @returns {[]}
  */
-function initialCardsStack(){
-    var stack = new Stack();
+var stack = null;
+var stackTotal = 0
+function produceCardsStack(){
+    if (!stack){
+        stack = new Stack();
+    }
     for(var i=0;i<cardsTotal;i++){
         // console.log('initial cards stack loop ',i)
         let randomCardId = this.randomCardId();
@@ -39,12 +44,19 @@ function initialCardsStack(){
         }
         stack.push(randomCardId)
     }
+    stackTotal+=cardsTotal
     let repeatRatioPercent = ((repeatRatioMole/cardsTotal) * 100);
     adjustmentRatio(stack,repeatRatioPercent);
     console.log("repeat ratio: ",((repeatRatioMole/cardsTotal) * 100) + '%' )
     console.log("repeatContinuous: ",repeatContinuous)
     return stack;
 }
+
+function appendCardsWhenReachTheLimit(){
+
+}
+
+
 
 //标准正态分布占比
 const gaussianDistribution = [100-68.268949,100-95.449974,100-99.730020,100-99.993666]
