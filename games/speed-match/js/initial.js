@@ -2,40 +2,43 @@
 // var initCards = initialCardsStack()
 
 
-var repeatRatioMole = 0;
-var repeatContinuous = [];
+let repeatRatioMole = 0;
+let repeatContinuous = [];
 const cardsTotal = 200;
 let expectRatioMole = 30;
 /**
  * 初始化卡片id
  * @returns {[]}
  */
-var stack = null;
-var stackTotal = 0
+let stack = null;
+let stackTotal = 0
 function produceCardsStack(){
     if (!stack){
         stack = new Stack();
     }
-    for(var i=0;i<cardsTotal;i++){
+    repeatContinuous = []
+    for(let i=0; i<cardsTotal; i++){
         // console.log('initial cards stack loop ',i)
         let randomCardId = this.randomCardId();
-        if (stack.peek()==randomCardId){
+        //这个if里只用于判定重复率计算
+        if (stack.peek()===randomCardId){
             repeatRatioMole++;
             //如果重复从前一次就开始了，则记录repeatContnuous
             let index = 0;
+
             // console.log('r ',i)
             // console.log('stack size ',stack.size())
-            for(var r=i-1;r<stack.size();r--){
+            //这个for循环只用于判定重复率计算
+            for(let r=i-1; r<stack.size(); r--){
                 // console.log('repeat continuous cards stack loop ',r)
                 // console.log('stack.get(r) ',stack.get(r))
-                if (randomCardId==stack.get(r)){
+                if (randomCardId===stack.get(r)){
                     if(!repeatContinuous[index]){
+                        console.log('repeatContinuous[index] ',repeatContinuous[index])
                         repeatContinuous[index] = 0
                     }
-                    // console.log('repeatContinuous[index] ',repeatContinuous[index])
-                    let indexReplace = repeatContinuous[index]+=1
-                    // console.log('indexReplace ',indexReplace)
-                    repeatContinuous[index] = indexReplace
+                    console.log('index>>> ',index)
+                    repeatContinuous[index] = (repeatContinuous[index] += 1)
                 }else{
                     break;
                 }
@@ -50,10 +53,6 @@ function produceCardsStack(){
     console.log("repeat ratio: ",((repeatRatioMole/cardsTotal) * 100) + '%' )
     console.log("repeatContinuous: ",repeatContinuous)
     return stack;
-}
-
-function appendCardsWhenReachTheLimit(){
-
 }
 
 
@@ -74,20 +73,58 @@ function adjustmentGaussianLikeLength(){
     }else if(repeatContinuous.length>gaussianDistribution.length){
         const gaussianDLen = gaussianDistribution.length;
         let short = repeatContinuous.length-gaussianDistribution.length;
-        for(var i=0;i<short;i++){
+        for(let i=0;i<short;i++){
             gaussianDistribution[gaussianDLen+i] = 0
         }
     }else if(gaussianDistribution.length>repeatContinuous.length){
         const repeatConLen = repeatContinuous.length
         let short = gaussianDistribution.length-repeatContinuous.length;
         console.log('short ',short)
-        for(var i=0;i<short;i++){
+        for(let i=0;i<short;i++){
             repeatContinuous[repeatConLen+i] = 0
         }
     }else{
     }
     console.log('repeatContinuous.length ',repeatContinuous.length)
     console.log('repeatContinuous aft adjust  ',repeatContinuous)
+}
+
+function generateData() {
+    adjustmentGaussianLikeLength()
+    let data = [];
+    //以下只是为了排成echarts所需格式
+    for(let i=repeatContinuous.length-1;i>=0;i--){
+        if(i!==0){
+            data.push([-i,repeatContinuous[i]])
+        }else if(i===0){
+            data.push([i,repeatContinuous[i]])
+        }
+    }
+    for(let i=0;i<repeatContinuous.length;i++){
+        if(i!==0){
+            data.push([i,repeatContinuous[i]])
+        }
+    }
+    console.log('data ',data)
+    return data;
+}
+
+function standardGaussianRatio(){
+    adjustmentGaussianLikeLength()
+    let data = [];
+    for(let i=gaussianDistribution.length-1;i>=0;i--){
+        if(i!==0){
+            data.push([-i,gaussianDistribution[i]])
+        }else if(i===0){
+            data.push([i,gaussianDistribution[i]])
+        }
+    }
+    for(let i=0;i<gaussianDistribution.length;i++){
+        if(i!==0){
+            data.push([i,gaussianDistribution[i]])
+        }
+    }
+    return data;
 }
 
 
