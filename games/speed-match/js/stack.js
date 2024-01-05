@@ -24,6 +24,11 @@ function cardPop() {
         if (todayCardStack.size() / cardsTotal < 0.05) {
             //if cards decrease more then reproduce cards stack
             produceCardsStack()
+            myChart.showLoading();
+            optionOfGaussian.series[0].data=generateData()
+            optionOfGaussian.series[1].data=standardGaussianRatio()
+            myChart.setOption(optionOfGaussian);
+            myChart.hideLoading();
         }
         console.log('pop count:',popCount)
         console.log('stack total size:',stackTotal)
