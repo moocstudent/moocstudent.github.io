@@ -9,7 +9,7 @@
     <script src="js/score.js"></script>
     <script src="js/initial.js"></script>
     <script src="js/stack.js"></script>
-<!--    <script src="godb/godbManager.js"></script> todo Vue -->
+    <!--    <script src="godb/godbManager.js"></script> todo Vue -->
     <script src="js/jquery.min.js"></script>
     <script src="layui/layui.js"></script>
     <link rel="stylesheet" type="text/css" href="layui/css/layui.css"/>
@@ -19,7 +19,7 @@
             integrity="sha512-EmNxF3E6bM0Xg1zvmkeYD3HDBeGxtsG92IxFt1myNZhXdCav9MzvuH/zNMBU1DmIPN6njrhX1VTbqdJxQ2wHDg=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
-        .box{
+        .box {
             width: 100%;
             display: flex;
             flex-direction: row;
@@ -27,7 +27,8 @@
             justify-content: center;
             height: 50vh;
         }
-        .cardModule{
+
+        .cardModule {
             width: 200px;
             height: 200px;
             border: 1px solid white;
@@ -44,27 +45,33 @@
 
     <p style="text-align: center">通过键盘(不一致)←左右→(一致)键来判定后出现的图形是否跟前面的图形一致</p>
     <p style="text-align: center">请留意游戏开始前的第一个图形!</p>
+    <p style="text-align: center">Determine whether the subsequent graphic is consistent with the previous one by
+        pressing the keyboard (inconsistent) ← left and right → (consistent) keys </p>
+      <p style="text-align: center">  Please pay attention to the first graphic before the game starts!</p>
     <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
          id="clock"></div>
-<!--    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"-->
-<!--         id="count"></div>-->
-    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
+    <!--    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"-->
+    <!--         id="count"></div>-->
+    <div class="center-block" style="text-align:center;width: 400px;height: 20px;background-color: yellow"
          id="continual"></div>
-    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
+    <div class="center-block" style="text-align:center;width: 400px;height: 20px;background-color: yellow"
          id="level"></div>
-    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow"
+    <div class="center-block" style="text-align:center;width: 400px;height: 20px;background-color: yellow"
          id="score">
     </div>
+    <div class="center-block" style="text-align:center;width: 300px;height: 20px;background-color: yellow">
     <div class="center-block" style="text-align:center">
         correct
         <span class="layui-badge layui-bg-green" id="totalCorrect">0</span>
         <span class="layui-badge layui-bg-red" id="totalWrong">0</span> wrong
     </div>
+    </div>
 
     <div class="box ws-docs-anim" id="cardBox">
 
-    <div class="cardModule" style="width: 200px;height: 200px;" id="gone" onclick="window.open('http://8.136.81.58:3000/')"></div>
-    <div class="layui-anim" data-anim="layui-anim-left" style="width: 200px;height: 200px;" id="save"></div>
+        <div class="cardModule" style="width: 200px;height: 200px;" id="gone"
+             onclick="window.open('http://8.136.81.58:3000/')"></div>
+        <div class="layui-anim" data-anim="layui-anim-left" style="width: 200px;height: 200px;" id="save"></div>
     </div>
     <div id="chart" style="width:50%;min-height:300px">
     </div>
@@ -101,56 +108,57 @@
     var scoreFlag = null;
 
     var gameBegin = false;
-    function animFunc(ele){
+
+    function animFunc(ele) {
         var othis = $(ele), anim = othis.data('anim');
 
         //停止循环
-        if(othis.hasClass('layui-anim-loop')){
+        if (othis.hasClass('layui-anim-loop')) {
             return othis.removeClass(anim);
         }
         othis.removeClass(anim);
-        setTimeout(function(){
+        setTimeout(function () {
             othis.addClass(anim);
         });
         //恢复渐隐
-        if(anim === 'layui-anim-fadeout'){
-            setTimeout(function(){
+        if (anim === 'layui-anim-fadeout') {
+            setTimeout(function () {
                 othis.removeClass(anim);
             }, 1300);
         }
     }
 
-    layui.use(function(){
+    layui.use(function () {
         var layer = layui.layer;
         var $ = layui.$;
         //演示动画
         // $('.ws-docs-anim .layui-anim').on('click', function(){
         //     animFunc(saveNode)
         // });
-        layer.tips('点击logo访问作者最新开源成果', goneNode, {
+        layer.tips('点击logo访问作者最新开源成果 <br>  Click on the logo to access the author\'s latest open source results', goneNode, {
             tips: 4,
-            time:20000
+            time: 20000
         });
         let countDownAlert = layer.alert('通过键盘(不一致)←左右→(一致)键来判定后出现的图形是否跟前面的图形一致，<br>请留意游戏开始前的第一个图形!', {
-            time: 5*1000,
-            btn:'现在开始',
-            success: function(layero, index){
-                var timeNum = this.time/1000, setText = function(start){
-                    layer.title('<span class="layui-font-red">'+ (start ? timeNum : --timeNum) + '</span> 秒后自动开始', index);
+            time: 5 * 1000,
+            btn: '现在开始 Start now',
+            success: function (layero, index) {
+                var timeNum = this.time / 1000, setText = function (start) {
+                    layer.title('<span class="layui-font-red">' + (start ? timeNum : --timeNum) + '</span> 秒后自动开始', index);
                 };
                 setText(!0);
                 this.timer = setInterval(setText, 1000);
-                if(timeNum <= 0) clearInterval(this.timer);
+                if (timeNum <= 0) clearInterval(this.timer);
             },
-            end: function(){
+            end: function () {
                 clearInterval(this.timer);
-                gameBegin=true
+                gameBegin = true
                 cardPop()
             },
-            yes:function(){
+            yes: function () {
                 clearInterval(this.timer);
                 layer.close(countDownAlert)
-                gameBegin=true
+                gameBegin = true
             },
             offset: [$(window).height() - 700, $(window).width() - 1090]
         });
@@ -166,92 +174,92 @@
         // } else {
         //     console.log('Geolocation is not supported by this browser');
         // }
-    //监听键盘 并翻牌
-    $(document).keydown(function (event) {
-        if(!gameBegin){return}
-        let scoreSpan = $("span#totalCorrect")
-        let issueSpan = $("span#totalWrong")
-        let score = scoreSpan.text();
-        let issue = issueSpan.text();
-        console.log('score ', score)
-        console.log('issue ',issue)
-        if (event.keyCode === 37) {
-            animFunc(saveNode)
-            // notify_audio.play();
-            console.log('你按下了left arrow');
-            let cent = judgementLeft()
-            if (cent>0){
-                layer.msg('correct～～:)',{ offset: [$(window).height() - 500, $(window).width() - 1000] })
-                continualNb+=cent
-                scoreFlag =1;
-                score++
-                console.log('score>>',score)
-                document.getElementById("totalCorrect").innerText = score.toString();
-                calculateScore();
-            }else{
-                layer.msg('wrong！:(',{ offset: [$(window).height() - 500, $(window).width() - 1000] })
-                continualNb=0;
-                scoreLevel==1?scoreLevel=1:scoreLevel--;
-                issue++
-                document.getElementById("totalWrong").innerText = issue.toString();
-                scoreFlag = 0;
+        //监听键盘 并翻牌
+        $(document).keydown(function (event) {
+            if (!gameBegin) {
+                return
             }
-            cardPop()
-        }
-        if (event.keyCode === 39) {
-            animFunc(saveNode)
-            // notify_audio.play();
-            console.log('你按下了right arrow');
-            let cent = judgementRight()
-            if (cent>0){
-                layer.msg('correct～～:)',{ offset: [$(window).height() - 500, $(window).width() - 1000] })
-                continualNb+=cent
-                scoreFlag = 1;
-                score++
-                console.log('score>>',score)
-                document.getElementById("totalCorrect").innerText = score.toString()
-                calculateScore();
-            }else{
-                layer.msg('wrong！:(',{ offset: [$(window).height() - 500, $(window).width() - 1000] })
-                continualNb=0;
-                scoreLevel==1?scoreLevel=1:scoreLevel--;
-                issue++
-                document.getElementById("totalWrong").innerText = issue.toString()
-                scoreFlag= 0;
+            let scoreSpan = $("span#totalCorrect")
+            let issueSpan = $("span#totalWrong")
+            let score = scoreSpan.text();
+            let issue = issueSpan.text();
+            console.log('score ', score)
+            console.log('issue ', issue)
+            if (event.keyCode === 37) {
+                animFunc(saveNode)
+                // notify_audio.play();
+                console.log('你按下了left arrow');
+                let cent = judgementLeft()
+                if (cent > 0) {
+                    layer.msg('correct～～:)', {offset: [$(window).height() - 500, $(window).width() - 1000]})
+                    continualNb += cent
+                    scoreFlag = 1;
+                    score++
+                    console.log('score>>', score)
+                    document.getElementById("totalCorrect").innerText = score.toString();
+                    calculateScore();
+                } else {
+                    layer.msg('wrong！:(', {offset: [$(window).height() - 500, $(window).width() - 1000]})
+                    continualNb = 0;
+                    scoreLevel == 1 ? scoreLevel = 1 : scoreLevel--;
+                    issue++
+                    document.getElementById("totalWrong").innerText = issue.toString();
+                    scoreFlag = 0;
+                }
+                cardPop()
             }
-            cardPop()
-        }
-        if(continualNb===0){
-            console.log("score level will be decrease")
-        }else{
-            if (continualNb%4.0===0){
-                scoreLevel++;
-                console.log("new score level:"+scoreLevel)
+            if (event.keyCode === 39) {
+                animFunc(saveNode)
+                // notify_audio.play();
+                console.log('你按下了right arrow');
+                let cent = judgementRight()
+                if (cent > 0) {
+                    layer.msg('correct～～:)', {offset: [$(window).height() - 500, $(window).width() - 1000]})
+                    continualNb += cent
+                    scoreFlag = 1;
+                    score++
+                    console.log('score>>', score)
+                    document.getElementById("totalCorrect").innerText = score.toString()
+                    calculateScore();
+                } else {
+                    layer.msg('wrong！:(', {offset: [$(window).height() - 500, $(window).width() - 1000]})
+                    continualNb = 0;
+                    scoreLevel == 1 ? scoreLevel = 1 : scoreLevel--;
+                    issue++
+                    document.getElementById("totalWrong").innerText = issue.toString()
+                    scoreFlag = 0;
+                }
+                cardPop()
             }
-        }
-        //163900
+            if (continualNb === 0) {
+                console.log("score level will be decrease")
+            } else {
+                if (continualNb % 4.0 === 0) {
+                    scoreLevel++;
+                    console.log("new score level:" + scoreLevel)
+                }
+            }
+            //163900
+        });
     });
-    });
-    function calculateScore(){
+
+    function calculateScore() {
         //分数基数50
-        allScore += scoreLevel*baseScore*scoreFlag;
-        continualNode.innerText="连续答对数量:"+continualNb
-        scoreNode.innerText="全部分数:"+allScore
-        levelNode.innerText="分数等级:"+scoreLevel
-        console.log("continualNb:"+continualNb)
-        console.log("scoreLevel:"+scoreLevel)
+        allScore += scoreLevel * baseScore * scoreFlag;
+        continualNode.innerText = "连续答对数量Continuously correct answers:" + continualNb
+        scoreNode.innerText = "总分数Total score:" + allScore
+        levelNode.innerText = "分数等级Score grade:" + scoreLevel
+        console.log("continualNb:" + continualNb)
+        console.log("scoreLevel:" + scoreLevel)
     }
 
 
     var myChart = echarts.init(document.getElementById("chart"));
     myChart.showLoading();
-    optionOfGaussian.series[0].data=generateData()
-    optionOfGaussian.series[1].data=standardGaussianRatio()
+    optionOfGaussian.series[0].data = generateData()
+    optionOfGaussian.series[1].data = standardGaussianRatio()
     myChart.setOption(optionOfGaussian);
     myChart.hideLoading();
-
-
-
 
 
 </script>
