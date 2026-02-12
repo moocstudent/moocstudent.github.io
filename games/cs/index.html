@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter Strike - Browser Edition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Developer Console -->
+    <div id="console">
+        <div id="console-output">Counter-Strike Browser Edition v1.0 [CSK-2026]</div>
+        <input type="text" id="console-input" placeholder="Type command here..." spellcheck="false" autocomplete="off">
+    </div>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="overlay">
+        <div class="start-content">
+            <div class="logo-glow"></div>
+            <h1 class="game-title">COUNTER<span class="accent">STRIKE</span></h1>
+            <p class="subtitle">BROWSER EDITION</p>
+            <div class="divider"></div>
+            <button id="startBtn" class="start-btn">
+                <span class="btn-text">CLICK TO DEPLOY</span>
+                <span class="btn-sub">Press ESC to release cursor</span>
+            </button>
+            <div class="controls-info">
+                <div class="control-row"><kbd>W A S D</kbd> Move</div>
+                <div class="control-row"><kbd>MOUSE</kbd> Aim</div>
+                <div class="control-row"><kbd>CLICK</kbd> Fire</div>
+                <div class="control-row"><kbd>R</kbd> Reload</div>
+                <div class="control-row"><kbd>SHIFT</kbd> Sprint</div>
+                <div class="control-row"><kbd>SPACE</kbd> Jump</div>
+                <div class="control-row"><kbd>1 2 3</kbd> Switch Weapon</div>
+                <div class="control-row"><kbd>4</kbd> Grenade</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pauseMenu" class="overlay" style="display: none;">
+        <div class="start-content">
+            <h1 class="game-title">GAME <span class="accent">PAUSED</span></h1>
+            <div
+                style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px; align-items: center;">
+                <button id="resumeBtn" class="start-btn" style="margin-bottom: 0; width: 100%;">
+                    <span class="btn-text">RESUME</span>
+                </button>
+                <button id="quitBtn" class="start-btn"
+                    style="background: rgba(255, 30, 30, 0.1); border-color: #ff3344; width: 100%;">
+                    <span class="btn-text" style="color: #ff3344;">QUIT TO MENU</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="overlay" style="display:none;">
+        <div class="gameover-content">
+            <h1 class="gameover-title">MISSION <span class="accent">FAILED</span></h1>
+            <div class="final-stats">
+                <div class="stat-row"><span>KILLS</span><span id="finalKills">0</span></div>
+                <div class="stat-row"><span>ACCURACY</span><span id="finalAccuracy">0%</span></div>
+                <div class="stat-row"><span>TIME</span><span id="finalTime">0:00</span></div>
+            </div>
+            <button id="restartBtn" class="start-btn">
+                <span class="btn-text">DEPLOY AGAIN</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" style="display:none;">
+        <!-- Crosshair -->
+        <div id="crosshair">
+            <div class="cross-line cross-top"></div>
+            <div class="cross-line cross-bottom"></div>
+            <div class="cross-line cross-left"></div>
+            <div class="cross-line cross-right"></div>
+            <div class="cross-dot"></div>
+        </div>
+
+        <!-- Hit Marker -->
+        <div id="hitMarker" class="hit-marker">
+            <div class="hit-line hit-tl"></div>
+            <div class="hit-line hit-tr"></div>
+            <div class="hit-line hit-bl"></div>
+            <div class="hit-line hit-br"></div>
+        </div>
+
+        <!-- Health Bar -->
+        <div id="healthContainer" class="hud-panel health-panel">
+            <div class="panel-icon">+</div>
+            <div class="health-bar-wrap">
+                <div id="healthBar" class="health-bar" style="width:100%"></div>
+            </div>
+            <span id="healthText" class="health-text">100</span>
+        </div>
+
+        <!-- Ammo -->
+        <div id="ammoContainer" class="hud-panel ammo-panel">
+            <span id="ammoClip" class="ammo-clip">30</span>
+            <span class="ammo-sep">/</span>
+            <span id="ammoReserve" class="ammo-reserve">90</span>
+        </div>
+
+        <!-- Score -->
+        <div id="scoreContainer" class="hud-panel score-panel">
+            <span class="score-label">KILLS</span>
+            <span id="scoreText" class="score-value">0</span>
+        </div>
+
+        <!-- Timer -->
+        <div id="timerContainer" class="hud-panel timer-panel">
+            <span id="timerText" class="timer-value">3:00</span>
+        </div>
+
+        <!-- Kill Feed -->
+        <div id="killFeed" class="kill-feed"></div>
+
+        <!-- Weapon Selector -->
+        <div id="weaponSelector" class="weapon-selector">
+            <div class="weapon-slot active" data-slot="1"><span class="slot-key">1</span><span
+                    class="slot-name">M4A1</span></div>
+            <div class="weapon-slot" data-slot="2"><span class="slot-key">2</span><span class="slot-name">Deagle</span>
+            </div>
+            <div class="weapon-slot" data-slot="3"><span class="slot-key">3</span><span class="slot-name">AWP</span>
+            </div>
+            <div class="weapon-slot grenade-slot" data-slot="4"><span class="slot-key">4</span><span id="grenadeCount"
+                    class="slot-name">🧨 2</span></div>
+        </div>
+
+        <!-- Current Weapon Name -->
+        <div id="weaponName" class="weapon-name">M4A1</div>
+
+        <!-- Damage Vignette -->
+        <div id="damageOverlay" class="damage-overlay"></div>
+
+        <!-- Reload indicator -->
+        <div id="reloadIndicator" class="reload-indicator" style="display:none;">
+            <div class="reload-spinner"></div>
+            <span>RELOADING</span>
+        </div>
+
+        <!-- Minimap -->
+        <div id="minimapContainer" class="minimap-container">
+            <canvas id="minimapCanvas" width="180" height="180"></canvas>
+            <div class="minimap-label">RADAR</div>
+        </div>
+
+        <!-- Performance Stats -->
+        <div id="statsContainer"></div>
+
+        <!-- Sniper Scope -->
+        <div id="sniper-scope"></div>
+    </div>
+
+    <!-- Canvas container -->
+    <div id="gameContainer"></div>
+
+    <script src="three.min.js"></script>
+    <script src="libs/howler.min.js"></script>
+    <script src="libs/cannon.min.js"></script>
+    <script src="libs/stats.min.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>
