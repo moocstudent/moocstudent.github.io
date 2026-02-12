@@ -1474,7 +1474,7 @@
         isPlaying = true;
         gameStartTime = Date.now();
         roundTimer = ROUND_TIME;
-        spawnEnemy(10);
+        spawnEnemy(5);
     }
 
     function restartGame() {
