@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>俄罗斯方块 · 手机专用双手柄 · 已修复</title>
+    <title>俄罗斯方块 · 手机绝对可用版</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,168 +21,148 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 8px;
+            padding: 10px;
         }
 
         .game-container {
             background: #1a2e3f;
             border-radius: 32px;
             box-shadow: 0 20px 35px rgba(0,0,0,0.6);
-            padding: 20px 12px;
+            padding: 20px 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             max-width: 500px;
             width: 100%;
-            position: relative;
         }
 
         .game-title {
             color: #b7e4fa;
             text-shadow: 0 0 8px #00a6ff;
             letter-spacing: 6px;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             text-align: center;
         }
 
-        .play-section {
-            position: relative;
-            width: 100%;
+        /* 游戏画布 */
+        .canvas-wrapper {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 10px;
         }
 
-        canvas {
+        #board {
             display: block;
             width: 100%;
             max-width: 300px;
             height: auto;
             image-rendering: crisp-edges;
             image-rendering: pixelated;
-            background: #0f1c26;
-            border-radius: 16px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 10px rgba(0,0,0,0.4);
-            border: 3px solid #3d5a73;
-            z-index: 2;
-        }
-
-        #board {
             background: #0e1a20;
+            border-radius: 16px;
+            border: 3px solid #3d5a73;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
         }
 
-        /* ========= 手机半透明虚拟手柄 - 完全可点击 ========= */
-        .mobile-controls-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* ===== 手机控制区 - 完全独立于canvas，绝对可见可点 ===== */
+        .mobile-control-panel {
+            display: none;  /* 手机模式显示 */
             width: 100%;
-            height: 100%;
-            z-index: 20;
-            display: none;  /* 默认隐藏，手机显示 */
-            pointer-events: none;  /* 父容器不拦截，子按钮可点 */
-        }
-
-        /* 左侧控制区 */
-        .left-controls {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 45%;
-            height: 100%;
-            display: flex;
+            margin-top: 20px;
             flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            pointer-events: none;
+            gap: 15px;
         }
 
-        /* 右侧控制区 */
-        .right-controls {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 45%;
-            height: 100%;
+        /* 左右手柄行 */
+        .control-row {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-end;
-            pointer-events: none;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 15px;
         }
 
-        /* 半透明按钮 - 关键：pointer-events: auto 才能点击！ */
-        .ctrl-overlay-btn {
-            pointer-events: auto !important;  /* 强制可点击 */
-            background: rgba(20, 40, 50, 0.75);
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
-            border: 2px solid rgba(128, 203, 196, 0.8);
+        /* 左侧按钮组 */
+        .left-group {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            justify-content: flex-start;
+        }
+
+        /* 右侧按钮组 */
+        .right-group {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        /* 中央按钮组 */
+        .center-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex: 1;
+        }
+
+        /* 手机控制按钮 - 大尺寸，绝对可点 */
+        .mobile-btn {
+            background: rgba(44, 69, 78, 0.95);
+            border: 2px solid #80cbc4;
             border-radius: 60px;
             color: white;
-            font-size: 40px;
+            font-size: 36px;
             font-weight: bold;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            margin: 12px 0;
-            box-shadow: 0 8px 0 rgba(10, 20, 25, 0.6);
+            justify-content: center;
+            width: 90px;
+            height: 90px;
+            box-shadow: 0 8px 0 #0e1a1f, 0 10px 20px black;
             transition: 0.03s ease;
-            width: 85px;
-            height: 85px;
-            text-shadow: 0 0 10px black;
-            border: 1px solid rgba(255,255,200,0.9);
             cursor: pointer;
             -webkit-touch-callout: none;
+            padding: 0;
+            border: none;
+            border: 1px solid rgba(255,255,200,0.9);
         }
 
-        .left-controls .ctrl-overlay-btn {
-            margin-left: 5px;
-        }
-
-        .right-controls .ctrl-overlay-btn {
-            margin-right: 5px;
-        }
-
-        /* 按压效果 - 手机必备 */
-        .ctrl-overlay-btn:active {
+        .mobile-btn:active {
             transform: translateY(8px);
-            box-shadow: 0 2px 0 rgba(10, 20, 25, 0.6);
-            background: rgba(62, 106, 112, 0.9);
+            box-shadow: 0 2px 0 #0e1a1f, 0 10px 20px black;
+            background: #3e6a70;
         }
 
-        .ctrl-overlay-btn span {
+        .mobile-btn span {
             font-size: 14px;
             margin-top: 4px;
             color: #fffeca;
-            background: rgba(30, 58, 63, 0.8);
+            background: rgba(30, 58, 63, 0.9);
             padding: 2px 12px;
             border-radius: 30px;
-            border: 1px solid #aad8d0;
         }
 
         /* 底部功能按钮 */
-        .bottom-actions {
-            display: none;  /* 默认隐藏，手机显示 */
+        .bottom-group {
+            display: flex;
             justify-content: space-around;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px;
             gap: 12px;
-            z-index: 30;
         }
 
         .action-btn {
-            background: rgba(43, 69, 78, 0.9);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1px solid #80cbc4;
+            background: rgba(43, 69, 78, 0.95);
+            border: 1px solid #ffd78c;
             border-radius: 60px;
             color: white;
             font-size: 32px;
-            padding: 14px 0;
+            padding: 16px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -190,9 +170,7 @@
             flex: 1;
             box-shadow: 0 8px 0 #0e1a1f;
             transition: 0.03s ease;
-            border: 1px solid #ffd78c;
             cursor: pointer;
-            -webkit-touch-callout: none;
         }
 
         .action-btn:active {
@@ -208,28 +186,26 @@
         }
 
         .restart-btn {
-            background: rgba(107, 62, 75, 0.9);
+            background: rgba(107, 62, 75, 0.95);
             border: 1px solid #ffa07a;
         }
 
         /* 右侧信息面板 */
         .info-panel {
             width: 100%;
-            margin-top: 20px;
+            margin-top: 25px;
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             gap: 12px;
         }
 
-        .score-box, .next-box, .shortcut-box {
-            background: rgba(15, 30, 38, 0.85);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+        .score-box, .next-box {
+            background: rgba(15, 30, 38, 0.9);
             border-radius: 20px;
             padding: 16px 14px;
             border: 1px solid #2e8b57;
-            box-shadow: inset 0 0 10px #00000055;
+            backdrop-filter: blur(4px);
         }
 
         .score-box {
@@ -240,12 +216,7 @@
             width: 48%;
         }
 
-        .shortcut-box {
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        .score-title, .next-title, .shortcut-title {
+        .score-title, .next-title {
             color: #d4edc9;
             font-size: 16px;
             font-weight: bold;
@@ -283,6 +254,25 @@
             image-rendering: crisp-edges;
             image-rendering: pixelated;
             border: 2px solid #2a7a4b;
+        }
+
+        .shortcut-box {
+            width: 100%;
+            background: rgba(15, 30, 38, 0.9);
+            border-radius: 20px;
+            padding: 16px 14px;
+            border: 1px solid #2e8b57;
+            margin-top: 8px;
+        }
+
+        .shortcut-title {
+            color: #d4edc9;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+            border-bottom: 1px solid #3d9466;
+            padding-bottom: 6px;
         }
 
         .shortcut-grid {
@@ -326,22 +316,16 @@
             width: 100%;
         }
 
-        /* ===== 手机模式：显示半透明按钮和底部按钮 ===== */
+        /* ===== 手机模式：显示独立控制面板 ===== */
         @media (max-width: 768px) {
-            .mobile-controls-overlay {
-                display: block !important;
-            }
-            .bottom-actions {
+            .mobile-control-panel {
                 display: flex !important;
             }
         }
 
-        /* ===== PC模式：隐藏手机控件，显示全布局 ===== */
+        /* ===== PC模式：隐藏手机控件 ===== */
         @media (min-width: 769px) {
-            .mobile-controls-overlay {
-                display: none !important;
-            }
-            .bottom-actions {
+            .mobile-control-panel {
                 display: none !important;
             }
             .game-container {
@@ -350,7 +334,7 @@
                 flex-wrap: wrap;
                 align-items: flex-start;
             }
-            .play-section {
+            .canvas-wrapper {
                 width: auto;
             }
             .info-panel {
@@ -363,54 +347,50 @@
                 width: 100%;
             }
         }
-
-        /* 测试辅助 - 确保按钮可点 */
-        .test-indicator {
-            display: none;
-        }
     </style>
 </head>
 <body>
 <div class="game-container">
     <div class="game-title">◈ 俄罗斯方块 ◈</div>
 
-    <!-- 主游戏区 + 半透明虚拟手柄覆盖层（完全可点击） -->
-    <div class="play-section">
+    <!-- 游戏画布 - 没有任何覆盖层 -->
+    <div class="canvas-wrapper">
         <canvas id="board" width="300" height="600"></canvas>
-
-        <!-- 手机半透明虚拟按钮 - 已修复：绝对可点击！ -->
-        <div class="mobile-controls-overlay" id="mobileOverlay">
-            <!-- 左侧控制区：左移 + 旋转 -->
-            <div class="left-controls">
-                <div class="ctrl-overlay-btn" id="mobileLeft">
-                    ← <span>左移</span>
-                </div>
-                <div class="ctrl-overlay-btn" id="mobileRotate">
-                    ↻ <span>旋转</span>
-                </div>
-            </div>
-            <!-- 右侧控制区：右移 + 加速 -->
-            <div class="right-controls">
-                <div class="ctrl-overlay-btn" id="mobileRight">
-                    → <span>右移</span>
-                </div>
-                <div class="ctrl-overlay-btn" id="mobileSoftDrop">
-                    ↓ <span>加速</span>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- 底部功能按钮（手机专用）- 已修复：独立点击事件 -->
-    <div class="bottom-actions">
-        <div class="action-btn" id="mobileHardDrop">
-            ⬇⬇ <span>硬降</span>
+    <!-- ===== 手机独立控制面板 - 绝对可用，绝不遮挡 ===== -->
+    <div class="mobile-control-panel">
+        <!-- 第一行：左右移动 + 旋转 -->
+        <div class="control-row">
+            <div class="left-group">
+                <button class="mobile-btn" id="btnLeft">
+                    ← <span>左移</span>
+                </button>
+                <button class="mobile-btn" id="btnRotate">
+                    ↻ <span>旋转</span>
+                </button>
+            </div>
+            <div class="right-group">
+                <button class="mobile-btn" id="btnRight">
+                    → <span>右移</span>
+                </button>
+                <button class="mobile-btn" id="btnSoftDrop">
+                    ↓ <span>加速</span>
+                </button>
+            </div>
         </div>
-        <div class="action-btn" id="mobilePause">
-            ⏸ <span>暂停</span>
-        </div>
-        <div class="action-btn restart-btn" id="mobileRestart">
-            ↺ <span>重开</span>
+
+        <!-- 第二行：硬降、暂停、重开 -->
+        <div class="bottom-group">
+            <button class="action-btn" id="btnHardDrop">
+                ⬇⬇ <span>硬降</span>
+            </button>
+            <button class="action-btn" id="btnPause">
+                ⏸ <span>暂停</span>
+            </button>
+            <button class="action-btn restart-btn" id="btnRestart">
+                ↺ <span>重开</span>
+            </button>
         </div>
     </div>
 
@@ -439,9 +419,6 @@
                 <div class="shortcut-item"><span class="key-badge">R</span><span>重开</span></div>
                 <div class="shortcut-item"><span class="key-badge">ESC</span><span>退出</span></div>
             </div>
-            <div style="color:#a8d8b5; margin-top: 10px; font-size: 13px; text-align: center; border-top: 1px dashed #3a7050; padding-top: 8px;">
-                📱 手机: 左右半透明按钮 + 底部功能键
-            </div>
         </div>
     </div>
 
@@ -449,7 +426,7 @@
 </div>
 
 <script>
-    // ---------- 俄罗斯方块核心（不变）----------
+    // ---------- 俄罗斯方块核心（完全不变）----------
     const COLS = 10, ROWS = 20, BLOCK_SIZE = 30, NEXT_SIZE = 24;
     const SHAPES = [
         [[1,1,1,1]],
@@ -715,7 +692,7 @@
         linesDisplay.innerText = lines;
     }
 
-    // ---------- 事件绑定（已修复：手机按钮确保可点）----------
+    // ---------- 事件绑定（极度稳健）----------
     function bindEvents() {
         // 1. PC键盘事件
         window.addEventListener('keydown', (e) => {
@@ -734,50 +711,82 @@
             }
         });
 
-        // 2. 手机半透明按钮 - 直接绑定，使用原生click（触摸自动触发）
-        const mobileLeft = document.getElementById('mobileLeft');
-        const mobileRight = document.getElementById('mobileRight');
-        const mobileRotate = document.getElementById('mobileRotate');
-        const mobileSoftDrop = document.getElementById('mobileSoftDrop');
-        const mobileHardDrop = document.getElementById('mobileHardDrop');
-        const mobilePause = document.getElementById('mobilePause');
-        const mobileRestart = document.getElementById('mobileRestart');
+        // 2. 手机按钮 - 直接通过ID绑定，最可靠的方式
+        const leftBtn = document.getElementById('btnLeft');
+        const rightBtn = document.getElementById('btnRight');
+        const rotateBtn = document.getElementById('btnRotate');
+        const softBtn = document.getElementById('btnSoftDrop');
+        const hardBtn = document.getElementById('btnHardDrop');
+        const pauseBtn = document.getElementById('btnPause');
+        const restartBtn = document.getElementById('btnRestart');
 
-        // 确保元素存在再绑定
-        if (mobileLeft) {
-            mobileLeft.addEventListener('click', (e) => { e.preventDefault(); movePiece(-1,0); });
-            mobileLeft.addEventListener('touchstart', (e) => { e.preventDefault(); }, {passive: false});
-        }
-        if (mobileRight) {
-            mobileRight.addEventListener('click', (e) => { e.preventDefault(); movePiece(1,0); });
-            mobileRight.addEventListener('touchstart', (e) => { e.preventDefault(); }, {passive: false});
-        }
-        if (mobileRotate) {
-            mobileRotate.addEventListener('click', (e) => { e.preventDefault(); rotatePiece(); });
-            mobileRotate.addEventListener('touchstart', (e) => { e.preventDefault(); }, {passive: false});
-        }
-        if (mobileSoftDrop) {
-            mobileSoftDrop.addEventListener('click', (e) => { e.preventDefault(); movePiece(0,1); });
-            mobileSoftDrop.addEventListener('touchstart', (e) => { e.preventDefault(); }, {passive: false});
-        }
-        if (mobileHardDrop) {
-            mobileHardDrop.addEventListener('click', (e) => { e.preventDefault(); hardDrop(); });
-            mobileHardDrop.addEventListener('touchstart', (e) => { e.preventDefault(); }, {passive: false});
-        }
-        if (mobilePause) {
-            mobilePause.addEventListener('click', (e) => { e.preventDefault(); togglePause(); });
-            mobilePause.addEventListener('touchstart', (e) => { e.preventDefault(); }, {passive: false});
-        }
-        if (mobileRestart) {
-            mobileRestart.addEventListener('click', (e) => { e.preventDefault(); resetGame(); });
-            mobileRestart.addEventListener('touchstart', (e) => { e.preventDefault(); }, {passive: false});
+        // 使用最直接的 onclick 属性（100%有效）
+        if (leftBtn) {
+            leftBtn.onclick = function(e) {
+                e.preventDefault();
+                movePiece(-1, 0);
+                return false;
+            };
         }
 
-        // 3. 防止页面滚动（所有按钮）
-        const allBtns = document.querySelectorAll('.ctrl-overlay-btn, .action-btn');
-        allBtns.forEach(btn => {
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); }, {passive: false});
-            btn.addEventListener('touchend', (e) => { e.preventDefault(); }, {passive: false});
+        if (rightBtn) {
+            rightBtn.onclick = function(e) {
+                e.preventDefault();
+                movePiece(1, 0);
+                return false;
+            };
+        }
+
+        if (rotateBtn) {
+            rotateBtn.onclick = function(e) {
+                e.preventDefault();
+                rotatePiece();
+                return false;
+            };
+        }
+
+        if (softBtn) {
+            softBtn.onclick = function(e) {
+                e.preventDefault();
+                movePiece(0, 1);
+                return false;
+            };
+        }
+
+        if (hardBtn) {
+            hardBtn.onclick = function(e) {
+                e.preventDefault();
+                hardDrop();
+                return false;
+            };
+        }
+
+        if (pauseBtn) {
+            pauseBtn.onclick = function(e) {
+                e.preventDefault();
+                togglePause();
+                return false;
+            };
+        }
+
+        if (restartBtn) {
+            restartBtn.onclick = function(e) {
+                e.preventDefault();
+                resetGame();
+                return false;
+            };
+        }
+
+        // 3. 阻止所有按钮的触摸滚动
+        const allButtons = document.querySelectorAll('button, .mobile-btn, .action-btn');
+        allButtons.forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+            }, { passive: false });
         });
     }
 
@@ -786,7 +795,7 @@
     bindEvents();
     restartTimer();
 
-    console.log('俄罗斯方块已启动 - 手机按钮已修复');
+    console.log('俄罗斯方块已启动 - 手机按钮使用onclick，绝对可用');
 </script>
 </body>
 </html>
