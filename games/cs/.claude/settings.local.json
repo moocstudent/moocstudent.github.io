@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -lh /d/github-codes/moocstudent.github.io/games/cs/*.js)",
+      "Bash(node --check \"d:/github-codes/moocstudent.github.io/games/cs/game.js\")"
+    ]
+  }
+}

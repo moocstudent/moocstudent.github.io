@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>我的世界</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 开始遮罩 -->
+  <div id="blocker">
+    <div id="instructions">
+      <h1>我的世界</h1>
+      <p>点击进入游戏</p>
+      <div class="controls">
+        <span>WASD</span> 移动 &nbsp;
+        <span>空格</span> 跳跃 &nbsp;
+        <span>鼠标左键</span> 破坏/攻击 &nbsp;
+        <span>鼠标右键</span> 放置方块 &nbsp;
+        <span>1-9</span> 切换格子 &nbsp;
+        <span>滚轮</span> 切换 &nbsp;
+        <span>E</span> 物品栏/合成
+        <br><br>
+        🐔 鸡 &nbsp; 🐷 猪 &nbsp; 🐄 牛 &nbsp; 🐑 羊 &nbsp; 🐴 马 &nbsp; — 白天出没
+        <br>🧟 僵尸 — 夜晚刷新，会追玩家，白天燃烧消灭
+      </div>
+    </div>
+  </div>
+
+  <!-- 准星 -->
+  <div id="crosshair">+</div>
+
+  <!-- 坐标/FPS -->
+  <div id="info">
+    <div id="pos"></div>
+    <div id="fps-disp"></div>
+  </div>
+
+  <!-- 快捷栏 -->
+  <div id="hotbar">
+    <div id="hotbar-slots"></div>
+    <button id="inv-btn" title="打开物品栏">···</button>
+  </div>
+
+  <!-- 物品栏遮罩 -->
+  <div id="inv-overlay">
+    <div id="inv-panel">
+      <div id="inv-header">
+        <h2>物品栏</h2>
+        <button id="inv-close">✕</button>
+      </div>
+
+      <!-- 顶层标签：物品目录 / 合成 -->
+      <div id="inv-main-tabs">
+        <button class="main-tab active" data-view="items">物品目录</button>
+        <button class="main-tab" data-view="craft">⚒ 合成</button>
+      </div>
+
+      <!-- 物品目录视图 -->
+      <div id="view-items">
+        <div id="cat-tabs">
+          <button class="cat-tab active" data-cat="block">方块</button>
+          <button class="cat-tab" data-cat="tool">工具</button>
+          <button class="cat-tab" data-cat="misc">其他物品</button>
+        </div>
+        <div id="catalog-grid"></div>
+      </div>
+
+      <!-- 合成视图 -->
+      <div id="view-craft">
+        <div id="recipe-hint">绿色边框表示当前材料充足，可以合成</div>
+        <div id="recipe-list"></div>
+      </div>
+
+      <!-- 始终显示：背包 + 快捷栏 -->
+      <div class="inv-section-title">背包</div>
+      <div id="backpack-grid"></div>
+      <div class="inv-section-title">快捷栏</div>
+      <div id="inv-hotbar-grid"></div>
+    </div>
+  </div>
+
+  <!-- 鼠标跟随物品（拖动时） -->
+  <div id="cursor-item"></div>
+
+  <!-- 掉落/合成提示 -->
+  <div id="drop-log"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="audio.js"></script>
+  <script src="entities.js"></script>
+  <script src="crafting.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

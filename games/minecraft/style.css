@@ -1,0 +1,277 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+canvas { display: block; }
+
+/* ===== 开始遮罩 ===== */
+#blocker {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; cursor: pointer;
+}
+#instructions { color: #fff; text-align: center; }
+#instructions h1 {
+  font-size: 3rem; margin-bottom: 1rem;
+  color: #5d9f3c; text-shadow: 2px 2px #000;
+}
+#instructions p { font-size: 1.2rem; margin-bottom: 1.5rem; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.3; } }
+.controls {
+  font-size: 0.85rem; background: rgba(0,0,0,0.5);
+  padding: 1rem 2rem; border-radius: 8px; line-height: 2.4;
+}
+.controls span {
+  background: #555; padding: 2px 8px;
+  border-radius: 4px; border-bottom: 2px solid #333;
+}
+
+/* ===== 准星 ===== */
+#crosshair {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  color: white; font-size: 24px; font-weight: bold;
+  text-shadow: 1px 1px 2px black; pointer-events: none; display: none; z-index: 10;
+}
+
+/* ===== HUD ===== */
+#info {
+  position: fixed; top: 8px; left: 8px;
+  color: white; font-size: 13px; text-shadow: 1px 1px 2px black;
+  z-index: 10; display: none; line-height: 1.8;
+}
+
+/* ===== 快捷栏 ===== */
+#hotbar {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 4px; z-index: 10;
+}
+#hotbar-slots { display: flex; gap: 4px; }
+
+/* 通用格子（快捷栏用） */
+.slot {
+  width: 56px; height: 62px;
+  background: rgba(0,0,0,0.65);
+  border: 2px solid #555; border-radius: 4px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; color: #fff; user-select: none;
+  position: relative;
+}
+.slot.active { border-color: #fff; background: rgba(255,255,255,0.18); }
+.slot:hover:not(.active) { border-color: #999; }
+.slot-num { color: #666; font-size: 15px; }
+.slot-label {
+  font-size: 9px; color: #bbb; max-width: 52px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* ===== 物品图标 ===== */
+.item-icon {
+  width: 32px; height: 32px; border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.35);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; flex-shrink: 0;
+}
+.item-emoji { line-height: 1; }
+.item-count {
+  position: absolute; bottom: -3px; right: -3px;
+  font-size: 9px; color: #fff; font-weight: bold;
+  text-shadow: 1px 1px 1px #000;
+  background: rgba(0,0,0,0.55); padding: 0 2px; border-radius: 2px;
+}
+
+/* ===== "···" 展开按钮 ===== */
+#inv-btn {
+  width: 40px; height: 62px;
+  background: rgba(0,0,0,0.65); border: 2px solid #555; border-radius: 4px;
+  color: #aaa; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  letter-spacing: -2px; transition: all 0.15s;
+}
+#inv-btn:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.18); }
+
+/* ===== 物品栏遮罩 ===== */
+#inv-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.72);
+  display: none; align-items: center; justify-content: center;
+  z-index: 150;
+}
+#inv-overlay.open { display: flex; }
+
+#inv-panel {
+  background: #252525; border: 2px solid #444; border-radius: 10px;
+  padding: 18px; width: 600px; max-height: 88vh; overflow-y: auto;
+  color: #fff;
+}
+
+/* 滚动条美化 */
+#inv-panel::-webkit-scrollbar { width: 6px; }
+#inv-panel::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 3px; }
+#inv-panel::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+
+#inv-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+#inv-header h2 { font-size: 1.15rem; color: #5d9f3c; letter-spacing: 1px; }
+#inv-close {
+  background: none; border: 1px solid #555; color: #aaa;
+  width: 28px; height: 28px; border-radius: 4px; cursor: pointer; font-size: 14px;
+}
+#inv-close:hover { background: #555; color: #fff; }
+
+/* ===== 分类标签 ===== */
+#cat-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+.cat-tab {
+  padding: 5px 16px; background: #333;
+  border: 1px solid #555; border-radius: 4px;
+  color: #aaa; cursor: pointer; font-size: 13px; font-family: inherit;
+}
+.cat-tab.active { background: #3a6e24; border-color: #5d9f3c; color: #fff; }
+.cat-tab:hover:not(.active) { background: #3a3a3a; color: #ddd; }
+
+/* ===== 目录格子区域 ===== */
+#catalog-grid {
+  display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px;
+  background: #181818; padding: 8px; border-radius: 6px;
+  border: 1px solid #3a3a3a; margin-bottom: 14px;
+  min-height: 60px;
+}
+.cat-slot {
+  aspect-ratio: 1; background: #111; border: 1px solid #333; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+}
+.cat-slot:hover { border-color: #aaa; background: #1e1e1e; }
+.cat-slot .item-icon { width: 36px; height: 36px; }
+
+/* ===== 背包/快捷栏区 ===== */
+.inv-section-title {
+  font-size: 11px; color: #777; margin: 12px 0 6px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+#backpack-grid {
+  display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px;
+  margin-bottom: 4px;
+}
+#inv-hotbar-grid {
+  display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px;
+}
+.inv-slot {
+  aspect-ratio: 1; background: #111; border: 1px solid #3a3a3a; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; min-height: 52px;
+}
+.inv-slot:hover { border-color: #888; background: #1c1c1c; }
+.inv-slot.active-slot { border-color: #fff; }
+.inv-slot .item-icon { width: 36px; height: 36px; }
+
+/* ===== Tooltip ===== */
+.tip {
+  position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%);
+  background: #111; border: 1px solid #555; color: #fff; font-size: 11px;
+  padding: 3px 9px; border-radius: 4px; white-space: nowrap;
+  pointer-events: none; opacity: 0; transition: opacity 0.1s;
+  z-index: 20;
+}
+.cat-slot:hover .tip,
+.inv-slot:hover .tip { opacity: 1; }
+
+/* ===== 掉落提示 ===== */
+#drop-log {
+  position: fixed; right: 16px; top: 50%;
+  transform: translateY(-50%);
+  z-index: 20; pointer-events: none;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+}
+.drop-entry {
+  background: rgba(0,0,0,0.68);
+  color: #fff; padding: 5px 14px; border-radius: 5px;
+  font-size: 13px; font-family: 'Courier New', monospace;
+  border-left: 3px solid #5d9f3c;
+  transition: opacity 0.5s;
+  white-space: nowrap;
+}
+
+/* ===== 顶层标签（物品/合成）===== */
+#inv-main-tabs {
+  display: flex; gap: 4px; margin-bottom: 10px;
+  border-bottom: 1px solid #333; padding-bottom: 8px;
+}
+.main-tab {
+  padding: 5px 20px; background: #222; border: 1px solid #3a3a3a;
+  border-radius: 4px 4px 0 0; color: #777; cursor: pointer;
+  font-size: 13px; font-family: inherit; transition: all 0.15s;
+}
+.main-tab.active  { background: #333; border-color: #666; color: #fff; }
+.main-tab:hover:not(.active) { background: #2a2a2a; color: #bbb; }
+
+#view-craft { display: none; }
+
+/* ===== 合成配方列表 ===== */
+#recipe-hint {
+  font-size: 11px; color: #555; margin-bottom: 8px; font-style: italic;
+}
+#recipe-list {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  max-height: 270px; overflow-y: auto; padding-right: 2px; margin-bottom: 4px;
+}
+#recipe-list::-webkit-scrollbar { width: 4px; }
+#recipe-list::-webkit-scrollbar-track { background: #1a1a1a; }
+#recipe-list::-webkit-scrollbar-thumb { background: #444; border-radius: 2px; }
+
+.recipe-card {
+  background: #1c1c1c; border: 1px solid #333; border-radius: 6px; padding: 8px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.recipe-card.craftable { border-color: #3a7a24; background: #18221a; }
+
+.recipe-name {
+  font-size: 12px; color: #ccc; font-weight: bold;
+}
+.recipe-body {
+  display: flex; align-items: center; gap: 6px; flex-wrap: nowrap;
+}
+.recipe-grid { display: grid; gap: 2px; flex-shrink: 0; }
+.recipe-grid.size-2 { grid-template-columns: repeat(2, 24px); }
+.recipe-grid.size-3 { grid-template-columns: repeat(3, 20px); }
+
+.rg-cell {
+  width: 24px; height: 24px; background: #111; border: 1px solid #2a2a2a;
+  border-radius: 2px; display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.recipe-grid.size-3 .rg-cell { width: 20px; height: 20px; }
+.rg-cell .item-icon { border: none !important; }
+.rg-cell:hover .tip { display: block; }
+
+.recipe-arrow { color: #555; font-size: 14px; flex-shrink: 0; }
+
+.recipe-result {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  font-size: 10px; color: #888; flex-shrink: 0;
+}
+
+.recipe-footer {
+  display: flex; justify-content: space-between; align-items: center; gap: 4px;
+}
+.recipe-desc {
+  font-size: 9px; color: #555; flex: 1; line-height: 1.4;
+}
+.craft-btn {
+  padding: 2px 9px; background: #222; border: 1px solid #3a3a3a;
+  border-radius: 3px; color: #555; font-size: 11px; font-family: inherit;
+  cursor: not-allowed; flex-shrink: 0; white-space: nowrap;
+}
+.craft-btn:not(:disabled) {
+  background: #24521a; border-color: #4a8a24; color: #8eda6a; cursor: pointer;
+}
+.craft-btn:not(:disabled):hover { background: #2e6a20; }
+
+/* ===== 鼠标跟随物品 ===== */
+#cursor-item {
+  position: fixed; pointer-events: none; z-index: 400;
+  display: none; transform: translate(-50%, -50%);
+}
+#cursor-item .item-icon { width: 38px; height: 38px; }
