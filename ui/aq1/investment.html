@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>艾氢动力 - 参股信息</title>
+    <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .app-container { width: 375px; height: 812px; margin: 0 auto; position: relative; overflow: hidden; background: #f8fafc; border: 8px solid #333; border-radius: 36px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .content-scroll {
+            height: calc(812px - 80px);
+            overflow-y: auto;
+            scrollbar-width: none;
+            padding-bottom: 80px;
+        }
+        .content-scroll::-webkit-scrollbar { display: none; }
+        .nav-active { color: #2563eb; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- 头部 -->
+    <div class="px-5 pt-12 pb-4 bg-white flex justify-between items-center sticky top-0 z-10">
+        <h1 class="text-xl font-bold text-gray-900">参股详情</h1>
+        <iconify-icon class="text-2xl text-blue-600" icon="material-symbols:add-chart"></iconify-icon>
+    </div>
+    <div class="content-scroll">
+        <!-- Section 1: 投资概览 -->
+        <div class="px-5 mt-4">
+            <div class="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-5 text-white">
+                <p class="text-indigo-100 text-xs">参股项目总值</p>
+                <p class="text-2xl font-bold mt-1">¥ 2,850,000</p>
+                <div class="mt-4 pt-4 border-t border-indigo-500/30 grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-indigo-200 text-[10px]">持仓项目</p>
+                        <p class="font-bold">12 个</p>
+                    </div>
+                    <div>
+                        <p class="text-indigo-200 text-[10px]">待结算分红</p>
+                        <p class="font-bold">¥ 4,820</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Section 2: 分红日历趋势 -->
+        <div class="px-5 mt-6">
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-gray-800">日日分红统计</h3>
+                    <div class="flex gap-2">
+                        <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] rounded">7天</span>
+                        <span class="px-2 py-1 bg-gray-50 text-gray-400 text-[10px] rounded">30天</span>
+                    </div>
+                </div>
+                <div id="bonusChart" style="width: 100%; height: 160px;"></div>
+            </div>
+        </div>
+        <!-- Section 3: 分红账单流水 -->
+        <div class="px-5 mt-6">
+            <h3 class="text-sm font-bold text-gray-800 mb-4">日分红明细</h3>
+            <div class="space-y-0.5 rounded-2xl overflow-hidden shadow-sm">
+                <div class="bg-white p-4 flex justify-between items-center border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                            <iconify-icon class="text-orange-500" icon="material-symbols:electric-bolt"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">特高压扩建参股</p>
+                            <p class="text-[10px] text-gray-400">2026-04-07 08:30</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-green-600">+ ¥ 840.50</span>
+                </div>
+                <div class="bg-white p-4 flex justify-between items-center border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                            <iconify-icon class="text-blue-500" icon="material-symbols:cloud-upload"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">云存储节点(上海)</p>
+                            <p class="text-[10px] text-gray-400">2026-04-07 08:15</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-green-600">+ ¥ 1,220.00</span>
+                </div>
+                <div class="bg-white p-4 flex justify-between items-center border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
+                            <iconify-icon class="text-teal-500" icon="material-symbols:water-drop"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">海水淡化参股-二期</p>
+                            <p class="text-[10px] text-gray-400">2026-04-07 08:00</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-green-600">+ ¥ 450.20</span>
+                </div>
+                <div class="bg-white p-4 flex justify-between items-center border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+                            <iconify-icon class="text-indigo-500" icon="material-symbols:robot"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">自动化车间A11股权</p>
+                            <p class="text-[10px] text-gray-400">2026-04-06 23:55</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-green-600">+ ¥ 2,310.00</span>
+                </div>
+                <!-- 新增第5条分红记录，增加内容高度 -->
+                <div class="bg-white p-4 flex justify-between items-center border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                            <iconify-icon class="text-purple-500" icon="material-symbols:memory"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">算力中心节点(贵州)</p>
+                            <p class="text-[10px] text-gray-400">2026-04-06 08:00</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-green-600">+ ¥ 1,560.30</span>
+                </div>
+                <div class="bg-white p-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                            <iconify-icon class="text-amber-500" icon="material-symbols:solar-power"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-gray-800">光伏电站(西北)</p>
+                            <p class="text-[10px] text-gray-400">2026-04-06 07:30</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold text-green-600">+ ¥ 3,200.00</span>
+                </div>
+            </div>
+        </div>
+        <!-- Section 4: 资产组合分析 -->
+        <div class="px-5 mt-8">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-blue-100">
+                <div class="flex items-center gap-2 mb-4">
+                    <iconify-icon class="text-blue-600" icon="material-symbols:auto-awesome"></iconify-icon>
+                    <h3 class="text-sm font-bold text-gray-800">投资组合建议</h3>
+                </div>
+                <p class="text-xs text-gray-500 leading-relaxed">基于您当前的资产包，工业自动化占比 42%，能源占比 38%。建议增加 10-15% 的 <span class="text-blue-600 font-bold">算力基础设施</span> 投入以优化收益稳定性。</p>
+                <button class="w-full mt-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-200">查看建议方案</button>
+            </div>
+        </div>
+        <!-- 增加足够底部留白，确保所有内容都能滚动到底部 -->
+        <div class="h-24"></div>
+    </div>
+    <!-- 底部导航栏 -->
+    <div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 px-4 flex justify-between items-center">
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="index.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:dashboard-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="news.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:article-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">最新</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="partnership.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:handshake-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">合伙</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 nav-active" href="investment.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:account-balance-wallet"></iconify-icon>
+            <span class="text-[10px] font-medium">参股</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="profile.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:person-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+</div>
+<script>
+    const chartDom = document.getElementById('bonusChart');
+    const myChart = echarts.init(chartDom);
+    const option = {
+        grid: { top: 10, bottom: 20, left: 30, right: 10 },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: ['04/01', '04/02', '04/03', '04/04', '04/05', '04/06', '04/07'],
+            axisLabel: { fontSize: 10, color: '#94a3b8' }
+        },
+        yAxis: { type: 'value', axisLabel: { fontSize: 10, color: '#94a3b8' } },
+        series: [{
+            data: [3200, 4100, 3800, 4500, 4300, 5100, 4820],
+            type: 'line',
+            smooth: true,
+            symbol: 'circle',
+            symbolSize: 6,
+            itemStyle: { color: '#4f46e5' },
+            lineStyle: { width: 3 },
+            areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: 'rgba(79, 70, 229, 0.2)' },
+                    { offset: 1, color: 'rgba(79, 70, 229, 0)' }
+                ])
+            }
+        }]
+    };
+    myChart.setOption(option);
+</script>
+</body>
+</html>

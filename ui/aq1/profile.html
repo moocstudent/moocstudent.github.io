@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>艾氢动力 - 我的信息</title>
+    <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .app-container { width: 375px; height: 812px; margin: 0 auto; position: relative; overflow: hidden; background: #f8fafc; border: 8px solid #333; border-radius: 36px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .content-scroll { height: calc(812px - 80px); overflow-y: auto; scrollbar-width: none; }
+        .content-scroll::-webkit-scrollbar { display: none; }
+        .nav-active { color: #2563eb; }
+
+        /* 弹窗遮罩层 */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 28px;
+        }
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        /* 弹窗卡片 - 居中显示 */
+        .modal-card {
+            width: 315px;
+            max-height: 480px;
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .list-item-clickable {
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        .list-item-clickable:active {
+            background-color: #f1f5f9;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="content-scroll">
+        <!-- Section 1: 个人资料头部 -->
+        <div class="bg-white px-5 pt-12 pb-8 rounded-b-[40px] shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-10 opacity-5">
+                <iconify-icon icon="material-symbols:person-outline" style="font-size: 150px;"></iconify-icon>
+            </div>
+            <div class="flex items-center gap-4 relative z-10">
+                <div class="w-20 h-20 rounded-3xl bg-blue-100 p-1 border-2 border-white shadow-md">
+                    <img alt="Avatar" class="w-full h-full rounded-[22px] object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-07/4eace46fbe0d48c993397ac80da58a28.jpg"/>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-xl font-bold text-gray-900">王志远</h2>
+                        <span class="px-2 py-0.5 bg-indigo-600 text-white text-[10px] rounded-full font-bold">L3 资深</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">ID: 8829-1029-4402</p>
+                </div>
+                <iconify-icon class="text-2xl text-gray-400" icon="material-symbols:settings-outline"></iconify-icon>
+            </div>
+            <!-- 简易统计 -->
+            <div class="flex mt-8 gap-8">
+                <div>
+                    <p class="text-lg font-bold text-gray-800">2026</p>
+                    <p class="text-[10px] text-gray-400">入驻年份</p>
+                </div>
+                <div class="w-px h-8 bg-gray-100 self-center"></div>
+                <div>
+                    <p class="text-lg font-bold text-gray-800">142</p>
+                    <p class="text-[10px] text-gray-400">活跃设备</p>
+                </div>
+                <div class="w-px h-8 bg-gray-100 self-center"></div>
+                <div>
+                    <p class="text-lg font-bold text-gray-800">A+</p>
+                    <p class="text-[10px] text-gray-400">合伙信用</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: 资金账户 -->
+        <div class="px-5 mt-6">
+            <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+                        <iconify-icon class="text-green-600 text-xl" icon="material-symbols:account-balance-wallet"></iconify-icon>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-800">账户余额</p>
+                        <p class="text-sm font-bold text-gray-900 mt-0.5">¥ 145,200.50</p>
+                    </div>
+                </div>
+                <button class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl">提现</button>
+            </div>
+        </div>
+
+        <!-- Section 3: 功能列表 -->
+        <div class="px-5 mt-6">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <!-- 身份认证 -->
+                <div class="p-4 flex items-center justify-between border-b border-gray-50 list-item-clickable" onclick="openModal('auth')">
+                    <div class="flex items-center gap-3">
+                        <iconify-icon class="text-xl text-blue-500" icon="material-symbols:verified-user-outline"></iconify-icon>
+                        <span class="text-xs font-medium text-gray-700">身份认证</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-green-600 bg-green-50 px-2 py-0.5 rounded-full">已实名</span>
+                        <iconify-icon class="text-gray-300" icon="material-symbols:chevron-right"></iconify-icon>
+                    </div>
+                </div>
+                <!-- 电子合同中心 -->
+                <div class="p-4 flex items-center justify-between border-b border-gray-50 list-item-clickable" onclick="openModal('contract')">
+                    <div class="flex items-center gap-3">
+                        <iconify-icon class="text-xl text-purple-500" icon="material-symbols:contract-edit-outline"></iconify-icon>
+                        <span class="text-xs font-medium text-gray-700">电子合同中心</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">4份</span>
+                        <iconify-icon class="text-gray-300" icon="material-symbols:chevron-right"></iconify-icon>
+                    </div>
+                </div>
+                <!-- 合伙权益说明 -->
+                <div class="p-4 flex items-center justify-between border-b border-gray-50 list-item-clickable" onclick="openModal('partner')">
+                    <div class="flex items-center gap-3">
+                        <iconify-icon class="text-xl text-indigo-500" icon="material-symbols:groups-outline"></iconify-icon>
+                        <span class="text-xs font-medium text-gray-700">合伙权益说明</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">10级合伙人</span>
+                        <iconify-icon class="text-gray-300" icon="material-symbols:chevron-right"></iconify-icon>
+                    </div>
+                </div>
+                <!-- 报修记录 -->
+                <div class="p-4 flex items-center justify-between border-b border-gray-50 list-item-clickable" onclick="openModal('repair')">
+                    <div class="flex items-center gap-3">
+                        <iconify-icon class="text-xl text-amber-500" icon="material-symbols:build-circle"></iconify-icon>
+                        <div>
+                            <span class="text-xs font-medium text-gray-700">报修记录</span>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[9px] text-gray-400">2条进行中</span>
+                                <span class="w-1 h-1 bg-gray-300 rounded-full"></span>
+                                <span class="text-[9px] text-gray-400">最近: SR-0421</span>
+                            </div>
+                        </div>
+                    </div>
+                    <iconify-icon class="text-gray-300" icon="material-symbols:chevron-right"></iconify-icon>
+                </div>
+                <!-- 专属客户经理 -->
+                <div class="p-4 flex items-center justify-between list-item-clickable" onclick="openModal('manager')">
+                    <div class="flex items-center gap-3">
+                        <iconify-icon class="text-xl text-orange-500" icon="material-symbols:headset-mic-outline"></iconify-icon>
+                        <span class="text-xs font-medium text-gray-700">专属客户经理</span>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-[10px] text-orange-600 font-medium">陈经理</span>
+                        <iconify-icon class="text-gray-300" icon="material-symbols:chevron-right"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: 合规与关于 -->
+        <div class="px-5 mt-6">
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <div class="p-4 flex items-center justify-between border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <iconify-icon class="text-xl text-gray-400" icon="material-symbols:security"></iconify-icon>
+                        <span class="text-xs font-medium text-gray-700">安全设置</span>
+                    </div>
+                    <iconify-icon class="text-gray-300" icon="material-symbols:chevron-right"></iconify-icon>
+                </div>
+                <div class="p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <iconify-icon class="text-xl text-gray-400" icon="material-symbols:info-outline"></iconify-icon>
+                        <span class="text-xs font-medium text-gray-700">关于艾氢动力 v4.2.0</span>
+                    </div>
+                    <iconify-icon class="text-gray-300" icon="material-symbols:chevron-right"></iconify-icon>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: 退出登录 -->
+        <div class="px-5 mt-8 mb-10">
+            <button class="w-full py-4 bg-white text-red-500 font-bold text-xs rounded-2xl shadow-sm">退出当前账号</button>
+            <p class="text-center text-[10px] text-gray-400 mt-6">© 2026 艾氢动力 (SmartPartner Pro) 技术支持</p>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 px-4 flex justify-between items-center">
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="index.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:dashboard-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="news.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:article-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">最新</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="partnership.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:handshake-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">合伙</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="investment.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:account-balance-wallet-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">参股</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 nav-active" href="profile.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:person"></iconify-icon>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+
+    <!-- 弹窗遮罩层 -->
+    <div id="modalOverlay" class="modal-overlay hidden" onclick="closeModal()">
+        <div id="modalCard" class="modal-card" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2" id="modalHeader"></div>
+                <button onclick="closeModal()" class="w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 text-gray-500">
+                    <iconify-icon icon="material-symbols:close" class="text-lg"></iconify-icon>
+                </button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 弹窗数据
+    const modalData = {
+        auth: {
+            icon: 'verified-user',
+            color: 'blue',
+            title: '身份认证',
+            content: `
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-xl mb-3">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <iconify-icon icon="material-symbols:verified" class="text-blue-600 text-xl"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-800 text-sm">实名认证 · 已通过</p>
+                            <p class="text-[9px] text-gray-500">认证时间: 2026-01-15</p>
+                        </div>
+                    </div>
+                    <div class="bg-white/70 rounded-lg p-2 space-y-1.5">
+                        <div class="flex justify-between text-[10px]">
+                            <span class="text-gray-500">姓名</span>
+                            <span class="font-medium text-gray-800">王志远</span>
+                        </div>
+                        <div class="flex justify-between text-[10px]">
+                            <span class="text-gray-500">身份证号</span>
+                            <span class="font-medium text-gray-800">410***************</span>
+                        </div>
+                        <div class="flex justify-between text-[10px]">
+                            <span class="text-gray-500">手机号</span>
+                            <span class="font-medium text-gray-800">138****8888</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-2.5 rounded-lg">
+                    <p class="text-[10px] font-medium text-gray-700 mb-1.5">认证权益</p>
+                    <div class="flex gap-1.5 flex-wrap">
+                        <span class="text-[9px] bg-white px-2 py-1 rounded-full shadow-sm">✓ 完整交易权限</span>
+                        <span class="text-[9px] bg-white px-2 py-1 rounded-full shadow-sm">✓ 大额提现</span>
+                        <span class="text-[9px] bg-white px-2 py-1 rounded-full shadow-sm">✓ 合伙签约</span>
+                    </div>
+                </div>
+            `
+        },
+        contract: {
+            icon: 'contract-edit',
+            color: 'purple',
+            title: '电子合同中心',
+            content: `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-medium text-gray-600">共4份合同</span>
+                    <span class="text-[9px] text-blue-600 flex items-center gap-0.5">
+                        <iconify-icon icon="material-symbols:filter-list" class="text-xs"></iconify-icon>筛选
+                    </span>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="bg-gray-50 p-2.5 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <iconify-icon icon="material-symbols:description" class="text-purple-500 text-base"></iconify-icon>
+                            <div>
+                                <p class="text-[10px] font-medium text-gray-800">设备合伙协议 (SN-8291)</p>
+                                <p class="text-[8px] text-gray-400">签署: 2026-03-20</p>
+                            </div>
+                        </div>
+                        <span class="text-[8px] text-green-600 bg-green-50 px-1.5 py-0.5 rounded">已生效</span>
+                    </div>
+                    <div class="bg-gray-50 p-2.5 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <iconify-icon icon="material-symbols:description" class="text-purple-500 text-base"></iconify-icon>
+                            <div>
+                                <p class="text-[10px] font-medium text-gray-800">参股投资协议 (项目A)</p>
+                                <p class="text-[8px] text-gray-400">签署: 2026-02-10</p>
+                            </div>
+                        </div>
+                        <span class="text-[8px] text-green-600 bg-green-50 px-1.5 py-0.5 rounded">已生效</span>
+                    </div>
+                    <div class="bg-amber-50 p-2.5 rounded-lg flex items-center justify-between border border-amber-200">
+                        <div class="flex items-center gap-2">
+                            <iconify-icon icon="material-symbols:pending-actions" class="text-amber-500 text-base"></iconify-icon>
+                            <div>
+                                <p class="text-[10px] font-medium text-gray-800">新设备预购协议</p>
+                                <p class="text-[8px] text-gray-400">待签署 · 截止 04-15</p>
+                            </div>
+                        </div>
+                        <button class="text-[8px] bg-amber-500 text-white px-2 py-1 rounded-full">去签署</button>
+                    </div>
+                </div>
+            `
+        },
+        partner: {
+            icon: 'groups',
+            color: 'indigo',
+            title: '合伙权益说明',
+            content: `
+                <div class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-3 rounded-xl text-center mb-3">
+                    <div class="w-14 h-14 mx-auto bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center mb-1.5 shadow-lg">
+                        <iconify-icon icon="material-symbols:crown" class="text-white text-2xl"></iconify-icon>
+                    </div>
+                    <p class="text-base font-bold text-indigo-700">10级合伙人</p>
+                    <p class="text-[9px] text-gray-500 flex items-center justify-center gap-1">
+                        <iconify-icon icon="material-symbols:verified" class="text-indigo-500 text-xs"></iconify-icon>
+                        顶级 · 至尊合伙人
+                    </p>
+                </div>
+
+                <div class="bg-indigo-50/50 p-3 rounded-xl mb-3 border border-indigo-100">
+                    <p class="text-[10px] font-medium text-indigo-700 mb-2 flex items-center gap-1">
+                        <iconify-icon icon="material-symbols:star" class="text-xs"></iconify-icon>
+                        顶级权益 · 已全部解锁
+                    </p>
+                    <div class="space-y-1.5">
+                        <div class="flex items-start gap-1.5">
+                            <iconify-icon icon="material-symbols:check-circle" class="text-green-500 text-xs shrink-0 mt-0.5"></iconify-icon>
+                            <span class="text-[9px] text-gray-600">收益分成比例 +3.5% (基础8% + 顶级加成)</span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <iconify-icon icon="material-symbols:check-circle" class="text-green-500 text-xs shrink-0 mt-0.5"></iconify-icon>
+                            <span class="text-[9px] text-gray-600">新项目优先投资权 · 专属配额</span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <iconify-icon icon="material-symbols:check-circle" class="text-green-500 text-xs shrink-0 mt-0.5"></iconify-icon>
+                            <span class="text-[9px] text-gray-600">设备优先认购权 · 首批次</span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <iconify-icon icon="material-symbols:check-circle" class="text-green-500 text-xs shrink-0 mt-0.5"></iconify-icon>
+                            <span class="text-[9px] text-gray-600">专属客户总监 1对1服务</span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <iconify-icon icon="material-symbols:check-circle" class="text-green-500 text-xs shrink-0 mt-0.5"></iconify-icon>
+                            <span class="text-[9px] text-gray-600">季度分红加码 1.0%</span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <iconify-icon icon="material-symbols:check-circle" class="text-green-500 text-xs shrink-0 mt-0.5"></iconify-icon>
+                            <span class="text-[9px] text-gray-600">合伙人大会 · 决策投票权</span>
+                        </div>
+                        <div class="flex items-start gap-1.5">
+                            <iconify-icon icon="material-symbols:check-circle" class="text-green-500 text-xs shrink-0 mt-0.5"></iconify-icon>
+                            <span class="text-[9px] text-gray-600">年度合伙人专属礼品</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                    <p class="text-[9px] text-amber-700 flex items-center gap-1">
+                        <iconify-icon icon="material-symbols:info" class="text-xs"></iconify-icon>
+                        恭喜！您已达成最高等级，享受全部合伙权益
+                    </p>
+                </div>
+            `
+        },
+        repair: {
+            icon: 'build-circle',
+            color: 'amber',
+            title: '报修记录',
+            content: `
+                <div class="flex gap-1.5 mb-2">
+                    <button class="text-[9px] bg-blue-600 text-white px-2.5 py-1 rounded-full">全部</button>
+                    <button class="text-[9px] bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">处理中</button>
+                    <button class="text-[9px] bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">已完成</button>
+                </div>
+                <div class="space-y-1.5">
+                    <div class="bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-mono text-[10px] font-bold">SR-0421</span>
+                                <span class="status-badge bg-yellow-100 text-yellow-700">处理中</span>
+                            </div>
+                            <span class="text-[8px] text-gray-400">今日 10:24</span>
+                        </div>
+                        <p class="text-[9px] text-gray-700">SN-8291 · 工业3D打印模块</p>
+                        <p class="text-[8px] text-gray-500 mb-1.5">功率异常/低功率运行</p>
+                        <div class="flex items-center gap-2 text-[8px] text-gray-400">
+                            <span class="flex items-center gap-0.5"><iconify-icon icon="material-symbols:schedule" class="text-xs"></iconify-icon>预计今日响应</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-2.5 rounded-lg">
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-mono text-[10px] font-bold">SR-0402</span>
+                                <span class="status-badge bg-green-100 text-green-700">已完成</span>
+                            </div>
+                            <span class="text-[8px] text-gray-400">昨日</span>
+                        </div>
+                        <p class="text-[9px] text-gray-700">SN-6721 · 精密加工中心</p>
+                        <p class="text-[8px] text-gray-500 mb-1.5">机械异响/卡滞</p>
+                        <div class="flex items-center gap-2 text-[8px] text-gray-400">
+                            <span class="flex items-center gap-0.5 text-green-600"><iconify-icon icon="material-symbols:check-circle" class="text-xs"></iconify-icon>已修复完成</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full mt-2.5 py-2 bg-blue-50 text-blue-600 text-[10px] font-medium rounded-lg flex items-center justify-center gap-1" onclick="window.location.href='index.html'">
+                    <iconify-icon icon="material-symbols:add-circle-outline" class="text-sm"></iconify-icon> 新建报修
+                </button>
+            `
+        },
+        manager: {
+            icon: 'headset-mic',
+            color: 'orange',
+            title: '专属客户经理',
+            content: `
+                <div class="bg-gradient-to-r from-orange-50 to-red-50 p-3 rounded-xl mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center shadow-md">
+                            <iconify-icon icon="material-symbols:support-agent" class="text-white text-2xl"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900 text-base">陈雅婷</p>
+                            <p class="text-[9px] text-gray-500">高级客户经理 · 工号 0228</p>
+                            <p class="text-[8px] text-orange-600 mt-0.5 flex items-center gap-0.5">
+                                <iconify-icon icon="material-symbols:star" class="text-xs"></iconify-icon>
+                                5年服务经验
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <button class="bg-green-50 p-2.5 rounded-lg flex flex-col items-center gap-0.5" onclick="alert('正在呼叫陈经理...')">
+                        <iconify-icon icon="material-symbols:call" class="text-green-600 text-lg"></iconify-icon>
+                        <span class="text-[9px] font-medium text-gray-700">语音通话</span>
+                    </button>
+                    <button class="bg-blue-50 p-2.5 rounded-lg flex flex-col items-center gap-0.5" onclick="alert('打开聊天窗口')">
+                        <iconify-icon icon="material-symbols:chat" class="text-blue-600 text-lg"></iconify-icon>
+                        <span class="text-[9px] font-medium text-gray-700">在线咨询</span>
+                    </button>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-2.5">
+                    <p class="text-[9px] font-medium text-gray-700 mb-1">服务时间</p>
+                    <p class="text-[9px] text-gray-600">周一至周日 09:00 - 21:00</p>
+                    <p class="text-[8px] text-gray-400 mt-0.5">紧急: 400-8829-1029</p>
+                </div>
+            `
+        }
+    };
+
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalHeader = document.getElementById('modalHeader');
+    const modalBody = document.getElementById('modalBody');
+
+    function openModal(type) {
+        const data = modalData[type];
+        if (!data) return;
+
+        modalHeader.innerHTML = `
+            <div class="w-7 h-7 rounded-lg bg-${data.color}-100 flex items-center justify-center">
+                <iconify-icon icon="material-symbols:${data.icon}" class="text-${data.color}-600 text-base"></iconify-icon>
+            </div>
+            <h3 class="text-sm font-bold text-gray-800">${data.title}</h3>
+        `;
+
+        modalBody.innerHTML = data.content;
+        modalOverlay.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        modalOverlay.classList.add('hidden');
+    }
+
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+</script>
+</body>
+</html>

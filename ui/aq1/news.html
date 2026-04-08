@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>艾氢动力 - 最新信息</title>
+    <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .app-container { width: 375px; height: 812px; margin: 0 auto; position: relative; overflow: hidden; background: #f8fafc; border: 8px solid #333; border-radius: 36px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .content-scroll {
+            position: absolute;
+            top: 0;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            overflow-y: auto;
+            scrollbar-width: none;
+            padding-top: 60px;
+        }
+        .content-scroll::-webkit-scrollbar { display: none; }
+
+        /* 热门参股横向滚动优化 */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 搜索/筛选 弹层动画及样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-card {
+            background: #ffffff;
+            width: 90%;
+            max-width: 340px;
+            margin-top: 80px;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            overflow: hidden;
+        }
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background-color: #f1f5f9;
+            border-radius: 30px;
+        }
+        /* 多选筛选芯片样式 */
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background-color: #f1f5f9;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e293b;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .filter-chip.active {
+            background-color: #2563eb;
+            color: white;
+        }
+        .filter-chip.active .check-icon {
+            display: inline-block;
+        }
+        .filter-chip .check-icon {
+            display: none;
+            font-size: 14px;
+        }
+        .filter-chip:active { transform: scale(0.96); }
+        .news-card {
+            transition: all 0.2s ease;
+        }
+        .news-card:active { opacity: 0.7; }
+
+        /* 当前筛选条件标签 */
+        .active-filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: #eff6ff;
+            color: #2563eb;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .clear-filters-btn {
+            font-size: 11px;
+            color: #ef4444;
+            background: #fee2e2;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .nav-active { color: #2563eb; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- 头部导航 -->
+    <div class="absolute top-0 left-0 right-0 px-5 pt-12 pb-4 bg-white flex justify-between items-center z-10 shadow-sm">
+        <h1 class="text-xl font-bold text-gray-900">最新动态</h1>
+        <div class="flex gap-5">
+            <button id="searchBtn" class="focus:outline-none active:scale-95 transition-transform">
+                <iconify-icon class="text-2xl text-gray-600" icon="material-symbols:search"></iconify-icon>
+            </button>
+            <button id="filterBtn" class="focus:outline-none active:scale-95 transition-transform relative">
+                <iconify-icon class="text-2xl text-gray-600" icon="material-symbols:filter-list"></iconify-icon>
+                <span id="filterDot" class="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full hidden"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="content-scroll" id="mainContentScroll">
+        <!-- Section 1: 产能概况看板 -->
+        <div class="px-5 mt-4">
+            <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs font-medium text-slate-400">实时全网产能状态</span>
+                    <span class="flex items-center gap-1 text-[10px] text-green-400">
+                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
+                        运行中
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-800 p-3 rounded-xl">
+                        <p class="text-[10px] text-slate-400">总产能负荷</p>
+                        <p class="text-lg font-bold mt-1">84.2%</p>
+                        <div class="w-full bg-slate-700 h-1 rounded-full mt-2">
+                            <div class="bg-blue-500 h-1 rounded-full w-[84%]"></div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-xl">
+                        <p class="text-[10px] text-slate-400">日产值估算</p>
+                        <p class="text-lg font-bold mt-1">¥ 245.8w</p>
+                        <p class="text-[10px] text-green-400 mt-1">↑ 12.5%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新闻列表容器 -->
+        <div class="px-5 mt-6" id="newsSection">
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                <h3 class="text-sm font-bold text-gray-800">投产速报</h3>
+                <div class="flex items-center gap-2" id="filterTagsContainer"></div>
+            </div>
+            <div class="space-y-4" id="newsListContainer"></div>
+        </div>
+
+        <!-- Section 3: 全球产能区域分布 (ECharts) -->
+        <div class="px-5 mt-8">
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <h3 class="text-sm font-bold text-gray-800 mb-4">区域产能分布</h3>
+                <div id="distChart" style="width: 100%; height: 200px;"></div>
+            </div>
+        </div>
+
+        <!-- Section 4: 热门合伙推荐 -->
+        <div class="px-5 mt-8 mb-4">
+            <h3 class="text-sm font-bold text-gray-800 mb-4">热门参股机会</h3>
+            <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                <div class="min-w-[140px] bg-white rounded-xl p-3 shadow-sm border border-gray-100 shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+                        <iconify-icon class="text-lg text-blue-600" icon="material-symbols:solar-power"></iconify-icon>
+                    </div>
+                    <p class="text-xs font-bold text-gray-800">西北光伏基地</p>
+                    <p class="text-[10px] text-gray-400 mt-1">预计年化: 12.8%</p>
+                </div>
+                <div class="min-w-[140px] bg-white rounded-xl p-3 shadow-sm border border-gray-100 shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mb-2">
+                        <iconify-icon class="text-lg text-indigo-600" icon="material-symbols:memory"></iconify-icon>
+                    </div>
+                    <p class="text-xs font-bold text-gray-800">上海算力中心</p>
+                    <p class="text-[10px] text-gray-400 mt-1">预计年化: 15.2%</p>
+                </div>
+                <div class="min-w-[140px] bg-white rounded-xl p-3 shadow-sm border border-gray-100 shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center mb-2">
+                        <iconify-icon class="text-lg text-teal-600" icon="material-symbols:water-drop"></iconify-icon>
+                    </div>
+                    <p class="text-xs font-bold text-gray-800">海南淡水处理</p>
+                    <p class="text-[10px] text-gray-400 mt-1">预计年化: 9.5%</p>
+                </div>
+                <div class="min-w-[140px] bg-white rounded-xl p-3 shadow-sm border border-gray-100 shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mb-2">
+                        <iconify-icon class="text-lg text-purple-600" icon="material-symbols:wind-power"></iconify-icon>
+                    </div>
+                    <p class="text-xs font-bold text-gray-800">内蒙古风电</p>
+                    <p class="text-[10px] text-gray-400 mt-1">预计年化: 11.2%</p>
+                </div>
+                <div class="min-w-[140px] bg-white rounded-xl p-3 shadow-sm border border-gray-100 shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center mb-2">
+                        <iconify-icon class="text-lg text-amber-600" icon="material-symbols:car-repair"></iconify-icon>
+                    </div>
+                    <p class="text-xs font-bold text-gray-800">重庆换电站</p>
+                    <p class="text-[10px] text-gray-400 mt-1">预计年化: 13.5%</p>
+                </div>
+            </div>
+        </div>
+        <div class="h-4"></div>
+    </div>
+
+    <!-- 底部导航栏 - 完全参考原始page样式：高度80px，白色背景，边框，图标和文字垂直排列 -->
+    <div class="absolute bottom-0 left-0 right-0 w-full h-20 bg-white border-t border-gray-100 px-4 flex justify-between items-center z-10">
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="index.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:dashboard-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 nav-active" href="news.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:article"></iconify-icon>
+            <span class="text-[10px] font-medium">最新</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="partnership.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:handshake-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">合伙</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="investment.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:account-balance-wallet-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">参股</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="profile.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:person-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+</div>
+
+<!-- 全局弹窗遮罩 -->
+<div id="globalModal" class="modal-overlay" style="z-index: 1100;">
+    <div class="modal-card p-5">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-gray-800 text-base" id="modalTitle">筛选分类</h3>
+            <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+        </div>
+        <div id="modalBodyContainer"></div>
+    </div>
+</div>
+
+<script>
+    // 新闻数据
+    const fullNewsList = [
+        {
+            id: 1,
+            title: "广东佛山精密制造中心三期正式并网，预计新增日产能 1.5 万单位。",
+            img: "https://modao.cc/agent-py/media/generated_images/2026-04-07/49921d284a0443f29d3d2a80ee742f96.jpg",
+            tag: "官方投产",
+            tagClass: "bg-blue-50 text-blue-600",
+            time: "1小时前",
+            category: "official",
+            categoryName: "官方投产"
+        },
+        {
+            id: 2,
+            title: "新能源合伙项目\"极光1号\"储能站昨日收益创历史新高，突破单日 12 万元。",
+            img: "https://modao.cc/agent-py/media/generated_images/2026-04-07/d387ca26d33b4ea282e7f8523dc8ce88.jpg",
+            tag: "收益快报",
+            tagClass: "bg-green-50 text-green-600",
+            time: "3小时前",
+            category: "profit",
+            categoryName: "收益快报"
+        },
+        {
+            id: 3,
+            title: "2026年第二季度工业数字化补贴政策细则发布，符合条件的合伙人可申领。",
+            img: "https://modao.cc/agent-py/media/generated_images/2026-04-07/516700914b3844dba5c5a75b093fbef9.jpg",
+            tag: "政策解读",
+            tagClass: "bg-orange-50 text-orange-600",
+            time: "5小时前",
+            category: "policy",
+            categoryName: "政策解读"
+        },
+        {
+            id: 4,
+            title: "艾氢动力华东超级工厂正式启动试运行，氢能部件日产能提升23%。",
+            img: "https://modao.cc/agent-py/media/generated_images/2026-04-07/3d5c4b2f8e1a4a7c9b0d2f6e8a4c2b1d.jpg",
+            tag: "官方投产",
+            tagClass: "bg-blue-50 text-blue-600",
+            time: "昨天 10:23",
+            category: "official",
+            categoryName: "官方投产"
+        },
+        {
+            id: 5,
+            title: "华南区域合伙人分红大会圆满举办，单项目最高分红超80万元。",
+            img: "https://modao.cc/agent-py/media/generated_images/2026-04-07/2e9f6d4b7c3a4f1e8d5b7a9c2e3d4f5a.jpg",
+            tag: "收益快报",
+            tagClass: "bg-green-50 text-green-600",
+            time: "昨天 08:15",
+            category: "profit",
+            categoryName: "收益快报"
+        },
+        {
+            id: 6,
+            title: "国家能源局发布新型储能支持方案，数字化合伙项目迎来利好。",
+            img: "https://modao.cc/agent-py/media/generated_images/2026-04-07/7f8e9d0c1b2a4d5e6f7a8b9c0d1e2f3g.jpg",
+            tag: "政策解读",
+            tagClass: "bg-orange-50 text-orange-600",
+            time: "昨天 15:42",
+            category: "policy",
+            categoryName: "政策解读"
+        }
+    ];
+
+    // 状态
+    let currentSearchKeyword = "";
+    let selectedCategories = new Set();
+
+    const newsListContainer = document.getElementById('newsListContainer');
+    const filterTagsContainer = document.getElementById('filterTagsContainer');
+    const filterDot = document.getElementById('filterDot');
+
+    function updateFilterTagsUI() {
+        const hasActiveFilters = selectedCategories.size > 0 || currentSearchKeyword.trim() !== "";
+        if (filterDot) {
+            hasActiveFilters ? filterDot.classList.remove('hidden') : filterDot.classList.add('hidden');
+        }
+        if (!filterTagsContainer) return;
+
+        let html = "";
+        if (currentSearchKeyword.trim() !== "") {
+            html += `<span class="active-filter-tag">
+                        🔍 ${escapeHtml(currentSearchKeyword.length > 8 ? currentSearchKeyword.substring(0,8)+'...' : currentSearchKeyword)}
+                        <span class="remove-tag" data-type="search" style="cursor:pointer; margin-left:4px;">✕</span>
+                    </span>`;
+        }
+        const categoryNames = { 'official': '官方投产', 'profit': '收益快报', 'policy': '政策解读' };
+        selectedCategories.forEach(cat => {
+            html += `<span class="active-filter-tag">
+                        ${categoryNames[cat] || cat}
+                        <span class="remove-tag" data-type="category" data-cat="${cat}" style="cursor:pointer; margin-left:4px;">✕</span>
+                    </span>`;
+        });
+        if (selectedCategories.size > 0 || currentSearchKeyword.trim() !== "") {
+            html += `<span class="clear-filters-btn" id="clearAllFiltersBtn">清空全部</span>`;
+        }
+        filterTagsContainer.innerHTML = html;
+
+        document.querySelectorAll('.remove-tag').forEach(el => {
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const type = el.getAttribute('data-type');
+                if (type === 'search') {
+                    currentSearchKeyword = "";
+                    renderNewsList();
+                    updateFilterTagsUI();
+                } else if (type === 'category') {
+                    const cat = el.getAttribute('data-cat');
+                    selectedCategories.delete(cat);
+                    renderNewsList();
+                    updateFilterTagsUI();
+                }
+            });
+        });
+        const clearBtn = document.getElementById('clearAllFiltersBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                currentSearchKeyword = "";
+                selectedCategories.clear();
+                renderNewsList();
+                updateFilterTagsUI();
+            });
+        }
+    }
+
+    function getFilteredNews() {
+        let filteredList = [...fullNewsList];
+        if (selectedCategories.size > 0) {
+            filteredList = filteredList.filter(item => selectedCategories.has(item.category));
+        }
+        if (currentSearchKeyword.trim() !== "") {
+            const kw = currentSearchKeyword.trim().toLowerCase();
+            filteredList = filteredList.filter(item => item.title.toLowerCase().includes(kw));
+        }
+        return filteredList;
+    }
+
+    function renderNewsList() {
+        const filteredList = getFilteredNews();
+        if (filteredList.length === 0) {
+            newsListContainer.innerHTML = `<div class="bg-white rounded-2xl p-8 text-center shadow-sm">
+                <iconify-icon icon="material-symbols:search-off" class="text-4xl text-gray-300 mx-auto"></iconify-icon>
+                <p class="text-gray-400 text-sm mt-2">暂无相关资讯，试试其他关键词～</p>
+            </div>`;
+            return;
+        }
+        let html = "";
+        filteredList.forEach(news => {
+            html += `
+                <div class="flex gap-4 bg-white p-3 rounded-2xl shadow-sm news-card">
+                    <img alt="news" class="w-24 h-20 rounded-xl object-cover" src="${news.img}" onerror="this.src='https://placehold.co/100x80?text=Image'"/>
+                    <div class="flex-1 flex flex-col justify-between">
+                        <h4 class="text-xs font-bold text-gray-800 line-clamp-2 leading-relaxed">${escapeHtml(news.title)}</h4>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="px-2 py-0.5 ${news.tagClass} text-[10px] rounded-md font-medium">${news.tag}</span>
+                            <span class="text-[10px] text-gray-400">${news.time}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        newsListContainer.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 弹窗
+    const modalOverlay = document.getElementById('globalModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBodyContainer = document.getElementById('modalBodyContainer');
+
+    function closeModal() { modalOverlay.classList.remove('active'); }
+
+    function openSearchModal() {
+        modalTitle.innerText = '搜索资讯';
+        modalBodyContainer.innerHTML = `
+            <div class="mb-4">
+                <input type="text" id="searchInputField" placeholder="输入新闻标题关键词..." class="search-input w-full border border-gray-200 focus:border-blue-400" value="${escapeHtml(currentSearchKeyword)}" autocomplete="off"/>
+                <p class="text-[11px] text-gray-400 mt-2">🔍 支持匹配标题中的文字</p>
+            </div>
+            <div class="flex gap-3 mt-2">
+                <button id="confirmSearchBtn" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-medium">立即搜索</button>
+                <button id="clearSearchBtn" class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium">清空条件</button>
+            </div>
+        `;
+        modalOverlay.classList.add('active');
+        setTimeout(() => document.getElementById('searchInputField')?.focus(), 50);
+
+        document.getElementById('confirmSearchBtn')?.addEventListener('click', () => {
+            currentSearchKeyword = document.getElementById('searchInputField')?.value || '';
+            renderNewsList();
+            updateFilterTagsUI();
+            closeModal();
+        });
+        document.getElementById('clearSearchBtn')?.addEventListener('click', () => {
+            currentSearchKeyword = "";
+            renderNewsList();
+            updateFilterTagsUI();
+            closeModal();
+        });
+    }
+
+    function openFilterModal() {
+        modalTitle.innerText = '筛选分类（可多选）';
+        const categories = [
+            { id: 'official', name: '官方投产', icon: '🏭' },
+            { id: 'profit', name: '收益快报', icon: '📈' },
+            { id: 'policy', name: '政策解读', icon: '📋' }
+        ];
+        let chipsHtml = '<div class="flex flex-wrap gap-3 justify-center">';
+        categories.forEach(cat => {
+            const isActive = selectedCategories.has(cat.id);
+            chipsHtml += `<div data-cat="${cat.id}" class="filter-chip ${isActive ? 'active' : ''}"><span class="check-icon">✓</span>${cat.icon} ${cat.name}</div>`;
+        });
+        chipsHtml += '</div>';
+        modalBodyContainer.innerHTML = `
+            <div class="space-y-4">
+                <p class="text-xs text-gray-500 text-center">点击可多选，支持同时查看多个分类</p>
+                ${chipsHtml}
+                <div class="pt-2 flex gap-3">
+                    <button id="applyFilterBtn" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-sm font-medium">应用筛选</button>
+                    <button id="resetFilterBtn" class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium">重置</button>
+                </div>
+            </div>
+        `;
+        modalOverlay.classList.add('active');
+
+        const chips = document.querySelectorAll('#modalBodyContainer .filter-chip');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => chip.classList.toggle('active'));
+        });
+
+        document.getElementById('applyFilterBtn')?.addEventListener('click', () => {
+            const activeChips = document.querySelectorAll('#modalBodyContainer .filter-chip.active');
+            const newSelected = new Set();
+            activeChips.forEach(chip => {
+                const catId = chip.getAttribute('data-cat');
+                if (catId) newSelected.add(catId);
+            });
+            selectedCategories = newSelected;
+            renderNewsList();
+            updateFilterTagsUI();
+            closeModal();
+        });
+        document.getElementById('resetFilterBtn')?.addEventListener('click', () => {
+            selectedCategories.clear();
+            renderNewsList();
+            updateFilterTagsUI();
+            closeModal();
+        });
+    }
+
+    document.getElementById('searchBtn')?.addEventListener('click', openSearchModal);
+    document.getElementById('filterBtn')?.addEventListener('click', openFilterModal);
+    document.getElementById('closeModalBtn')?.addEventListener('click', closeModal);
+    modalOverlay?.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+
+    // 产能分布图表 - 原始样式
+    const chartDom = document.getElementById('distChart');
+    if (chartDom) {
+        const myChart = echarts.init(chartDom);
+        const option = {
+            tooltip: { trigger: 'item' },
+            series: [{
+                name: '产能分布',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                avoidLabelOverlap: false,
+                itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+                label: { show: true, position: 'outside', fontSize: 10, formatter: '{b}\n{d}%' },
+                data: [
+                    { value: 1048, name: '华东大区', itemStyle: { color: '#2563eb' } },
+                    { value: 735, name: '华南大区', itemStyle: { color: '#60a5fa' } },
+                    { value: 580, name: '西南大区', itemStyle: { color: '#94a3b8' } },
+                    { value: 484, name: '华北大区', itemStyle: { color: '#cbd5e1' } },
+                    { value: 300, name: '海外', itemStyle: { color: '#e2e8f0' } }
+                ]
+            }]
+        };
+        myChart.setOption(option);
+        window.addEventListener('resize', () => myChart.resize());
+    }
+
+    renderNewsList();
+    updateFilterTagsUI();
+</script>
+</body>
+</html>

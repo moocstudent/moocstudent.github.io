@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>艾氢动力 - 综合仪表盘</title>
+    <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .app-container { width: 375px; height: 812px; margin: 0 auto; position: relative; overflow: hidden; background: #f8fafc; border: 8px solid #333; border-radius: 36px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .content-scroll {
+            position: absolute;
+            top: 40px;  /* 状态栏高度 */
+            bottom: 80px;  /* 底部导航栏高度 */
+            left: 0;
+            right: 0;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .content-scroll::-webkit-scrollbar { display: none; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .nav-active { color: #2563eb; }
+
+        /* 弹窗容器：绝对定位在 app-container 内部，而不是相对于视口 */
+        .modal-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            z-index: 50;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            border-radius: 28px; /* 匹配容器内圆角 */
+            overflow: hidden;
+        }
+        .modal-wrapper.hidden {
+            display: none;
+        }
+        .modal-content {
+            width: 100%;
+            max-width: 375px;
+            background: white;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 20px 20px 32px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 80px; /* 避开底部导航 */
+            animation: slideUp 0.25s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0.8; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        /* 成功toast也限制在容器内 */
+        .toast-message {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            font-size: 12px;
+            padding: 8px 20px;
+            border-radius: 40px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            z-index: 60;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+        .toast-message.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- 状态栏占位 -->
+    <div class="absolute top-0 left-0 right-0 h-10 w-full flex justify-between items-center px-6 pt-2 text-xs font-bold text-gray-800 bg-transparent z-10">
+        <span>09:41</span>
+        <div class="flex gap-1 items-center">
+            <iconify-icon icon="material-symbols:signal-cellular-4-bar"></iconify-icon>
+            <iconify-icon icon="material-symbols:wifi"></iconify-icon>
+            <iconify-icon icon="material-symbols:battery-full"></iconify-icon>
+        </div>
+    </div>
+
+    <!-- 内容滚动区域 -->
+    <div class="content-scroll px-5">
+        <!-- Section 1: 欢迎与状态 -->
+        <div class="mt-4 flex justify-between items-center">
+            <div>
+                <h2 class="text-xs text-gray-500 font-medium">欢迎回来, 合伙人</h2>
+                <h1 class="text-xl font-bold text-gray-900">王志远 (高级合伙人)</h1>
+            </div>
+            <div class="relative">
+                <a href="notification.html">
+                    <iconify-icon class="text-2xl text-gray-600" icon="material-symbols:notifications-outline"></iconify-icon>
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Section 2: 核心KPI -->
+        <div class="mt-6">
+            <div class="bg-blue-600 rounded-2xl p-5 shadow-lg shadow-blue-200 text-white relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10">
+                    <iconify-icon icon="material-symbols:analytics" style="font-size: 150px;"></iconify-icon>
+                </div>
+                <p class="text-blue-100 text-sm">资产估值 (CNY)</p>
+                <div class="flex items-baseline gap-2 mt-1">
+                    <span class="text-3xl font-bold">¥ 8,429,500.00</span>
+                </div>
+                <div class="flex mt-6 gap-6">
+                    <div>
+                        <p class="text-blue-200 text-xs">今日预期收益</p>
+                        <p class="text-lg font-semibold">+ ¥12,450</p>
+                    </div>
+                    <div class="w-px h-8 bg-blue-400 self-center"></div>
+                    <div>
+                        <p class="text-blue-200 text-xs">累计分红</p>
+                        <p class="text-lg font-semibold">¥ 1,24.8w</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: 收益趋势图 -->
+        <div class="mt-6">
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-gray-800">近15日收益趋势</h3>
+                    <span class="text-xs text-blue-600 font-medium">查看详情</span>
+                </div>
+                <div id="mainChart" style="width: 100%; height: 180px;"></div>
+            </div>
+        </div>
+
+        <!-- Section 4: 快捷入口 (新增设备报修) -->
+        <div class="mt-6 grid grid-cols-5 gap-2">
+            <a class="flex flex-col items-center gap-1" href="partnership.html">
+                <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                    <iconify-icon class="text-2xl" icon="material-symbols:precision-manufacturing"></iconify-icon>
+                </div>
+                <span class="text-[10px] text-gray-600">设备管理</span>
+            </a>
+            <a class="flex flex-col items-center gap-1" href="investment.html">
+                <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-green-600">
+                    <iconify-icon class="text-2xl" icon="material-symbols:account-balance"></iconify-icon>
+                </div>
+                <span class="text-[10px] text-gray-600">参股项目</span>
+            </a>
+            <a class="flex flex-col items-center gap-1" href="calculator.html">
+                <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                    <iconify-icon class="text-2xl" icon="material-symbols:calculate"></iconify-icon>
+                </div>
+                <span class="text-[10px] text-gray-600">收益预估</span>
+            </a>
+            <!-- 设备报修 -->
+            <div class="flex flex-col items-center gap-1 cursor-pointer" id="repairEntryBtn">
+                <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 shadow-sm hover:shadow transition">
+                    <iconify-icon class="text-2xl" icon="material-symbols:build-circle"></iconify-icon>
+                </div>
+                <span class="text-[10px] text-gray-600">设备报修</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
+                    <iconify-icon class="text-2xl" icon="material-symbols:description"></iconify-icon>
+                </div>
+                <span class="text-[10px] text-gray-600">结算报表</span>
+            </div>
+        </div>
+
+        <!-- Section 5: 异常预警/动态 -->
+        <div class="mt-8">
+            <h3 class="text-sm font-bold text-gray-800 mb-3">系统动态</h3>
+            <div class="space-y-3">
+                <div class="flex gap-3 bg-white p-3 rounded-xl shadow-sm border-l-4 border-yellow-400 repair-quick-trigger cursor-pointer" data-sn="SN-8291">
+                    <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center shrink-0">
+                        <iconify-icon class="text-xl text-yellow-600" icon="material-symbols:warning-amber-rounded"></iconify-icon>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-800">设备异常提醒</span>
+                            <span class="text-[10px] text-gray-400">10:24 AM</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">编号 <span class="font-mono font-medium">SN-8291</span> 的工业3D打印模块目前处于低功率运行状态，点击快速报修。</p>
+                    </div>
+                </div>
+                <div class="flex gap-3 bg-white p-3 rounded-xl shadow-sm border-l-4 border-blue-400">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                        <iconify-icon class="text-xl text-blue-600" icon="material-symbols:check-circle-outline"></iconify-icon>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-800">分红已发放</span>
+                            <span class="text-[10px] text-gray-400">08:00 AM</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">您2026年4月6日的参股收益已结算，金额为 ¥4,200.00。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: 最新投产简报 -->
+        <div class="mt-8 mb-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-gray-800">最新动态</h3>
+                <a class="text-xs text-blue-600" href="news.html">全部</a>
+            </div>
+            <div class="bg-white rounded-xl overflow-hidden shadow-sm">
+                <img alt="New Factory" class="w-full h-32 object-cover" src="https://modao.cc/agent-py/media/generated_images/2026-04-07/a7cb0a4f3c93403cbce8b03064f714f6.jpg"/>
+                <div class="p-3">
+                    <h4 class="text-xs font-bold text-gray-800">西南三号智造中心正式完成二期扩建</h4>
+                    <p class="text-[10px] text-gray-400 mt-1">2026-04-07 · 行业热点</p>
+                </div>
+            </div>
+        </div>
+        <div class="h-4"></div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="absolute bottom-0 left-0 right-0 w-full h-20 bg-white border-t border-gray-100 px-4 flex justify-between items-center z-10">
+        <a class="flex flex-col items-center gap-1 nav-active" href="index.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:dashboard-rounded"></iconify-icon>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="news.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:article-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">最新</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="partnership.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:handshake-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">合伙</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="investment.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:account-balance-wallet-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">参股</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="profile.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:person-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+
+    <!-- 报修弹窗 (现在绝对定位在app-container内部，宽度自适应) -->
+    <div id="repairModal" class="modal-wrapper hidden">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <iconify-icon icon="material-symbols:build-circle" class="text-amber-600 text-xl"></iconify-icon>
+                    设备报修
+                </h3>
+                <button onclick="closeRepairModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-500">
+                    <iconify-icon icon="material-symbols:close"></iconify-icon>
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mb-4">提交报修申请，运维团队将尽快处理</p>
+
+            <form id="repairForm" onsubmit="submitRepair(event)">
+                <div class="mb-4">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">设备编号 <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <iconify-icon icon="material-symbols:tag" class="absolute left-3 top-3 text-gray-400 text-sm"></iconify-icon>
+                        <input type="text" id="deviceSn" name="deviceSn" placeholder="例如 SN-8291"
+                               class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-200 outline-none transition" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">故障类型 <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <iconify-icon icon="material-symbols:error-circle-rounded" class="absolute left-3 top-3 text-gray-400 text-sm"></iconify-icon>
+                        <select id="faultType" name="faultType" class="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-200 outline-none appearance-none" required>
+                            <option value="" disabled selected>请选择故障类型</option>
+                            <option value="power">功率异常/低功率</option>
+                            <option value="mechanical">机械卡滞/异响</option>
+                            <option value="control">控制系统无响应</option>
+                            <option value="sensor">传感器故障</option>
+                            <option value="other">其他</option>
+                        </select>
+                        <iconify-icon icon="material-symbols:arrow-drop-down" class="absolute right-3 top-3 text-gray-400 pointer-events-none"></iconify-icon>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs font-medium text-gray-700 mb-2">紧急程度</label>
+                    <div class="flex gap-3">
+                        <label class="flex items-center gap-1.5 text-xs">
+                            <input type="radio" name="urgency" value="low" class="accent-blue-500 w-4 h-4"> 一般
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs">
+                            <input type="radio" name="urgency" value="medium" class="accent-amber-500 w-4 h-4" checked> 紧急
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs">
+                            <input type="radio" name="urgency" value="high" class="accent-red-500 w-4 h-4"> 非常紧急
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">故障描述</label>
+                    <textarea id="faultDesc" name="faultDesc" rows="2" placeholder="请描述具体现象..."
+                              class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-200 outline-none resize-none"></textarea>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">现场照片 (可选)</label>
+                    <div class="border border-dashed border-gray-300 rounded-xl p-3 flex items-center justify-center bg-gray-50 text-gray-500 text-xs gap-2 cursor-pointer hover:bg-gray-100 transition" onclick="alert('模拟上传：实际可接入相机/相册')">
+                        <iconify-icon icon="material-symbols:add-photo-alternate-outline" class="text-lg"></iconify-icon>
+                        点击上传图片 (最多3张)
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl text-sm shadow-md shadow-blue-200 transition flex items-center justify-center gap-2">
+                    <iconify-icon icon="material-symbols:send" class="text-lg"></iconify-icon>
+                    提交报修申请
+                </button>
+            </form>
+            <p class="text-[10px] text-gray-400 text-center mt-4">提交后可在“我的-报修记录”中跟踪进度</p>
+        </div>
+    </div>
+
+    <!-- Toast 提示 (同样限制在容器内) -->
+    <div id="successToast" class="toast-message hidden">
+        ✅ 报修申请已提交，工单号: SR-0421
+    </div>
+</div>
+
+<script>
+    // 图表初始化
+    const chartDom = document.getElementById('mainChart');
+    const myChart = echarts.init(chartDom);
+    const option = {
+        grid: { top: 10, bottom: 20, left: 30, right: 10 },
+        xAxis: {
+            type: 'category',
+            data: ['3/24', '3/26', '3/28', '3/30', '4/1', '4/3', '4/5', '4/7'],
+            axisLine: { show: false },
+            axisTick: { show: false },
+            axisLabel: { fontSize: 10, color: '#94a3b8' }
+        },
+        yAxis: {
+            type: 'value',
+            splitLine: { lineStyle: { type: 'dashed', color: '#f1f5f9' } },
+            axisLabel: { fontSize: 10, color: '#94a3b8' }
+        },
+        series: [{
+            data: [11000, 12500, 10800, 13200, 12900, 14500, 13800, 12450],
+            type: 'line',
+            smooth: true,
+            symbol: 'none',
+            lineStyle: { width: 3, color: '#2563eb' },
+            areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: 'rgba(37, 99, 235, 0.2)' },
+                    { offset: 1, color: 'rgba(37, 99, 235, 0)' }
+                ])
+            }
+        }]
+    };
+    myChart.setOption(option);
+
+    // ----- 设备报修功能 (优化弹窗定位) -----
+    const modal = document.getElementById('repairModal');
+    const repairEntry = document.getElementById('repairEntryBtn');
+    const quickTriggers = document.querySelectorAll('.repair-quick-trigger');
+    const deviceSnInput = document.getElementById('deviceSn');
+    const toast = document.getElementById('successToast');
+
+    function openRepairModal(presetSn = '') {
+        if (presetSn) {
+            deviceSnInput.value = presetSn;
+        }
+        modal.classList.remove('hidden');
+        const faultSelect = document.getElementById('faultType');
+        if (presetSn === 'SN-8291') {
+            faultSelect.value = 'power';
+        }
+    }
+
+    function closeRepairModal() {
+        modal.classList.add('hidden');
+    }
+
+    repairEntry.addEventListener('click', () => {
+        openRepairModal('');
+    });
+
+    quickTriggers.forEach(card => {
+        card.addEventListener('click', (e) => {
+            const sn = card.dataset.sn || 'SN-8291';
+            openRepairModal(sn);
+        });
+    });
+
+    function submitRepair(e) {
+        e.preventDefault();
+        const sn = deviceSnInput.value.trim();
+        const faultType = document.getElementById('faultType').value;
+        const urgency = document.querySelector('input[name="urgency"]:checked')?.value || 'medium';
+        const desc = document.getElementById('faultDesc').value.trim();
+
+        if (!sn || !faultType) {
+            alert('请填写设备编号和故障类型');
+            return;
+        }
+
+        console.log('报修数据:', { sn, faultType, urgency, desc });
+
+        closeRepairModal();
+
+        toast.classList.remove('hidden');
+        setTimeout(() => {
+            toast.classList.add('hidden');
+        }, 2500);
+
+        document.getElementById('repairForm').reset();
+        document.querySelector('input[value="medium"]').checked = true;
+    }
+
+    window.submitRepair = submitRepair;
+    window.closeRepairModal = closeRepairModal;
+
+    // 点击模态背景关闭 (wrapper本身)
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeRepairModal();
+    });
+
+    // 适配窗口大小变化时图表resize (可选)
+    window.addEventListener('resize', () => { myChart.resize(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>艾氢动力 - 产能计算器</title>
+    <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .app-container { width: 375px; height: 812px; margin: 0 auto; position: relative; overflow: hidden; background: #f8fafc; border: 8px solid #333; border-radius: 36px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .content-scroll {
+            height: calc(812px - 80px);
+            overflow-y: auto;
+            scrollbar-width: none;
+            padding-bottom: 80px;
+        }
+        .content-scroll::-webkit-scrollbar { display: none; }
+        .nav-active { color: #2563eb; }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #e2e8f0; border-radius: 5px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; background: #2563eb; cursor: pointer; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- 头部 -->
+    <div class="px-5 pt-12 pb-4 bg-white flex items-center sticky top-0 z-10">
+        <a class="mr-4" href="index.html">
+            <iconify-icon class="text-xl text-gray-600" icon="material-symbols:arrow-back-ios-new"></iconify-icon>
+        </a>
+        <h1 class="text-xl font-bold text-gray-900">收益回报预估</h1>
+    </div>
+    <div class="content-scroll">
+        <!-- Section 1: 输入表单 -->
+        <div class="px-5 mt-4">
+            <div class="bg-white rounded-2xl p-5 shadow-sm space-y-6">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold text-gray-700">预期投资金额 (CNY)</label>
+                        <span class="text-blue-600 font-bold text-sm" id="amountVal">¥ 500,000</span>
+                    </div>
+                    <input id="amountRange" max="10000000" min="100000" step="100000" type="range" value="500000"/>
+                    <div class="flex justify-between mt-1 text-[10px] text-gray-400">
+                        <span>10万</span>
+                        <span>1000万</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-xs font-bold text-gray-700">预估设备数量 (台)</label>
+                        <span class="text-blue-600 font-bold text-sm" id="countVal">10 台</span>
+                    </div>
+                    <input id="countRange" max="100" min="1" step="1" type="range" value="10"/>
+                    <div class="flex justify-between mt-1 text-[10px] text-gray-400">
+                        <span>1台</span>
+                        <span>100台</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <label class="text-[10px] text-gray-400 block mb-1">预计合伙年限</label>
+                        <select class="w-full bg-gray-50 border-none rounded-lg text-xs font-bold p-2 focus:ring-1 focus:ring-blue-500">
+                            <option>3 年</option>
+                            <option selected="">5 年</option>
+                            <option>10 年</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 block mb-1">回报再投资比例</label>
+                        <select class="w-full bg-gray-50 border-none rounded-lg text-xs font-bold p-2 focus:ring-1 focus:ring-blue-500">
+                            <option>0% (纯提现)</option>
+                            <option selected="">30%</option>
+                            <option>50%</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Section 2: 预估结果 -->
+        <div class="px-5 mt-6">
+            <div class="bg-blue-600 rounded-2xl p-5 text-white shadow-lg">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <p class="text-blue-100 text-[10px]">预计 5 年总收益</p>
+                        <p class="text-2xl font-bold">¥ 1,185,200.00</p>
+                    </div>
+                    <div class="bg-white/20 px-2 py-1 rounded text-[10px]">ROI: 237%</div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/10 p-3 rounded-xl">
+                        <p class="text-blue-100 text-[10px]">平均年化收益率</p>
+                        <p class="text-lg font-bold">14.2%</p>
+                    </div>
+                    <div class="bg-white/10 p-3 rounded-xl">
+                        <p class="text-blue-100 text-[10px]">预估回本周期</p>
+                        <p class="text-lg font-bold">2.8 年</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Section 3: 收益预测图 (ECharts) -->
+        <div class="px-5 mt-6">
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <h3 class="text-sm font-bold text-gray-800 mb-4">未来5年资产增长预测</h3>
+                <div id="forecastChart" style="width: 100%; height: 200px;"></div>
+            </div>
+        </div>
+        <!-- Section 4: 风险提示 -->
+        <div class="px-5 mt-8">
+            <div class="bg-orange-50 rounded-xl p-4 border border-orange-100">
+                <div class="flex items-center gap-2 mb-2">
+                    <iconify-icon class="text-orange-600" icon="material-symbols:info-outline"></iconify-icon>
+                    <span class="text-xs font-bold text-orange-800">重要说明</span>
+                </div>
+                <p class="text-[10px] text-orange-700 leading-relaxed">以上数据为基于历史产能效率与当前市场系数的模拟预估，不构成任何形式的保底承诺。具体收益受市场波动、政策调整、设备运维质量等多种因素影响，请谨慎参考。</p>
+            </div>
+            <button class="w-full mt-6 py-4 bg-gray-900 text-white font-bold rounded-2xl">锁定此方案并咨询经理</button>
+        </div>
+        <!-- 增加足够底部留白，确保所有内容都能滚动到底部 -->
+        <div class="h-24"></div>
+    </div>
+    <!-- 底部导航栏 (复用) -->
+    <div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 px-4 flex justify-between items-center">
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="index.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:dashboard-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="news.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:article-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">最新</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="partnership.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:handshake-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">合伙</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="investment.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:account-balance-wallet-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">参股</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="profile.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:person-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+</div>
+<script>
+    // 动态交互逻辑
+    const amountRange = document.getElementById('amountRange');
+    const countRange = document.getElementById('countRange');
+    const amountVal = document.getElementById('amountVal');
+    const countVal = document.getElementById('countVal');
+
+    amountRange.addEventListener('input', (e) => {
+        amountVal.textContent = '¥ ' + parseInt(e.target.value).toLocaleString();
+    });
+    countRange.addEventListener('input', (e) => {
+        countVal.textContent = e.target.value + ' 台';
+    });
+
+    const chartDom = document.getElementById('forecastChart');
+    const myChart = echarts.init(chartDom);
+    const option = {
+        grid: { top: 10, bottom: 20, left: 40, right: 10 },
+        xAxis: { type: 'category', data: ['第1年', '第2年', '第3年', '第4年', '第5年'], axisLabel: { fontSize: 10 } },
+        yAxis: { type: 'value', axisLabel: { fontSize: 10 } },
+        series: [
+            {
+                name: '累计收益',
+                type: 'line',
+                data: [120000, 310000, 580000, 890000, 1185200],
+                smooth: true,
+                lineStyle: { width: 3, color: '#2563eb' },
+                symbol: 'circle',
+                itemStyle: { color: '#2563eb' }
+            },
+            {
+                name: '本金投入',
+                type: 'bar',
+                barWidth: '40%',
+                data: [500000, 500000, 500000, 500000, 500000],
+                itemStyle: { color: '#e2e8f0' }
+            }
+        ]
+    };
+    myChart.setOption(option);
+</script>
+</body>
+</html>
