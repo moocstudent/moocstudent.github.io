@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>艾氢动力 - 合伙信息</title>
+    <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+    <style>
+        body { background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .app-container { width: 375px; height: 812px; margin: 0 auto; position: relative; overflow: hidden; background: #f1f5f9; border: 8px solid #333; border-radius: 36px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .content-scroll {
+            height: calc(812px - 80px);
+            overflow-y: auto;
+            scrollbar-width: none;
+            padding-bottom: 80px;
+        }
+        .content-scroll::-webkit-scrollbar { display: none; }
+        .nav-active { color: #2563eb; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+        /* 筛选弹窗动画 */
+        .filter-modal, .invite-modal {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 50;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+        .filter-modal.show, .invite-modal.show {
+            transform: translateY(0);
+        }
+        .filter-overlay, .invite-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            z-index: 40;
+        }
+        .filter-overlay.show, .invite-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 筛选选项样式 */
+        .filter-option {
+            transition: all 0.2s;
+        }
+        .filter-option.active {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        /* 自定义滚动条 */
+        .filter-modal::-webkit-scrollbar, .invite-modal::-webkit-scrollbar {
+            width: 4px;
+        }
+        .filter-modal::-webkit-scrollbar-thumb, .invite-modal::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        /* 邀请方式选项 */
+        .invite-method {
+            transition: all 0.2s;
+        }
+        .invite-method:hover {
+            background: #f8fafc;
+        }
+
+        /* 二维码容器 */
+        .qr-container {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+
+        /* 复制成功动画 */
+        @keyframes copySuccess {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .copy-success {
+            animation: copySuccess 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- 头部 -->
+    <div class="px-5 pt-12 pb-4 bg-white flex justify-between items-center sticky top-0 z-10">
+        <h1 class="text-xl font-bold text-gray-900">合伙资产</h1>
+        <iconify-icon class="text-2xl text-gray-600" icon="material-symbols:history"></iconify-icon>
+    </div>
+
+    <!-- 筛选遮罩层 -->
+    <div class="filter-overlay" id="filterOverlay" onclick="closeFilter()"></div>
+
+    <!-- 邀请遮罩层 -->
+    <div class="invite-overlay" id="inviteOverlay" onclick="closeInvite()"></div>
+
+    <!-- 筛选弹窗 -->
+    <div class="filter-modal" id="filterModal">
+        <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-900">筛选设备</h2>
+                <button onclick="closeFilter()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                    <iconify-icon class="text-gray-600" icon="material-symbols:close"></iconify-icon>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-5 space-y-6">
+            <!-- 设备状态筛选 -->
+            <div>
+                <h3 class="text-xs font-bold text-gray-700 mb-3">设备状态</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700 active" data-type="status" data-value="all">
+                        全部状态
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="status" data-value="running">
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            运行中
+                        </span>
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="status" data-value="maintenance">
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                            维护中
+                        </span>
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="status" data-value="offline">
+                        <span class="flex items-center gap-1">
+                            <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                            离线
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 基地筛选 -->
+            <div>
+                <h3 class="text-xs font-bold text-gray-700 mb-3">所属基地</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700 active" data-type="base" data-value="all">
+                        全部基地
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="base" data-value="foshan">
+                        佛山基地
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="base" data-value="shanghai">
+                        上海配送中心
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="base" data-value="suzhou">
+                        苏州工业园区
+                    </button>
+                </div>
+            </div>
+
+            <!-- 设备类型 -->
+            <div>
+                <h3 class="text-xs font-bold text-gray-700 mb-3">设备类型</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700 active" data-type="device" data-value="all">
+                        全部类型
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="device" data-value="3d">
+                        3D打印模组
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="device" data-value="sensor">
+                        传感器组
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-full text-xs font-medium border border-gray-200 bg-white text-gray-700" data-type="device" data-value="energy">
+                        储能单元
+                    </button>
+                </div>
+            </div>
+
+            <!-- 健康度范围 -->
+            <div>
+                <h3 class="text-xs font-bold text-gray-700 mb-3">健康度范围</h3>
+                <div class="space-y-2">
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="health" value="all" checked class="w-4 h-4 text-blue-600">
+                        <span class="text-xs text-gray-700">全部</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="health" value="good" class="w-4 h-4 text-blue-600">
+                        <span class="text-xs text-gray-700">优秀 (≥90%)</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="health" value="warning" class="w-4 h-4 text-blue-600">
+                        <span class="text-xs text-gray-700">需关注 (60%-89%)</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="health" value="danger" class="w-4 h-4 text-blue-600">
+                        <span class="text-xs text-gray-700">危险 (<60%)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 排序方式 -->
+            <div>
+                <h3 class="text-xs font-bold text-gray-700 mb-3">排序方式</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <button class="filter-option px-4 py-2 rounded-lg text-xs font-medium border border-gray-200 bg-white text-gray-700 active" data-sort="default">
+                        默认排序
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-lg text-xs font-medium border border-gray-200 bg-white text-gray-700" data-sort="yield">
+                        昨日贡献 ↑
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-lg text-xs font-medium border border-gray-200 bg-white text-gray-700" data-sort="total">
+                        累计产值 ↑
+                    </button>
+                    <button class="filter-option px-4 py-2 rounded-lg text-xs font-medium border border-gray-200 bg-white text-gray-700" data-sort="health">
+                        健康度 ↑
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="sticky bottom-0 bg-white border-t border-gray-100 p-5 flex gap-3">
+            <button onclick="resetFilter()" class="flex-1 py-3 bg-gray-100 text-gray-700 text-sm font-bold rounded-xl">
+                重置
+            </button>
+            <button onclick="applyFilter()" class="flex-1 py-3 bg-blue-600 text-white text-sm font-bold rounded-xl">
+                应用筛选
+            </button>
+        </div>
+    </div>
+
+    <!-- 邀请弹窗 -->
+    <div class="invite-modal" id="inviteModal">
+        <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-900">邀请新合伙人</h2>
+                <button onclick="closeInvite()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                    <iconify-icon class="text-gray-600" icon="material-symbols:close"></iconify-icon>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-5">
+            <!-- 邀请奖励卡片 -->
+            <div class="bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl p-4 text-white mb-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <iconify-icon class="text-2xl" icon="material-symbols:card-giftcard"></iconify-icon>
+                    <span class="font-bold">邀请奖励</span>
+                </div>
+                <p class="text-sm mb-3">成功邀请一位合伙人完成首笔投资，您将获得：</p>
+                <div class="flex gap-4">
+                    <div>
+                        <p class="text-2xl font-bold">0.3%</p>
+                        <p class="text-xs opacity-90">额外分红权重</p>
+                    </div>
+                    <div class="w-px h-10 bg-white/30"></div>
+                    <div>
+                        <p class="text-2xl font-bold">¥500</p>
+                        <p class="text-xs opacity-90">现金奖励</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 邀请统计 -->
+            <div class="bg-blue-50 rounded-xl p-4 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-gray-600">您的邀请码</p>
+                        <p class="text-xl font-bold text-gray-900 mt-1" id="inviteCode">WZY2026</p>
+                    </div>
+                    <button onclick="copyInviteCode()" class="px-4 py-2 bg-white text-blue-600 text-xs font-medium rounded-lg shadow-sm">
+                        复制
+                    </button>
+                </div>
+                <div class="mt-3 pt-3 border-t border-blue-200">
+                    <div class="flex justify-around">
+                        <div class="text-center">
+                            <p class="text-lg font-bold text-gray-900">8</p>
+                            <p class="text-[10px] text-gray-500">已邀请</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-lg font-bold text-gray-900">3</p>
+                            <p class="text-[10px] text-gray-500">已投资</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-lg font-bold text-orange-600">2</p>
+                            <p class="text-[10px] text-gray-500">待投资</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 邀请方式 -->
+            <div class="mb-6">
+                <h3 class="text-sm font-bold text-gray-800 mb-3">选择邀请方式</h3>
+                <div class="space-y-2">
+                    <!-- 微信邀请 -->
+                    <div class="invite-method flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer" onclick="shareViaWechat()">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                <iconify-icon class="text-xl text-green-600" icon="mdi:wechat"></iconify-icon>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">微信邀请</p>
+                                <p class="text-[10px] text-gray-400">分享给微信好友或群聊</p>
+                            </div>
+                        </div>
+                        <iconify-icon class="text-gray-400" icon="material-symbols:chevron-right"></iconify-icon>
+                    </div>
+
+                    <!-- 二维码邀请 -->
+                    <div class="invite-method flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer" onclick="showQRCode()">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <iconify-icon class="text-xl text-blue-600" icon="material-symbols:qr-code"></iconify-icon>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">二维码邀请</p>
+                                <p class="text-[10px] text-gray-400">面对面扫码邀请</p>
+                            </div>
+                        </div>
+                        <iconify-icon class="text-gray-400" icon="material-symbols:chevron-right"></iconify-icon>
+                    </div>
+
+                    <!-- 复制链接 -->
+                    <div class="invite-method flex items-center justify-between p-3 bg-gray-50 rounded-xl cursor-pointer" onclick="copyInviteLink()">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                                <iconify-icon class="text-xl text-purple-600" icon="material-symbols:link"></iconify-icon>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">复制邀请链接</p>
+                                <p class="text-[10px] text-gray-400">发送给任何人</p>
+                            </div>
+                        </div>
+                        <iconify-icon class="text-gray-400" icon="material-symbols:chevron-right"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 邀请记录 -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-gray-800">近期邀请记录</h3>
+                    <span class="text-xs text-blue-600" onclick="viewAllRecords()">全部</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold">李</div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-800">李敏</p>
+                                <p class="text-[10px] text-gray-400">4月5日 已投资</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-green-600">+0.3%</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold">张</div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-800">张伟</p>
+                                <p class="text-[10px] text-gray-400">4月3日 待投资</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-orange-500">等待中</span>
+                    </div>
+                    <div class="flex items-center justify-between p-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-bold">王</div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-800">王芳</p>
+                                <p class="text-[10px] text-gray-400">3月28日 已投资</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-green-600">+0.3%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部说明 -->
+            <div class="mt-6 p-3 bg-gray-50 rounded-xl">
+                <div class="flex items-start gap-2">
+                    <iconify-icon class="text-gray-400 text-sm mt-0.5" icon="material-symbols:info-outline"></iconify-icon>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">
+                        邀请链接有效期为30天。被邀请人完成首次投资后，奖励将在3个工作日内发放至您的账户。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 二维码展示弹窗 -->
+    <div class="invite-overlay" id="qrOverlay" onclick="closeQRCode()"></div>
+    <div class="invite-modal" id="qrModal">
+        <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-900">扫码邀请</h2>
+                <button onclick="closeQRCode()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                    <iconify-icon class="text-gray-600" icon="material-symbols:close"></iconify-icon>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-5 text-center">
+            <p class="text-sm text-gray-600 mb-4">让好友扫描二维码，即可成为您的合伙人</p>
+
+            <!-- 模拟二维码 -->
+            <div class="qr-container mx-auto mb-4 inline-block">
+                <div class="w-48 h-48 bg-gray-100 rounded-xl flex items-center justify-center relative overflow-hidden">
+                    <!-- 模拟二维码图案 -->
+                    <div class="absolute inset-0 grid grid-cols-8 gap-0.5 p-4">
+                        <div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div>
+                        <div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div>
+                        <div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div>
+                        <div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div>
+                        <div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div>
+                        <div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-gray-800"></div>
+                        <div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div>
+                        <div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-white"></div><div class="bg-gray-800"></div><div class="bg-gray-800"></div>
+                    </div>
+                    <!-- 中心logo -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                            <iconify-icon class="text-blue-600 text-xl" icon="material-symbols:bolt"></iconify-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-400 mb-4">邀请码：<span class="font-bold text-gray-800" id="qrInviteCode">WZY2026</span></p>
+
+            <div class="flex gap-3">
+                <button onclick="saveQRCode()" class="flex-1 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl">
+                    保存二维码
+                </button>
+                <button onclick="shareQRCode()" class="flex-1 py-3 bg-blue-600 text-white text-sm font-medium rounded-xl">
+                    分享二维码
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-scroll">
+        <!-- Section 1: 资产概览 -->
+        <div class="px-5 mt-4">
+            <div class="bg-white rounded-2xl p-4 shadow-sm grid grid-cols-2 divide-x divide-gray-100">
+                <div class="pr-2">
+                    <p class="text-[10px] text-gray-400">持有合伙设备</p>
+                    <p class="text-xl font-bold text-gray-800" id="deviceCount">42 <span class="text-xs font-normal">台</span></p>
+                </div>
+                <div class="pl-4">
+                    <p class="text-[10px] text-gray-400">当前设备收益率</p>
+                    <p class="text-xl font-bold text-blue-600">14.8%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: 收益对比图 -->
+        <div class="px-5 mt-6">
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <h3 class="text-sm font-bold text-gray-800 mb-4">月度合伙收益对比</h3>
+                <div id="compareChart" style="width: 100%; height: 180px;"></div>
+            </div>
+        </div>
+
+        <!-- Section 3: 设备列表 (精选) -->
+        <div class="px-5 mt-6">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-bold text-gray-800">持有设备详情</h3>
+                    <!-- 筛选标签显示区 -->
+                    <div id="filterTags" class="flex gap-1"></div>
+                </div>
+                <button onclick="openFilter()" class="text-xs text-blue-600 font-medium flex items-center gap-1">
+                    <iconify-icon icon="material-symbols:filter-list"></iconify-icon>
+                    筛选
+                    <span id="filterCount" class="hidden bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+            <div class="space-y-3" id="deviceList">
+                <!-- 设备项 1 -->
+                <div class="device-item bg-white p-4 rounded-2xl shadow-sm" data-status="running" data-base="foshan" data-type="3d" data-health="98">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-800">SN-829104-B</h4>
+                            <p class="text-[10px] text-gray-400 mt-0.5">工业级高精度3D打印模组 · 佛山基地</p>
+                        </div>
+                        <span class="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] rounded-md font-medium">运行中</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] mt-4 pt-3 border-t border-gray-50">
+                        <div>
+                            <p class="text-gray-400">累计产值</p>
+                            <p class="text-gray-800 font-bold mt-0.5">¥ 124,500</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">昨日贡献</p>
+                            <p class="text-blue-600 font-bold mt-0.5">+ ¥ 420.00</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">健康度</p>
+                            <p class="text-green-600 font-bold mt-0.5">98%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备项 2 -->
+                <div class="device-item bg-white p-4 rounded-2xl shadow-sm" data-status="maintenance" data-base="shanghai" data-type="sensor" data-health="42">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-800">SN-990231-X</h4>
+                            <p class="text-[10px] text-gray-400 mt-0.5">冷链物流温控传感器组 · 上海配送中心</p>
+                        </div>
+                        <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded-md font-medium">维护中</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] mt-4 pt-3 border-t border-gray-50">
+                        <div>
+                            <p class="text-gray-400">累计产值</p>
+                            <p class="text-gray-800 font-bold mt-0.5">¥ 88,200</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">昨日贡献</p>
+                            <p class="text-gray-400 font-bold mt-0.5">¥ 0.00</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">健康度</p>
+                            <p class="text-red-500 font-bold mt-0.5">42%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备项 3 -->
+                <div class="device-item bg-white p-4 rounded-2xl shadow-sm" data-status="running" data-base="suzhou" data-type="energy" data-health="95">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-800">SN-772103-C</h4>
+                            <p class="text-[10px] text-gray-400 mt-0.5">智能储能单元 · 苏州工业园区</p>
+                        </div>
+                        <span class="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] rounded-md font-medium">运行中</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] mt-4 pt-3 border-t border-gray-50">
+                        <div>
+                            <p class="text-gray-400">累计产值</p>
+                            <p class="text-gray-800 font-bold mt-0.5">¥ 56,800</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">昨日贡献</p>
+                            <p class="text-blue-600 font-bold mt-0.5">+ ¥ 210.00</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">健康度</p>
+                            <p class="text-green-600 font-bold mt-0.5">95%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备项 4 -->
+                <div class="device-item bg-white p-4 rounded-2xl shadow-sm" data-status="running" data-base="foshan" data-type="3d" data-health="92">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-800">SN-445210-A</h4>
+                            <p class="text-[10px] text-gray-400 mt-0.5">高速激光烧结系统 · 佛山基地</p>
+                        </div>
+                        <span class="px-2 py-0.5 bg-green-50 text-green-600 text-[10px] rounded-md font-medium">运行中</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] mt-4 pt-3 border-t border-gray-50">
+                        <div>
+                            <p class="text-gray-400">累计产值</p>
+                            <p class="text-gray-800 font-bold mt-0.5">¥ 98,300</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">昨日贡献</p>
+                            <p class="text-blue-600 font-bold mt-0.5">+ ¥ 385.00</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400">健康度</p>
+                            <p class="text-green-600 font-bold mt-0.5">92%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 无结果显示 -->
+            <div id="noResult" class="hidden py-12 text-center">
+                <iconify-icon class="text-4xl text-gray-300 mb-2" icon="material-symbols:search-off"></iconify-icon>
+                <p class="text-sm text-gray-400">没有找到符合条件的设备</p>
+                <button onclick="resetFilter()" class="mt-3 text-xs text-blue-600">重置筛选条件</button>
+            </div>
+        </div>
+
+        <!-- Section 4: 合伙人链路 -->
+        <div class="px-5 mt-8">
+            <h3 class="text-sm font-bold text-gray-800 mb-4">合伙人链路管理</h3>
+            <div class="bg-white rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center gap-3 pb-4 border-b border-gray-50">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">我</div>
+                    <div class="flex-1">
+                        <p class="text-xs font-bold text-gray-800">核心节点：王志远</p>
+                        <p class="text-[10px] text-gray-400">链路等级：L3 资深合伙人</p>
+                    </div>
+                </div>
+                <div class="mt-4 space-y-4">
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">下级直属合伙人 (3/8)</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-xs text-gray-700">李晨阳 (在线)</span>
+                        </div>
+                        <span class="text-[10px] text-gray-400">贡献度: 12.5%</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span class="text-xs text-gray-700">陈思涵 (在线)</span>
+                        </div>
+                        <span class="text-[10px] text-gray-400">贡献度: 8.2%</span>
+                    </div>
+                    <div class="flex items-center justify-between opacity-50">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full"></div>
+                            <span class="text-xs text-gray-700">赵子龙 (离线)</span>
+                        </div>
+                        <span class="text-[10px] text-gray-400">贡献度: 0%</span>
+                    </div>
+                </div>
+                <button onclick="openInvite()" class="w-full mt-6 py-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-xl">邀请新合伙人</button>
+            </div>
+        </div>
+
+        <!-- 增加足够底部留白 -->
+        <div class="h-24"></div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="absolute bottom-0 w-full h-20 bg-white border-t border-gray-100 px-4 flex justify-between items-center">
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="index.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:dashboard-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="news.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:article-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">最新</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 nav-active" href="partnership.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:handshake"></iconify-icon>
+            <span class="text-[10px] font-medium">合伙</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="investment.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:account-balance-wallet-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">参股</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="profile.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:person-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+</div>
+
+<script>
+    // 图表初始化
+    const chartDom = document.getElementById('compareChart');
+    const myChart = echarts.init(chartDom);
+    const option = {
+        legend: { bottom: 0, itemWidth: 8, textStyle: { fontSize: 10 } },
+        grid: { top: 20, bottom: 40, left: 40, right: 10 },
+        xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月'], axisLabel: { fontSize: 10 } },
+        yAxis: { type: 'value', axisLabel: { fontSize: 10 } },
+        series: [
+            {
+                name: '2025年收益',
+                type: 'bar',
+                data: [32000, 35000, 31000, 34000],
+                itemStyle: { color: '#e2e8f0', borderRadius: [4, 4, 0, 0] }
+            },
+            {
+                name: '2026年收益',
+                type: 'bar',
+                data: [45000, 48000, 42000, 12450],
+                itemStyle: { color: '#2563eb', borderRadius: [4, 4, 0, 0] }
+            }
+        ]
+    };
+    myChart.setOption(option);
+
+    // 筛选功能
+    let currentFilters = {
+        status: 'all',
+        base: 'all',
+        type: 'all',
+        health: 'all',
+        sort: 'default'
+    };
+
+    let filterCount = 0;
+
+    // 打开筛选弹窗
+    function openFilter() {
+        document.getElementById('filterModal').classList.add('show');
+        document.getElementById('filterOverlay').classList.add('show');
+    }
+
+    // 关闭筛选弹窗
+    function closeFilter() {
+        document.getElementById('filterModal').classList.remove('show');
+        document.getElementById('filterOverlay').classList.remove('show');
+    }
+
+    // 打开邀请弹窗
+    function openInvite() {
+        document.getElementById('inviteModal').classList.add('show');
+        document.getElementById('inviteOverlay').classList.add('show');
+    }
+
+    // 关闭邀请弹窗
+    function closeInvite() {
+        document.getElementById('inviteModal').classList.remove('show');
+        document.getElementById('inviteOverlay').classList.remove('show');
+    }
+
+    // 显示二维码
+    function showQRCode() {
+        closeInvite();
+        setTimeout(() => {
+            document.getElementById('qrModal').classList.add('show');
+            document.getElementById('qrOverlay').classList.add('show');
+        }, 300);
+    }
+
+    // 关闭二维码
+    function closeQRCode() {
+        document.getElementById('qrModal').classList.remove('show');
+        document.getElementById('qrOverlay').classList.remove('show');
+    }
+
+    // 复制邀请码
+    function copyInviteCode() {
+        const code = document.getElementById('inviteCode').textContent;
+        navigator.clipboard?.writeText(code).then(() => {
+            showToast('邀请码已复制');
+        }).catch(() => {
+            showToast('复制失败，请手动复制');
+        });
+    }
+
+    // 复制邀请链接
+    function copyInviteLink() {
+        const link = `https://aiqingpower.com/invite/WZY2026`;
+        navigator.clipboard?.writeText(link).then(() => {
+            showToast('邀请链接已复制');
+        }).catch(() => {
+            showToast('复制失败，请手动复制');
+        });
+    }
+
+    // 微信分享
+    function shareViaWechat() {
+        showToast('正在跳转微信...');
+        closeInvite();
+    }
+
+    // 保存二维码
+    function saveQRCode() {
+        showToast('二维码已保存到相册');
+    }
+
+    // 分享二维码
+    function shareQRCode() {
+        showToast('分享面板已打开');
+    }
+
+    // 查看全部记录
+    function viewAllRecords() {
+        showToast('查看全部邀请记录');
+    }
+
+    // 筛选选项点击事件
+    document.querySelectorAll('.filter-option').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const type = this.dataset.type;
+            const value = this.dataset.value;
+            const sort = this.dataset.sort;
+
+            if (type) {
+                document.querySelectorAll(`.filter-option[data-type="${type}"]`).forEach(b => {
+                    b.classList.remove('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+                    b.classList.add('bg-white', 'text-gray-700', 'border-gray-200');
+                });
+                this.classList.add('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+                this.classList.remove('bg-white', 'text-gray-700', 'border-gray-200');
+
+                currentFilters[type] = value;
+            }
+
+            if (sort) {
+                document.querySelectorAll('.filter-option[data-sort]').forEach(b => {
+                    b.classList.remove('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+                    b.classList.add('bg-white', 'text-gray-700', 'border-gray-200');
+                });
+                this.classList.add('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+                this.classList.remove('bg-white', 'text-gray-700', 'border-gray-200');
+
+                currentFilters.sort = sort;
+            }
+
+            updateFilterCount();
+        });
+    });
+
+    // 健康度单选框
+    document.querySelectorAll('input[name="health"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            currentFilters.health = this.value;
+            updateFilterCount();
+        });
+    });
+
+    // 更新筛选计数
+    function updateFilterCount() {
+        filterCount = 0;
+        if (currentFilters.status !== 'all') filterCount++;
+        if (currentFilters.base !== 'all') filterCount++;
+        if (currentFilters.type !== 'all') filterCount++;
+        if (currentFilters.health !== 'all') filterCount++;
+        if (currentFilters.sort !== 'default') filterCount++;
+
+        const countEl = document.getElementById('filterCount');
+        if (filterCount > 0) {
+            countEl.classList.remove('hidden');
+            countEl.textContent = filterCount;
+        } else {
+            countEl.classList.add('hidden');
+        }
+    }
+
+    // 应用筛选
+    function applyFilter() {
+        const devices = document.querySelectorAll('.device-item');
+        let visibleCount = 0;
+
+        devices.forEach(device => {
+            let visible = true;
+
+            if (currentFilters.status !== 'all' && device.dataset.status !== currentFilters.status) {
+                visible = false;
+            }
+
+            if (currentFilters.base !== 'all' && device.dataset.base !== currentFilters.base) {
+                visible = false;
+            }
+
+            if (currentFilters.type !== 'all' && device.dataset.type !== currentFilters.type) {
+                visible = false;
+            }
+
+            if (currentFilters.health !== 'all') {
+                const health = parseInt(device.dataset.health);
+                if (currentFilters.health === 'good' && health < 90) visible = false;
+                if (currentFilters.health === 'warning' && (health < 60 || health >= 90)) visible = false;
+                if (currentFilters.health === 'danger' && health >= 60) visible = false;
+            }
+
+            if (visible) {
+                device.classList.remove('hidden');
+                visibleCount++;
+            } else {
+                device.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('deviceCount').innerHTML = `${visibleCount} <span class="text-xs font-normal">台</span>`;
+
+        const noResult = document.getElementById('noResult');
+        if (visibleCount === 0) {
+            noResult.classList.remove('hidden');
+        } else {
+            noResult.classList.add('hidden');
+        }
+
+        showFilterTags();
+        closeFilter();
+        showToast(`已筛选出 ${visibleCount} 台设备`);
+    }
+
+    // 显示筛选标签
+    function showFilterTags() {
+        const tagsContainer = document.getElementById('filterTags');
+        tagsContainer.innerHTML = '';
+
+        const labels = {
+            status: { 'running': '运行中', 'maintenance': '维护中', 'offline': '离线' },
+            base: { 'foshan': '佛山', 'shanghai': '上海', 'suzhou': '苏州' },
+            type: { '3d': '3D打印', 'sensor': '传感器', 'energy': '储能' },
+            health: { 'good': '健康≥90%', 'warning': '健康60-89%', 'danger': '健康<60%' }
+        };
+
+        for (let key in currentFilters) {
+            if (currentFilters[key] !== 'all' && key !== 'sort') {
+                const tag = document.createElement('span');
+                tag.className = 'px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] rounded-full flex items-center gap-1';
+
+                let text = currentFilters[key];
+                if (labels[key] && labels[key][currentFilters[key]]) {
+                    text = labels[key][currentFilters[key]];
+                }
+
+                tag.innerHTML = `${text} <iconify-icon icon="material-symbols:close" class="text-xs cursor-pointer" onclick="removeFilter('${key}')"></iconify-icon>`;
+                tagsContainer.appendChild(tag);
+            }
+        }
+    }
+
+    // 移除单个筛选
+    function removeFilter(type) {
+        currentFilters[type] = 'all';
+
+        if (type === 'health') {
+            document.querySelector('input[name="health"][value="all"]').checked = true;
+        } else {
+            document.querySelectorAll(`.filter-option[data-type="${type}"]`).forEach(b => {
+                b.classList.remove('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+                b.classList.add('bg-white', 'text-gray-700', 'border-gray-200');
+            });
+            document.querySelector(`.filter-option[data-type="${type}"][data-value="all"]`).classList.add('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+        }
+
+        updateFilterCount();
+        applyFilter();
+    }
+
+    // 重置筛选
+    function resetFilter() {
+        currentFilters = {
+            status: 'all',
+            base: 'all',
+            type: 'all',
+            health: 'all',
+            sort: 'default'
+        };
+
+        document.querySelectorAll('.filter-option').forEach(b => {
+            b.classList.remove('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+            b.classList.add('bg-white', 'text-gray-700', 'border-gray-200');
+        });
+
+        document.querySelector('.filter-option[data-type="status"][data-value="all"]').classList.add('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+        document.querySelector('.filter-option[data-type="base"][data-value="all"]').classList.add('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+        document.querySelector('.filter-option[data-type="device"][data-value="all"]').classList.add('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+        document.querySelector('.filter-option[data-sort="default"]').classList.add('active', 'bg-blue-50', 'text-blue-600', 'border-blue-600');
+        document.querySelector('input[name="health"][value="all"]').checked = true;
+
+        filterCount = 0;
+        document.getElementById('filterCount').classList.add('hidden');
+
+        applyFilter();
+    }
+
+    // 显示提示消息
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-4 py-2 rounded-full shadow-lg z-50';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        toast.textContent = message;
+        document.querySelector('.app-container').appendChild(toast);
+
+        setTimeout(() => toast.style.opacity = '1', 10);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }
+</script>
+</body>
+</html>

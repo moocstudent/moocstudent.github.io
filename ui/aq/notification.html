@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>艾氢动力 - 通知中心</title>
+    <script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+    <script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+    <style>
+        body { background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .app-container { width: 375px; height: 812px; margin: 0 auto; position: relative; overflow: hidden; background: #f8fafc; border: 8px solid #333; border-radius: 36px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .content-scroll {
+            position: absolute;
+            top: 80px;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .content-scroll::-webkit-scrollbar { display: none; }
+        .nav-active { color: #2563eb; }
+        .notification-item {
+            transition: all 0.2s ease;
+        }
+        .notification-item:active {
+            background-color: #f8fafc;
+        }
+        /* 分类标签样式 */
+        .category-tab.active {
+            color: #2563eb;
+            border-bottom: 2px solid #2563eb;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- 头部 -->
+    <div class="absolute top-0 left-0 right-0 bg-white z-10">
+        <!-- 状态栏 -->
+        <div class="h-10 w-full flex justify-between items-center px-6 pt-2 text-xs font-bold text-gray-800">
+            <span>09:41</span>
+            <div class="flex gap-1 items-center">
+                <iconify-icon icon="material-symbols:signal-cellular-4-bar"></iconify-icon>
+                <iconify-icon icon="material-symbols:wifi"></iconify-icon>
+                <iconify-icon icon="material-symbols:battery-full"></iconify-icon>
+            </div>
+        </div>
+
+        <!-- 导航栏 -->
+        <div class="px-5 pb-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="index.html">
+                    <iconify-icon class="text-xl text-gray-600" icon="material-symbols:arrow-back-ios-new"></iconify-icon>
+                </a>
+                <h1 class="text-xl font-bold text-gray-900">通知中心</h1>
+            </div>
+            <div class="flex gap-3">
+                <button class="text-gray-500">
+                    <iconify-icon class="text-xl" icon="material-symbols:search"></iconify-icon>
+                </button>
+                <button class="text-gray-500">
+                    <iconify-icon class="text-xl" icon="material-symbols:more-vert"></iconify-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- 分类标签 -->
+        <div class="px-5 flex gap-6 border-b border-gray-100">
+            <button class="category-tab active pb-2 text-sm font-medium text-gray-900 border-b-2 border-blue-600" data-category="all">
+                全部
+                <span class="ml-1 text-[10px] text-gray-400">8</span>
+            </button>
+            <button class="category-tab pb-2 text-sm font-medium text-gray-500" data-category="system">
+                系统
+                <span class="ml-1 text-[10px] text-gray-400">3</span>
+            </button>
+            <button class="category-tab pb-2 text-sm font-medium text-gray-500" data-category="business">
+                业务
+                <span class="ml-1 text-[10px] text-gray-400">4</span>
+            </button>
+            <button class="category-tab pb-2 text-sm font-medium text-gray-500" data-category="activity">
+                活动
+                <span class="ml-1 text-[10px] text-gray-400">1</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 内容滚动区域 -->
+    <div class="content-scroll px-5">
+        <!-- 置顶通知 -->
+        <div class="mt-4 mb-3">
+            <div class="flex items-center gap-2 mb-2">
+                <iconify-icon class="text-orange-500 text-sm" icon="material-symbols:push-pin"></iconify-icon>
+                <span class="text-xs font-medium text-gray-500">置顶消息</span>
+            </div>
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 notification-item cursor-pointer">
+                <div class="flex gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                        <iconify-icon class="text-white text-lg" icon="material-symbols:campaign"></iconify-icon>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="text-sm font-bold text-gray-900">西南三号智造中心二期扩建完成</h3>
+                            <span class="text-[10px] text-gray-400">置顶</span>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-2 leading-relaxed">新增3条智能产线已正式投产，预计本月产能提升35%。作为高级合伙人，您的分红权益将同步调整。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] text-gray-400">2026-04-07 14:30</span>
+                            <span class="text-[10px] text-blue-600 font-medium">查看详情 →</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 今天 -->
+        <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-gray-500">今天</span>
+                <button class="text-[10px] text-gray-400">全部已读</button>
+            </div>
+            <div class="space-y-3">
+                <!-- 通知1 - 未读 -->
+                <div class="bg-white rounded-xl p-3 shadow-sm border-l-4 border-yellow-400 notification-item cursor-pointer relative">
+                    <span class="absolute top-3 right-3 w-2 h-2 bg-blue-600 rounded-full"></span>
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center shrink-0">
+                            <iconify-icon class="text-xl text-yellow-600" icon="material-symbols:warning-amber-rounded"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="text-xs font-bold text-gray-800">设备异常提醒</h3>
+                                <span class="text-[10px] text-gray-400">10:24</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed">编号 SN-8291 的工业3D打印模块目前处于低功率运行状态，请联系运维。</p>
+                            <div class="flex gap-2 mt-2">
+                                <button class="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] rounded-full font-medium">立即处理</button>
+                                <button class="px-3 py-1 bg-gray-50 text-gray-500 text-[10px] rounded-full font-medium">稍后</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通知2 - 未读 -->
+                <div class="bg-white rounded-xl p-3 shadow-sm border-l-4 border-green-400 notification-item cursor-pointer relative">
+                    <span class="absolute top-3 right-3 w-2 h-2 bg-blue-600 rounded-full"></span>
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center shrink-0">
+                            <iconify-icon class="text-xl text-green-600" icon="material-symbols:payments"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="text-xs font-bold text-gray-800">分红已发放</h3>
+                                <span class="text-[10px] text-gray-400">08:00</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed">您2026年4月6日的参股收益已结算，金额为 ¥4,200.00。款项已汇入您的合伙人账户。</p>
+                            <div class="mt-2">
+                                <span class="text-[10px] text-blue-600 font-medium">查看账单明细 →</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通知3 - 已读 -->
+                <div class="bg-white rounded-xl p-3 shadow-sm border-l-4 border-gray-200 notification-item cursor-pointer opacity-70">
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                            <iconify-icon class="text-xl text-blue-600" icon="material-symbols:analytics"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="text-xs font-bold text-gray-800">月度运营报告已生成</h3>
+                                <span class="text-[10px] text-gray-400">06:30</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed">2026年3月设备运营报告已出炉，总开机率达到94.2%，高于上月2.1个百分点。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 昨天 -->
+        <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-gray-500">昨天</span>
+            </div>
+            <div class="space-y-3">
+                <!-- 通知4 -->
+                <div class="bg-white rounded-xl p-3 shadow-sm border-l-4 border-purple-400 notification-item cursor-pointer opacity-70">
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
+                            <iconify-icon class="text-xl text-purple-600" icon="material-symbols:groups"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="text-xs font-bold text-gray-800">新合伙人邀请成功</h3>
+                                <span class="text-[10px] text-gray-400">昨日 16:20</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed">您推荐的李敏女士已完成首次投资，根据推荐奖励机制，您将获得额外0.3%的分红权重加成。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通知5 -->
+                <div class="bg-white rounded-xl p-3 shadow-sm border-l-4 border-orange-400 notification-item cursor-pointer opacity-70">
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center shrink-0">
+                            <iconify-icon class="text-xl text-orange-600" icon="material-symbols:update"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="text-xs font-bold text-gray-800">系统维护通知</h3>
+                                <span class="text-[10px] text-gray-400">昨日 10:00</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed">平台将于4月10日凌晨02:00-04:00进行系统升级维护，届时部分功能可能暂时不可用。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 更早 -->
+        <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-gray-500">4月5日</span>
+            </div>
+            <div class="space-y-3">
+                <!-- 通知6 -->
+                <div class="bg-white rounded-xl p-3 shadow-sm notification-item cursor-pointer opacity-70">
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center shrink-0">
+                            <iconify-icon class="text-xl text-cyan-600" icon="material-symbols:article"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="text-xs font-bold text-gray-800">季度分红政策更新</h3>
+                                <span class="text-[10px] text-gray-400">4月5日</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed">2026年Q2合伙人分红系数已更新，高级合伙人基础分红率上调0.5%，详情请查看政策文件。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通知7 -->
+                <div class="bg-white rounded-xl p-3 shadow-sm notification-item cursor-pointer opacity-70">
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-pink-50 flex items-center justify-center shrink-0">
+                            <iconify-icon class="text-xl text-pink-600" icon="material-symbols:celebration"></iconify-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3 class="text-xs font-bold text-gray-800">艾氢动力三周年庆典</h3>
+                                <span class="text-[10px] text-gray-400">4月5日</span>
+                            </div>
+                            <p class="text-xs text-gray-500 leading-relaxed">诚邀您参加4月20日在上海中心举办的"氢启未来"三周年庆典暨合伙人答谢会。</p>
+                            <div class="mt-2">
+                                <button class="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-[10px] rounded-full font-medium">立即报名</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部提示 -->
+        <div class="py-6 text-center">
+            <p class="text-[10px] text-gray-400">没有更多通知了</p>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="absolute bottom-0 left-0 right-0 w-full h-20 bg-white border-t border-gray-100 px-4 flex justify-between items-center z-10">
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="index.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:dashboard-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">首页</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="news.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:article-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">最新</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="partnership.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:handshake-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">合伙</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="investment.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:account-balance-wallet-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">参股</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-gray-400" href="profile.html">
+            <iconify-icon class="text-2xl" icon="material-symbols:person-outline"></iconify-icon>
+            <span class="text-[10px] font-medium">我的</span>
+        </a>
+    </div>
+</div>
+
+<script>
+    // 分类标签切换功能
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 移除所有active类
+            document.querySelectorAll('.category-tab').forEach(t => {
+                t.classList.remove('active', 'text-gray-900', 'border-b-2', 'border-blue-600');
+                t.classList.add('text-gray-500');
+            });
+            // 添加active类到当前标签
+            this.classList.add('active', 'text-gray-900', 'border-b-2', 'border-blue-600');
+            this.classList.remove('text-gray-500');
+
+            // 这里可以添加根据分类筛选通知的逻辑
+            const category = this.dataset.category;
+            console.log('切换到分类:', category);
+            // 实际项目中这里会调用API获取对应分类的通知
+        });
+    });
+
+    // 通知项点击效果
+    document.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            // 防止点击内部按钮时触发
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                return;
+            }
+            console.log('查看通知详情');
+            // 这里可以跳转到详情页或标记为已读
+        });
+    });
+
+    // 全部已读功能
+    document.querySelectorAll('.flex.items-center.justify-between button').forEach(btn => {
+        if (btn.textContent === '全部已读') {
+            btn.addEventListener('click', function() {
+                console.log('标记今天所有通知为已读');
+                // 这里可以添加标记已读的逻辑
+                alert('已标记为已读');
+            });
+        }
+    });
+</script>
+</body>
+</html>
