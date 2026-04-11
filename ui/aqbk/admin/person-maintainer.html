@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>维护人管理 - 艾氢动力 · 氢能智控平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #F0F2F5; }
+        .sidebar-item-active { background: linear-gradient(135deg, #059669, #10B981); color: white; }
+        .stat-card { transition: all 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+        .skill-tag { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; background: #E5E7EB; color: #4B5563; }
+        .rating-star { color: #F59E0B; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-gray-300 flex flex-col shrink-0">
+    <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-700/50">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+            <span class="iconify text-white text-xl" data-icon="ri:leaf-line"></span>
+        </div>
+        <span class="text-white font-bold text-lg tracking-wider">艾氢动力</span>
+    </div>
+    <nav class="flex-1 mt-4 px-3 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dashboard.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:dashboard-3-line"></span>
+            <span class="text-sm font-medium">工作台</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">设备管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-map.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:map-pin-line"></span>
+            <span class="text-sm font-medium">设备一览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:server-line"></span>
+            <span class="text-sm font-medium">设备列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-repair.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:tools-line"></span>
+            <span class="text-sm font-medium">设备报修</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-warning.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:alert-line"></span>
+            <span class="text-sm font-medium">设备预警</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">产能管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:list-check"></span>
+            <span class="text-sm font-medium">产能列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-stats.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:bar-chart-2-line"></span>
+            <span class="text-sm font-medium">产能统计</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-monitor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:speed-line"></span>
+            <span class="text-sm font-medium">指标监控</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">组织管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-province.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:building-line"></span>
+            <span class="text-sm font-medium">省设备公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-city.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:store-2-line"></span>
+            <span class="text-sm font-medium">市能源公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:group-line"></span>
+            <span class="text-sm font-medium">客户公司</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">人员管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-star-line"></span>
+            <span class="text-sm font-medium">合伙人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner-level.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:medal-line"></span>
+            <span class="text-sm font-medium">合伙人层级</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-investor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:money-cny-circle-line"></span>
+            <span class="text-sm font-medium">投资人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-heart-line"></span>
+            <span class="text-sm font-medium">客户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 rounded-lg transition-all sidebar-item-active" href="person-maintainer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-settings-line"></span>
+            <span class="text-sm font-medium">维护人管理</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">财务管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-overview.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:funds-line"></span>
+            <span class="text-sm font-medium">分红概览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-rule.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:settings-4-line"></span>
+            <span class="text-sm font-medium">分红规则</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">系统管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:file-copy-line"></span>
+            <span class="text-sm font-medium">合同管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="message-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:mail-line"></span>
+            <span class="text-sm font-medium">系统消息</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">权限设置</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-user.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:admin-line"></span>
+            <span class="text-sm font-medium">用户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-role.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:shield-user-line"></span>
+            <span class="text-sm font-medium">角色管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-permission.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:lock-line"></span>
+            <span class="text-sm font-medium">权限管理</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-gray-700/50">
+        <a class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors" href="../index.html">
+            <span class="iconify" data-icon="ri:logout-box-r-line"></span>
+            <span class="text-sm">退出登录</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Header -->
+    <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 shrink-0 shadow-sm">
+        <div class="flex items-center gap-4">
+            <nav class="flex text-sm text-gray-500">
+                <ol class="flex items-center space-x-2">
+                    <li class="flex items-center"><a href="dashboard.html" class="hover:text-emerald-600 transition-colors"><span class="iconify text-gray-400" data-icon="ri:home-4-line"></span></a></li>
+                    <li class="flex items-center space-x-2"><span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span><span class="text-gray-900 font-medium">维护人管理</span></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <a href="message-list.html" class="relative">
+                <span class="iconify text-gray-500 text-xl cursor-pointer hover:text-emerald-600 transition-colors" data-icon="ri:notification-3-line"></span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            </a>
+            <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+                <span class="text-sm font-medium text-gray-700">2026年04月11日 周五</span>
+            </div>
+            <a href="profile.html" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">张</div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-800">张浩</p>
+                    <p class="text-[10px] text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>市公司</p>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-full mx-auto space-y-5">
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-5 gap-4">
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500">维护人总数</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1">24</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500">在线可接单</p>
+                    <p class="text-2xl font-bold text-green-600 mt-1">18</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500">本月完成工单</p>
+                    <p class="text-2xl font-bold text-blue-600 mt-1">156</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500">平均评分</p>
+                    <p class="text-2xl font-bold text-amber-600 mt-1">4.85</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500">待发放积分</p>
+                    <p class="text-2xl font-bold text-purple-600 mt-1">12,580</p>
+                </div>
+            </div>
+
+            <!-- 筛选栏 -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="flex-1 min-w-[200px]">
+                        <input type="text" placeholder="搜索姓名/手机号/工号" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <select class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                        <option>全部技能</option><option>电解槽</option><option>储氢罐</option><option>加氢站</option><option>电气</option><option>机械</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                        <option>全部状态</option><option>在线可接单</option><option>忙碌中</option><option>休假</option>
+                    </select>
+                    <select class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                        <option>全部等级</option><option>初级</option><option>中级</option><option>高级</option><option>专家</option>
+                    </select>
+                    <button class="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700">查询</button>
+                    <button class="px-6 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">重置</button>
+                    <button class="ml-auto px-5 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center gap-1" onclick="alert('新增维护人')">
+                        <span class="iconify" data-icon="ri:add-line"></span>新增维护人
+                    </button>
+                </div>
+            </div>
+
+            <!-- 维护人列表 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 border-b text-xs text-gray-500 uppercase">
+                        <tr>
+                            <th class="px-4 py-3">工号</th>
+                            <th class="px-4 py-3">姓名</th>
+                            <th class="px-4 py-3">等级</th>
+                            <th class="px-4 py-3">技能标签</th>
+                            <th class="px-4 py-3">服务区域</th>
+                            <th class="px-4 py-3">联系电话</th>
+                            <th class="px-4 py-3">本月工单</th>
+                            <th class="px-4 py-3">评分</th>
+                            <th class="px-4 py-3">积分</th>
+                            <th class="px-4 py-3">状态</th>
+                            <th class="px-4 py-3 text-center">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y text-sm">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">MT-001</td>
+                            <td class="px-4 py-4 font-medium text-gray-800">张建国</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-purple-100 text-purple-700">高级</span></td>
+                            <td class="px-4 py-4"><div class="flex flex-wrap gap-1"><span class="skill-tag">电解槽</span><span class="skill-tag">电气</span><span class="skill-tag">PLC</span></div></td>
+                            <td class="px-4 py-4 text-gray-600">杭州市</td>
+                            <td class="px-4 py-4 text-gray-600">138****1234</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">12</td>
+                            <td class="px-4 py-4"><span class="rating-star">★★★★★</span> 5.0</td>
+                            <td class="px-4 py-4 font-semibold text-purple-600">2,850</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-green-100 text-green-700">在线可接单</span></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看详情')">详情</button>
+                                    <button class="text-gray-400 hover:text-blue-600" onclick="alert('编辑')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                    <button class="text-gray-400 hover:text-amber-600" onclick="alert('派单')"><span class="iconify" data-icon="ri:task-line"></span></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">MT-002</td>
+                            <td class="px-4 py-4 font-medium text-gray-800">李伟</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-blue-100 text-blue-700">中级</span></td>
+                            <td class="px-4 py-4"><div class="flex flex-wrap gap-1"><span class="skill-tag">储氢罐</span><span class="skill-tag">机械</span><span class="skill-tag">焊接</span></div></td>
+                            <td class="px-4 py-4 text-gray-600">杭州市</td>
+                            <td class="px-4 py-4 text-gray-600">139****5678</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">8</td>
+                            <td class="px-4 py-4"><span class="rating-star">★★★★☆</span> 4.8</td>
+                            <td class="px-4 py-4 font-semibold text-purple-600">1,920</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-green-100 text-green-700">在线可接单</span></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看详情')">详情</button>
+                                    <button class="text-gray-400 hover:text-blue-600" onclick="alert('编辑')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                    <button class="text-gray-400 hover:text-amber-600" onclick="alert('派单')"><span class="iconify" data-icon="ri:task-line"></span></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">MT-003</td>
+                            <td class="px-4 py-4 font-medium text-gray-800">王海</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-amber-100 text-amber-700">专家</span></td>
+                            <td class="px-4 py-4"><div class="flex flex-wrap gap-1"><span class="skill-tag">加氢站</span><span class="skill-tag">电解槽</span><span class="skill-tag">电气</span><span class="skill-tag">自控</span></div></td>
+                            <td class="px-4 py-4 text-gray-600">浙江省</td>
+                            <td class="px-4 py-4 text-gray-600">137****3456</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">6</td>
+                            <td class="px-4 py-4"><span class="rating-star">★★★★★</span> 5.0</td>
+                            <td class="px-4 py-4 font-semibold text-purple-600">3,200</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-yellow-100 text-yellow-700">忙碌中</span></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看详情')">详情</button>
+                                    <button class="text-gray-400 hover:text-blue-600" onclick="alert('编辑')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">MT-004</td>
+                            <td class="px-4 py-4 font-medium text-gray-800">陈明</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-gray-100 text-gray-600">初级</span></td>
+                            <td class="px-4 py-4"><div class="flex flex-wrap gap-1"><span class="skill-tag">电解槽</span><span class="skill-tag">巡检</span></div></td>
+                            <td class="px-4 py-4 text-gray-600">宁波市</td>
+                            <td class="px-4 py-4 text-gray-600">136****7890</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">5</td>
+                            <td class="px-4 py-4"><span class="rating-star">★★★★☆</span> 4.5</td>
+                            <td class="px-4 py-4 font-semibold text-purple-600">850</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-gray-100 text-gray-600">休假</span></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看详情')">详情</button>
+                                    <button class="text-gray-400 hover:text-blue-600" onclick="alert('编辑')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">MT-005</td>
+                            <td class="px-4 py-4 font-medium text-gray-800">赵强</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-blue-100 text-blue-700">中级</span></td>
+                            <td class="px-4 py-4"><div class="flex flex-wrap gap-1"><span class="skill-tag">燃料电池</span><span class="skill-tag">电气</span><span class="skill-tag">诊断</span></div></td>
+                            <td class="px-4 py-4 text-gray-600">温州市</td>
+                            <td class="px-4 py-4 text-gray-600">135****2345</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">7</td>
+                            <td class="px-4 py-4"><span class="rating-star">★★★★★</span> 4.9</td>
+                            <td class="px-4 py-4 font-semibold text-purple-600">1,680</td>
+                            <td class="px-4 py-4"><span class="status-badge bg-green-100 text-green-700">在线可接单</span></td>
+                            <td class="px-4 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看详情')">详情</button>
+                                    <button class="text-gray-400 hover:text-blue-600" onclick="alert('编辑')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                    <button class="text-gray-400 hover:text-amber-600" onclick="alert('派单')"><span class="iconify" data-icon="ri:task-line"></span></button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                    <div class="text-xs text-gray-500">显示第 1-5 条，共 24 条</div>
+                    <div class="flex items-center gap-1">
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400"><span class="iconify" data-icon="ri:arrow-left-s-line"></span></button>
+                        <button class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm">1</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 text-sm">2</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 text-sm">3</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600"><span class="iconify" data-icon="ri:arrow-right-s-line"></span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 积分规则说明 -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                        <span class="iconify text-emerald-600" data-icon="ri:exchange-funds-line"></span>
+                        积分兑换规则
+                    </h3>
+                    <button class="text-xs text-emerald-600 hover:underline" onclick="alert('配置积分规则')">配置规则</button>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-gray-50 p-3 rounded-lg text-center">
+                        <p class="text-xs text-gray-500">完成工单</p>
+                        <p class="text-xl font-bold text-gray-800">+100</p>
+                        <p class="text-[10px] text-gray-400">基础积分/单</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg text-center">
+                        <p class="text-xs text-gray-500">好评奖励</p>
+                        <p class="text-xl font-bold text-gray-800">+50</p>
+                        <p class="text-[10px] text-gray-400">5星评价</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg text-center">
+                        <p class="text-xs text-gray-500">紧急工单</p>
+                        <p class="text-xl font-bold text-gray-800">×1.5</p>
+                        <p class="text-[10px] text-gray-400">积分翻倍</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg text-center">
+                        <p class="text-xs text-gray-500">积分兑换</p>
+                        <p class="text-xl font-bold text-gray-800">100:1</p>
+                        <p class="text-[10px] text-gray-400">积分:现金</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+</body>
+</html>

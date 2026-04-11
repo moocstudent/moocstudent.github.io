@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>设备一览 - 艾氢动力 · 氢能智控平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #F0F2F5; }
+        .sidebar-item-active { background: linear-gradient(135deg, #059669, #10B981); color: white; }
+        .stat-card { transition: all 0.2s; background: rgba(255,255,255,0.95); backdrop-filter: blur(4px); }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+        .site-marker { cursor: pointer; transition: all 0.2s; }
+        .site-marker:hover { filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.5)); }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-gray-300 flex flex-col shrink-0">
+    <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-700/50">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+            <span class="iconify text-white text-xl" data-icon="ri:leaf-line"></span>
+        </div>
+        <span class="text-white font-bold text-lg tracking-wider">艾氢动力</span>
+    </div>
+    <nav class="flex-1 mt-4 px-3 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dashboard.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:dashboard-3-line"></span>
+            <span class="text-sm font-medium">工作台</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">设备管理</div>
+        <a class="flex items-center px-4 py-3 rounded-lg transition-all sidebar-item-active" href="device-map.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:map-pin-line"></span>
+            <span class="text-sm font-medium">设备一览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:server-line"></span>
+            <span class="text-sm font-medium">设备列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-repair.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:tools-line"></span>
+            <span class="text-sm font-medium">设备报修</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-warning.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:alert-line"></span>
+            <span class="text-sm font-medium">设备预警</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">产能管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:list-check"></span>
+            <span class="text-sm font-medium">产能列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-stats.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:bar-chart-2-line"></span>
+            <span class="text-sm font-medium">产能统计</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-monitor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:speed-line"></span>
+            <span class="text-sm font-medium">指标监控</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">组织管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-province.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:building-line"></span>
+            <span class="text-sm font-medium">省设备公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-city.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:store-2-line"></span>
+            <span class="text-sm font-medium">市能源公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:group-line"></span>
+            <span class="text-sm font-medium">客户公司</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">人员管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-star-line"></span>
+            <span class="text-sm font-medium">合伙人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner-level.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:medal-line"></span>
+            <span class="text-sm font-medium">合伙人层级</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-investor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:money-cny-circle-line"></span>
+            <span class="text-sm font-medium">投资人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-heart-line"></span>
+            <span class="text-sm font-medium">客户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-maintainer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-settings-line"></span>
+            <span class="text-sm font-medium">维护人管理</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">财务管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-overview.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:funds-line"></span>
+            <span class="text-sm font-medium">分红概览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-rule.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:settings-4-line"></span>
+            <span class="text-sm font-medium">分红规则</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">系统管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:file-copy-line"></span>
+            <span class="text-sm font-medium">合同管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="message-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:mail-line"></span>
+            <span class="text-sm font-medium">系统消息</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">权限设置</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-user.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:admin-line"></span>
+            <span class="text-sm font-medium">用户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-role.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:shield-user-line"></span>
+            <span class="text-sm font-medium">角色管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-permission.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:lock-line"></span>
+            <span class="text-sm font-medium">权限管理</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-gray-700/50">
+        <a class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors" href="../index.html">
+            <span class="iconify" data-icon="ri:logout-box-r-line"></span>
+            <span class="text-sm">退出登录</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-gray-50">
+    <!-- Header -->
+    <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 shrink-0 shadow-sm z-10">
+        <div class="flex items-center gap-4">
+            <nav class="flex text-sm text-gray-500">
+                <ol class="flex items-center space-x-2">
+                    <li class="flex items-center"><a href="dashboard.html" class="hover:text-emerald-600 transition-colors"><span class="iconify text-gray-400" data-icon="ri:home-4-line"></span></a></li>
+                    <li class="flex items-center space-x-2"><span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span><span class="text-gray-900 font-medium">设备一览</span></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <a href="message-list.html" class="relative">
+                <span class="iconify text-gray-500 text-xl cursor-pointer hover:text-emerald-600 transition-colors" data-icon="ri:notification-3-line"></span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            </a>
+            <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+                <span class="text-sm font-medium text-gray-700">2026年04月11日 周五</span>
+            </div>
+            <a href="profile.html" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">张</div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-800">张浩</p>
+                    <p class="text-[10px] text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>超管</p>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Map Area -->
+    <div class="flex-1 relative overflow-hidden">
+        <!-- 地图容器 -->
+        <div id="mapContainer" class="w-full h-full bg-[#F8FAFC]"></div>
+
+        <!-- 悬浮控制面板 -->
+        <div class="absolute top-4 left-4 z-10 space-y-3">
+            <!-- 统计卡片组 -->
+            <div class="flex gap-3">
+                <div class="stat-card bg-white rounded-xl shadow-lg border border-gray-100 px-5 py-3">
+                    <p class="text-xs text-gray-500">全国站点</p>
+                    <p class="text-2xl font-bold text-gray-800">48</p>
+                    <p class="text-xs text-emerald-600 mt-0.5">覆盖 28 个城市</p>
+                </div>
+                <div class="stat-card bg-white rounded-xl shadow-lg border border-gray-100 px-5 py-3">
+                    <p class="text-xs text-gray-500">在线设备</p>
+                    <p class="text-2xl font-bold text-green-600">1,142</p>
+                    <p class="text-xs text-gray-400 mt-0.5">/ 1,284 台</p>
+                </div>
+                <div class="stat-card bg-white rounded-xl shadow-lg border border-gray-100 px-5 py-3">
+                    <p class="text-xs text-gray-500">今日产氢</p>
+                    <p class="text-2xl font-bold text-gray-800">42,850</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Nm³</p>
+                </div>
+            </div>
+
+            <!-- 图例 -->
+            <div class="stat-card bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 px-4 py-3 inline-block">
+                <p class="text-xs font-medium text-gray-600 mb-2">设备状态</p>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center"><span class="legend-dot bg-green-500"></span><span class="text-xs text-gray-600">在线</span></div>
+                    <div class="flex items-center"><span class="legend-dot bg-gray-400"></span><span class="text-xs text-gray-600">离线</span></div>
+                    <div class="flex items-center"><span class="legend-dot bg-red-500"></span><span class="text-xs text-gray-600">故障</span></div>
+                    <div class="flex items-center"><span class="legend-dot bg-amber-500"></span><span class="text-xs text-gray-600">维护</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧站点列表 -->
+        <div class="absolute top-4 right-4 z-10 w-72">
+            <div class="stat-card bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="font-semibold text-gray-800 text-sm">附近站点</h3>
+                    <select class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:border-emerald-500">
+                        <option>全部地区</option>
+                        <option>华东</option>
+                        <option>华南</option>
+                        <option>华北</option>
+                    </select>
+                </div>
+                <div class="max-h-[400px] overflow-y-auto">
+                    <div class="site-item p-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors" onclick="alert('跳转到杭州滨江站详情')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="font-medium text-sm text-gray-800">杭州滨江站</span>
+                            </div>
+                            <span class="text-xs text-gray-400">12台</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">浙江省 · 杭州市 · 滨江区</p>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-xs text-gray-600"><span class="font-semibold text-emerald-600">38,500</span> Nm³</span>
+                            <span class="text-xs text-gray-400">|</span>
+                            <span class="text-xs text-gray-600">利用率 98.5%</span>
+                        </div>
+                    </div>
+                    <div class="site-item p-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors" onclick="alert('跳转到上海嘉定站详情')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="font-medium text-sm text-gray-800">上海嘉定站</span>
+                            </div>
+                            <span class="text-xs text-gray-400">8台</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">上海市 · 嘉定区</p>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-xs text-gray-600"><span class="font-semibold text-emerald-600">32,100</span> Nm³</span>
+                            <span class="text-xs text-gray-400">|</span>
+                            <span class="text-xs text-gray-600">利用率 96.2%</span>
+                        </div>
+                    </div>
+                    <div class="site-item p-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors" onclick="alert('跳转到广州南沙站详情')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                                <span class="font-medium text-sm text-gray-800">广州南沙站</span>
+                            </div>
+                            <span class="text-xs text-gray-400">10台</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">广东省 · 广州市 · 南沙区</p>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-xs text-gray-600"><span class="font-semibold text-emerald-600">25,600</span> Nm³</span>
+                            <span class="text-xs text-gray-400">|</span>
+                            <span class="text-xs text-gray-600">利用率 88.5%</span>
+                        </div>
+                    </div>
+                    <div class="site-item p-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors" onclick="alert('跳转到苏州工业园站详情')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="font-medium text-sm text-gray-800">苏州工业园站</span>
+                            </div>
+                            <span class="text-xs text-gray-400">6台</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">江苏省 · 苏州市</p>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-xs text-gray-600"><span class="font-semibold text-emerald-600">22,800</span> Nm³</span>
+                            <span class="text-xs text-gray-400">|</span>
+                            <span class="text-xs text-gray-600">利用率 92.1%</span>
+                        </div>
+                    </div>
+                    <div class="site-item p-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors" onclick="alert('跳转到北京大兴站详情')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="font-medium text-sm text-gray-800">北京大兴站</span>
+                            </div>
+                            <span class="text-xs text-gray-400">5台</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">北京市 · 大兴区</p>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-xs text-gray-600"><span class="font-semibold text-emerald-600">18,400</span> Nm³</span>
+                            <span class="text-xs text-gray-400">|</span>
+                            <span class="text-xs text-gray-600">利用率 94.8%</span>
+                        </div>
+                    </div>
+                    <div class="site-item p-3 hover:bg-gray-50 cursor-pointer transition-colors" onclick="alert('跳转到武汉光谷站详情')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                <span class="font-medium text-sm text-gray-800">武汉光谷站</span>
+                            </div>
+                            <span class="text-xs text-gray-400">7台</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">湖北省 · 武汉市</p>
+                        <div class="flex items-center gap-3 mt-1.5">
+                            <span class="text-xs text-gray-600"><span class="font-semibold text-emerald-600">15,200</span> Nm³</span>
+                            <span class="text-xs text-gray-400">|</span>
+                            <span class="text-xs text-red-500">1台故障</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部工具栏 -->
+        <div class="absolute bottom-4 left-4 z-10 flex items-center gap-2">
+            <div class="stat-card bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 px-4 py-2 flex items-center gap-3">
+                <button class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center" onclick="alert('放大')" title="放大">
+                    <span class="iconify text-gray-600" data-icon="ri:zoom-in-line"></span>
+                </button>
+                <button class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center" onclick="alert('缩小')" title="缩小">
+                    <span class="iconify text-gray-600" data-icon="ri:zoom-out-line"></span>
+                </button>
+                <span class="w-px h-5 bg-gray-200"></span>
+                <button class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center" onclick="alert('重置地图')" title="重置">
+                    <span class="iconify text-gray-600" data-icon="ri:refresh-line"></span>
+                </button>
+                <button class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center" onclick="alert('全屏查看')" title="全屏">
+                    <span class="iconify text-gray-600" data-icon="ri:fullscreen-line"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // 初始化地图容器
+    const mapContainer = document.getElementById('mapContainer');
+    const mapChart = echarts.init(mapContainer);
+
+    // 模拟站点数据
+    const sites = [
+        { name: '杭州滨江站', value: [120.2, 30.3, 12], status: 'online', capacity: 38500 },
+        { name: '上海嘉定站', value: [121.3, 31.4, 8], status: 'online', capacity: 32100 },
+        { name: '广州南沙站', value: [113.5, 23.1, 10], status: 'maintain', capacity: 25600 },
+        { name: '苏州工业园站', value: [120.6, 31.3, 6], status: 'online', capacity: 22800 },
+        { name: '北京大兴站', value: [116.4, 39.9, 5], status: 'online', capacity: 18400 },
+        { name: '武汉光谷站', value: [114.3, 30.6, 7], status: 'fault', capacity: 15200 },
+        { name: '成都高新站', value: [104.1, 30.7, 5], status: 'online', capacity: 14200 },
+        { name: '西安经开站', value: [108.9, 34.3, 4], status: 'online', capacity: 11800 },
+        { name: '南京江北站', value: [118.8, 32.1, 4], status: 'offline', capacity: 9800 },
+        { name: '天津滨海站', value: [117.7, 39.0, 5], status: 'online', capacity: 12500 },
+        { name: '深圳南山站', value: [113.9, 22.5, 6], status: 'online', capacity: 16800 },
+        { name: '重庆两江站', value: [106.6, 29.6, 4], status: 'online', capacity: 10800 },
+        { name: '青岛崂山站', value: [120.4, 36.1, 3], status: 'online', capacity: 8500 },
+        { name: '厦门集美站', value: [118.1, 24.5, 3], status: 'maintain', capacity: 7200 },
+        { name: '郑州郑东站', value: [113.8, 34.8, 4], status: 'online', capacity: 9800 }
+    ];
+
+    // 状态颜色映射
+    const statusColor = {
+        'online': '#10B981',
+        'offline': '#9CA3AF',
+        'fault': '#EF4444',
+        'maintain': '#F59E0B'
+    };
+
+    // 渲染真实地图
+    function renderMap() {
+        const option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    if (params.componentSubType === 'effectScatter') {
+                        const data = params.data;
+                        return `<strong>${data.name}</strong><br/>
+                                设备数量: ${data.value[2]} 台<br/>
+                                今日产氢: ${data.capacity} Nm³<br/>
+                                状态: <span style="color:${statusColor[data.status]}">${
+                            data.status==='online'?'在线':
+                                data.status==='offline'?'离线':
+                                    data.status==='fault'?'故障':'维护中'
+                        }</span>`;
+                    }
+                    return params.name;
+                }
+            },
+            geo: {
+                map: 'china',
+                roam: true,
+                zoom: 1.2,
+                center: [108, 35],
+                label: {
+                    show: true,
+                    fontSize: 10,
+                    color: '#4B5563',
+                    emphasis: { show: true }
+                },
+                itemStyle: {
+                    areaColor: '#E5E7EB',
+                    borderColor: '#D1D5DB',
+                    borderWidth: 1
+                },
+                emphasis: {
+                    label: { show: true, color: '#1F2937' },
+                    itemStyle: { areaColor: '#D1FAE5' }
+                }
+            },
+            series: [{
+                type: 'effectScatter',
+                coordinateSystem: 'geo',
+                data: sites.map(s => ({
+                    name: s.name,
+                    value: s.value,
+                    capacity: s.capacity,
+                    status: s.status
+                })),
+                symbolSize: function(val) {
+                    return Math.max(15, val[2] * 2 + 10);
+                },
+                showEffectOn: 'render',
+                rippleEffect: { brushType: 'stroke', scale: 3 },
+                label: {
+                    show: true,
+                    position: 'top',
+                    formatter: '{b}',
+                    fontSize: 11,
+                    fontWeight: 500,
+                    color: '#1F2937',
+                    textShadowBlur: 4,
+                    textShadowColor: '#fff'
+                },
+                itemStyle: {
+                    color: function(params) {
+                        return statusColor[params.data.status] || '#10B981';
+                    },
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(16, 185, 129, 0.3)'
+                }
+            }]
+        };
+        mapChart.setOption(option);
+    }
+
+    // 降级方案：散点图模拟地图
+    function renderScatterMap() {
+        const option = {
+            backgroundColor: '#F8FAFC',
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    return `<strong>${params.data.name}</strong><br/>
+                            坐标: [${params.data.value[0].toFixed(2)}, ${params.data.value[1].toFixed(2)}]<br/>
+                            设备数量: ${params.data.value[2]} 台<br/>
+                            状态: ${params.data.status}`;
+                }
+            },
+            xAxis: {
+                type: 'value',
+                min: 73,
+                max: 136,
+                axisLabel: { show: false },
+                axisLine: { show: false },
+                axisTick: { show: false },
+                splitLine: { show: false }
+            },
+            yAxis: {
+                type: 'value',
+                min: 18,
+                max: 54,
+                axisLabel: { show: false },
+                axisLine: { show: false },
+                axisTick: { show: false },
+                splitLine: { show: false }
+            },
+            series: [{
+                type: 'scatter',
+                data: sites.map(s => ({ name: s.name, value: s.value, status: s.status, capacity: s.capacity })),
+                symbolSize: function(val) {
+                    return Math.max(20, val[2] * 2 + 15);
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    formatter: '{b}',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: '#1F2937',
+                    textShadowBlur: 6,
+                    textShadowColor: '#FFFFFF'
+                },
+                itemStyle: {
+                    color: function(params) {
+                        return statusColor[params.data.status] || '#10B981';
+                    },
+                    shadowBlur: 12,
+                    shadowColor: 'rgba(16, 185, 129, 0.4)',
+                    borderColor: '#FFFFFF',
+                    borderWidth: 2
+                }
+            }]
+        };
+        mapChart.setOption(option);
+    }
+
+    // 加载中国地图
+    function loadChinaMap() {
+        // 检查是否已注册
+        if (echarts.getMap && echarts.getMap('china')) {
+            console.log('地图已注册，直接渲染');
+            renderMap();
+            return;
+        }
+
+        // 动态加载本地地图文件
+        const script = document.createElement('script');
+        script.src = '../js/china.js';
+        script.onload = function() {
+            console.log('中国地图加载成功');
+            renderMap();
+        };
+        script.onerror = function() {
+            console.warn('中国地图加载失败，使用散点图模拟');
+            renderScatterMap();
+        };
+        document.head.appendChild(script);
+    }
+
+    // 点击地图标记事件
+    mapChart.on('click', function(params) {
+        if (params.componentSubType === 'effectScatter' || params.componentSubType === 'scatter') {
+            const siteName = params.data.name;
+            alert('跳转到站点详情：' + siteName);
+        }
+    });
+
+    // 页面加载时执行
+    loadChinaMap();
+
+    // 响应式调整
+    window.addEventListener('resize', () => mapChart.resize());
+</script>
+</body>
+</html>

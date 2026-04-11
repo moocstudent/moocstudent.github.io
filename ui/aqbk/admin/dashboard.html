@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>工作台 - 艾氢动力 · 氢能智控平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #F0F2F5; }
+    .sidebar-item-active { background: linear-gradient(135deg, #059669, #10B981); color: white; }
+    .stat-card { transition: all 0.3s ease; cursor: pointer; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+    .task-item { transition: all 0.2s ease; cursor: pointer; }
+    .task-item:hover { background-color: #ECFDF5; border-left-color: #10B981; }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-gray-300 flex flex-col shrink-0">
+  <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-700/50">
+    <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+      <span class="iconify text-white text-xl" data-icon="ri:leaf-line"></span>
+    </div>
+    <span class="text-white font-bold text-lg tracking-wider">艾氢动力</span>
+  </div>
+  <nav class="flex-1 mt-4 px-3 space-y-1 overflow-y-auto">
+    <a class="flex items-center px-4 py-3 rounded-lg transition-all sidebar-item-active" href="dashboard.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:dashboard-3-line"></span>
+      <span class="text-sm font-medium">工作台</span>
+    </a>
+    <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">设备管理</div>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-map.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:map-pin-line"></span>
+      <span class="text-sm font-medium">设备一览</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-list.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:server-line"></span>
+      <span class="text-sm font-medium">设备列表</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-repair.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:tools-line"></span>
+      <span class="text-sm font-medium">设备报修</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-warning.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:alert-line"></span>
+      <span class="text-sm font-medium">设备预警</span>
+    </a>
+    <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">产能管理</div>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-list.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:list-check"></span>
+      <span class="text-sm font-medium">产能列表</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-stats.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:bar-chart-2-line"></span>
+      <span class="text-sm font-medium">产能统计</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-monitor.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:speed-line"></span>
+      <span class="text-sm font-medium">指标监控</span>
+    </a>
+    <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">组织管理</div>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-province.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:building-line"></span>
+      <span class="text-sm font-medium">省设备公司</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-city.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:store-2-line"></span>
+      <span class="text-sm font-medium">市能源公司</span>
+    </a>
+    <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">人员管理</div>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner-level.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:user-star-line"></span>
+      <span class="text-sm font-medium">合伙人层级</span>
+    </a>
+    <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">财务管理</div>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-rule.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:funds-line"></span>
+      <span class="text-sm font-medium">分红规则</span>
+    </a>
+    <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">系统管理</div>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-list.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:file-copy-line"></span>
+      <span class="text-sm font-medium">合同管理</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="message-list.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:mail-line"></span>
+      <span class="text-sm font-medium">系统消息</span>
+    </a>
+    <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">权限设置</div>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-user.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:admin-line"></span>
+      <span class="text-sm font-medium">用户管理</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-role.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:shield-user-line"></span>
+      <span class="text-sm font-medium">角色管理</span>
+    </a>
+    <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-permission.html">
+      <span class="iconify mr-3 text-lg" data-icon="ri:lock-line"></span>
+      <span class="text-sm font-medium">权限管理</span>
+    </a>
+  </nav>
+  <div class="p-4 border-t border-gray-700/50">
+    <a class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors" href="../index.html">
+      <span class="iconify" data-icon="ri:logout-box-r-line"></span>
+      <span class="text-sm">退出登录</span>
+    </a>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+  <!-- Header -->
+  <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 shrink-0 shadow-sm">
+    <div class="flex items-center gap-4">
+      <nav class="flex text-sm text-gray-500">
+        <ol class="flex items-center space-x-2">
+          <li class="flex items-center"><span class="iconify text-gray-400" data-icon="ri:home-4-line"></span></li>
+          <li class="flex items-center space-x-2">
+            <span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span>
+            <span class="text-gray-900 font-medium">工作台</span>
+          </li>
+        </ol>
+      </nav>
+    </div>
+    <div class="flex items-center gap-5">
+      <div class="relative">
+        <a href="message-list.html" class="relative">
+          <span class="iconify text-gray-500 text-xl cursor-pointer hover:text-emerald-600 transition-colors" data-icon="ri:notification-3-line"></span>
+          <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+        </a>
+      </div>
+      <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+        <span class="text-sm font-medium text-gray-700">2026年04月11日 周五</span>
+      </div>
+      <a href="profile.html" class="flex items-center gap-3 cursor-pointer group">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">张</div>
+        <div class="text-right">
+          <p class="text-sm font-semibold text-gray-800">张浩</p>
+          <p class="text-[10px] text-gray-400 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>超管
+          </p>
+        </div>
+      </a>
+    </div>
+  </header>
+
+  <!-- Scrollable Body -->
+  <div class="flex-1 overflow-y-auto p-6 space-y-6">
+    <!-- KPI Statistics -->
+    <div class="grid grid-cols-4 gap-5">
+      <div class="stat-card bg-white p-5 rounded-xl shadow-sm border border-gray-100" onclick="window.location.href='person-partner-level.html'">
+        <div class="flex justify-between items-start">
+          <div><p class="text-sm font-medium text-gray-500">本月新增合伙人</p><h3 class="text-3xl font-bold mt-2 text-gray-900">128</h3></div>
+          <div class="p-3 bg-gradient-to-br from-emerald-50 to-green-50 text-emerald-600 rounded-xl"><span class="iconify text-2xl" data-icon="ri:user-star-line"></span></div>
+        </div>
+        <div class="mt-4 flex items-center text-sm"><span class="text-green-600 flex items-center font-medium bg-green-50 px-2 py-0.5 rounded-full"><span class="iconify mr-0.5 text-xs" data-icon="ri:arrow-up-line"></span>12.5%</span><span class="text-gray-400 ml-2 text-xs">较上月</span></div>
+      </div>
+      <div class="stat-card bg-white p-5 rounded-xl shadow-sm border border-gray-100" onclick="window.location.href='person-investor.html'">
+        <div class="flex justify-between items-start">
+          <div><p class="text-sm font-medium text-gray-500">本月新增投资人</p><h3 class="text-3xl font-bold mt-2 text-gray-900">56</h3></div>
+          <div class="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 rounded-xl"><span class="iconify text-2xl" data-icon="ri:money-cny-circle-line"></span></div>
+        </div>
+        <div class="mt-4 flex items-center text-sm"><span class="text-green-600 flex items-center font-medium bg-green-50 px-2 py-0.5 rounded-full"><span class="iconify mr-0.5 text-xs" data-icon="ri:arrow-up-line"></span>8.2%</span><span class="text-gray-400 ml-2 text-xs">较上月</span></div>
+      </div>
+      <div class="stat-card bg-white p-5 rounded-xl shadow-sm border border-gray-100" onclick="window.location.href='device-warning.html'">
+        <div class="flex justify-between items-start">
+          <div><p class="text-sm font-medium text-gray-500">未处理预警</p><h3 class="text-3xl font-bold mt-2 text-gray-900">8</h3></div>
+          <div class="p-3 bg-gradient-to-br from-amber-50 to-orange-50 text-amber-600 rounded-xl"><span class="iconify text-2xl" data-icon="ri:alert-line"></span></div>
+        </div>
+        <div class="mt-4 flex items-center text-sm"><span class="text-red-500 flex items-center font-medium bg-red-50 px-2 py-0.5 rounded-full"><span class="iconify mr-0.5 text-xs" data-icon="ri:arrow-up-line"></span>2</span><span class="text-gray-400 ml-2 text-xs">高危预警</span></div>
+      </div>
+      <div class="stat-card bg-white p-5 rounded-xl shadow-sm border border-gray-100" onclick="window.location.href='device-repair.html'">
+        <div class="flex justify-between items-start">
+          <div><p class="text-sm font-medium text-gray-500">待审批任务</p><h3 class="text-3xl font-bold mt-2 text-gray-900">12</h3></div>
+          <div class="p-3 bg-gradient-to-br from-purple-50 to-pink-50 text-purple-600 rounded-xl"><span class="iconify text-2xl" data-icon="ri:task-line"></span></div>
+        </div>
+        <div class="mt-4 flex items-center text-sm text-gray-500"><span class="text-gray-400 text-xs">工单(3) · 申请(5) · 合同(2) · 其他(2)</span></div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-2 gap-5">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-800 text-base flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:bar-chart-grouped-line"></span>新增合伙人 / 投资人趋势</h3>
+          <div class="flex bg-gray-100 p-1 rounded-lg"><button class="px-3 py-1 text-xs font-medium bg-white rounded shadow-sm text-gray-800">周</button><button class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-800">月</button></div>
+        </div>
+        <div class="h-[280px] w-full" id="partnerChart"></div>
+        <div class="flex justify-center gap-6 mt-2"><div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><span class="text-xs text-gray-500">合伙人</span></div><div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-blue-500"></span><span class="text-xs text-gray-500">投资人</span></div></div>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-800 text-base flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:line-chart-line"></span>氢能产氢量趋势 (Nm³)</h3>
+          <div class="flex bg-gray-100 p-1 rounded-lg"><button class="px-3 py-1 text-xs font-medium bg-white rounded shadow-sm text-gray-800">周</button><button class="px-3 py-1 text-xs font-medium text-gray-500 hover:text-gray-800">月</button></div>
+        </div>
+        <div class="h-[280px] w-full" id="hydrogenChart"></div>
+      </div>
+    </div>
+
+    <!-- Task and Activity Section -->
+    <div class="grid grid-cols-2 gap-5">
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-800 text-base flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:checkbox-circle-line"></span>待办任务</h3>
+          <a class="text-xs text-emerald-600 font-medium hover:underline" href="#">全部任务</a>
+        </div>
+        <div class="space-y-2">
+          <div class="task-item flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-l-amber-500" onclick="window.location.href='device-repair.html'">
+            <div class="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600"><span class="iconify text-lg" data-icon="ri:tools-line"></span></div>
+            <div class="flex-1"><p class="text-sm font-semibold text-gray-800">待审批报修工单</p><p class="text-xs text-gray-500">3 个工单等待处理</p></div>
+            <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold">紧急</span>
+          </div>
+          <div class="task-item flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-l-blue-500" onclick="window.location.href='person-partner-level.html'">
+            <div class="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><span class="iconify text-lg" data-icon="ri:user-star-line"></span></div>
+            <div class="flex-1"><p class="text-sm font-semibold text-gray-800">待审核合伙人申请</p><p class="text-xs text-gray-500">5 个新申请</p></div>
+            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold">今日</span>
+          </div>
+          <div class="task-item flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-l-red-500" onclick="window.location.href='device-warning.html'">
+            <div class="w-9 h-9 bg-red-100 rounded-lg flex items-center justify-center text-red-600"><span class="iconify text-lg" data-icon="ri:alert-line"></span></div>
+            <div class="flex-1"><p class="text-sm font-semibold text-gray-800">待处理设备预警</p><p class="text-xs text-gray-500">8 个预警未处理（含2个高危）</p></div>
+            <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-[10px] font-bold">高危</span>
+          </div>
+          <div class="task-item flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-l-purple-500" onclick="window.location.href='contract-list.html'">
+            <div class="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600"><span class="iconify text-lg" data-icon="ri:file-copy-line"></span></div>
+            <div class="flex-1"><p class="text-sm font-semibold text-gray-800">待签署合同</p><p class="text-xs text-gray-500">2 份合同待签署</p></div>
+            <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-[10px] font-bold">3天内</span>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-800 text-base flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:history-line"></span>最新动态</h3>
+          <a class="text-xs text-emerald-600 font-medium hover:underline" href="#">查看更多</a>
+        </div>
+        <div class="space-y-3">
+          <div class="flex items-start gap-3 pb-3 border-b border-gray-100">
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 shrink-0"><span class="iconify text-sm" data-icon="ri:user-add-line"></span></div>
+            <div class="flex-1"><p class="text-sm text-gray-700"><span class="font-semibold">张三</span> 提交了合伙人申请</p><p class="text-xs text-gray-400 mt-1 flex items-center gap-2"><span class="iconify text-xs" data-icon="ri:time-line"></span>10分钟前</p></div>
+            <span class="px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px]">待审核</span>
+          </div>
+          <div class="flex items-start gap-3 pb-3 border-b border-gray-100">
+            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 shrink-0"><span class="iconify text-sm" data-icon="ri:alert-fill"></span></div>
+            <div class="flex-1"><p class="text-sm text-gray-700">设备 <span class="font-mono font-semibold">SN-8291</span> 触发高温预警</p><p class="text-xs text-gray-400 mt-1 flex items-center gap-2"><span class="iconify text-xs" data-icon="ri:time-line"></span>35分钟前</p></div>
+            <span class="px-2 py-0.5 bg-red-50 text-red-600 rounded text-[10px]">高危</span>
+          </div>
+          <div class="flex items-start gap-3 pb-3 border-b border-gray-100">
+            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 shrink-0"><span class="iconify text-sm" data-icon="ri:check-line"></span></div>
+            <div class="flex-1"><p class="text-sm text-gray-700"><span class="font-semibold">李四</span> 完成了设备报修工单 <span class="font-mono">SR-0402</span></p><p class="text-xs text-gray-400 mt-1 flex items-center gap-2"><span class="iconify text-xs" data-icon="ri:time-line"></span>2小时前</p></div>
+            <span class="px-2 py-0.5 bg-green-50 text-green-600 rounded text-[10px]">已完成</span>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0"><span class="iconify text-sm" data-icon="ri:funds-line"></span></div>
+            <div class="flex-1"><p class="text-sm text-gray-700">分红已发放至 <span class="font-semibold">赵六</span> 等12位投资人</p><p class="text-xs text-gray-400 mt-1 flex items-center gap-2"><span class="iconify text-xs" data-icon="ri:time-line"></span>昨天 18:30</p></div>
+            <span class="px-2 py-0.5 bg-amber-50 text-amber-600 rounded text-[10px]">分红</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Bar -->
+    <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-5 border border-emerald-100">
+      <div class="flex items-center justify-around">
+        <div class="text-center"><p class="text-xs text-gray-500">总设备数</p><p class="text-2xl font-bold text-gray-800">1,284</p><p class="text-emerald-600 text-[10px] mt-1">在线 1,142 台</p></div>
+        <div class="w-px h-10 bg-emerald-200"></div>
+        <div class="text-center"><p class="text-xs text-gray-500">今日产氢量</p><p class="text-2xl font-bold text-gray-800">42,850</p><p class="text-emerald-600 text-[10px] mt-1">Nm³</p></div>
+        <div class="w-px h-10 bg-emerald-200"></div>
+        <div class="text-center"><p class="text-xs text-gray-500">碳减排量</p><p class="text-2xl font-bold text-gray-800">328.5</p><p class="text-emerald-600 text-[10px] mt-1">吨 CO₂</p></div>
+        <div class="w-px h-10 bg-emerald-200"></div>
+        <div class="text-center"><p class="text-xs text-gray-500">设备利用率</p><p class="text-2xl font-bold text-gray-800">87.5</p><p class="text-emerald-600 text-[10px] mt-1">%</p></div>
+        <div class="w-px h-10 bg-emerald-200"></div>
+        <div class="text-center"><p class="text-xs text-gray-500">累计收益</p><p class="text-2xl font-bold text-gray-800">¥ 8.42M</p><p class="text-emerald-600 text-[10px] mt-1">本月 +12.5%</p></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const partnerChart = echarts.init(document.getElementById('partnerChart'));
+  partnerChart.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '8%', right: '5%', bottom: '10%', top: '8%', containLabel: true },
+    xAxis: { type: 'category', data: ['04-05', '04-06', '04-07', '04-08', '04-09', '04-10', '04-11'], axisLine: { lineStyle: { color: '#E5E7EB' } }, axisLabel: { color: '#9CA3AF', fontSize: 11 } },
+    yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed', color: '#F3F4F6' } }, axisLabel: { color: '#9CA3AF', fontSize: 11 } },
+    series: [
+      { name: '合伙人', type: 'bar', barWidth: '35%', data: [18, 22, 25, 20, 28, 32, 24], itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#10B981' }, { offset: 1, color: '#059669' }]), borderRadius: [4, 4, 0, 0] } },
+      { name: '投资人', type: 'bar', barWidth: '35%', data: [8, 10, 12, 9, 11, 15, 10], itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#3B82F6' }, { offset: 1, color: '#2563EB' }]), borderRadius: [4, 4, 0, 0] } }
+    ],
+    legend: { show: false }
+  });
+
+  const hydrogenChart = echarts.init(document.getElementById('hydrogenChart'));
+  hydrogenChart.setOption({
+    tooltip: { trigger: 'axis' },
+    grid: { left: '8%', right: '5%', bottom: '10%', top: '8%', containLabel: true },
+    xAxis: { type: 'category', data: ['04-05', '04-06', '04-07', '04-08', '04-09', '04-10', '04-11'], axisLine: { lineStyle: { color: '#E5E7EB' } }, axisLabel: { color: '#9CA3AF', fontSize: 11 } },
+    yAxis: { type: 'value', name: 'Nm³', nameTextStyle: { color: '#9CA3AF', fontSize: 11 }, splitLine: { lineStyle: { type: 'dashed', color: '#F3F4F6' } }, axisLabel: { color: '#9CA3AF', fontSize: 11 } },
+    series: [{ name: '产氢量', type: 'line', smooth: true, data: [38500, 39200, 41000, 40500, 41800, 42500, 42850], lineStyle: { width: 3, color: '#10B981' }, showSymbol: true, symbol: 'circle', symbolSize: 6, areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(16, 185, 129, 0.25)' }, { offset: 1, color: 'rgba(16, 185, 129, 0.02)' }]) }, itemStyle: { color: '#059669', borderWidth: 2, borderColor: '#fff' } }]
+  });
+
+  window.addEventListener('resize', () => { partnerChart.resize(); hydrogenChart.resize(); });
+</script>
+</body>
+</html>

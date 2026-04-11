@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>产能列表 - 艾氢动力 · 氢能智控平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #F0F2F5; }
+        .sidebar-item-active { background: linear-gradient(135deg, #059669, #10B981); color: white; }
+        .stat-card { transition: all 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .trend-up { color: #10B981; }
+        .trend-down { color: #EF4444; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-gray-300 flex flex-col shrink-0">
+    <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-700/50">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+            <span class="iconify text-white text-xl" data-icon="ri:leaf-line"></span>
+        </div>
+        <span class="text-white font-bold text-lg tracking-wider">艾氢动力</span>
+    </div>
+    <nav class="flex-1 mt-4 px-3 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dashboard.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:dashboard-3-line"></span>
+            <span class="text-sm font-medium">工作台</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">设备管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-map.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:map-pin-line"></span>
+            <span class="text-sm font-medium">设备一览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:server-line"></span>
+            <span class="text-sm font-medium">设备列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-repair.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:tools-line"></span>
+            <span class="text-sm font-medium">设备报修</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-warning.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:alert-line"></span>
+            <span class="text-sm font-medium">设备预警</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">产能管理</div>
+        <a class="flex items-center px-4 py-3 rounded-lg transition-all sidebar-item-active" href="capacity-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:list-check"></span>
+            <span class="text-sm font-medium">产能列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-stats.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:bar-chart-2-line"></span>
+            <span class="text-sm font-medium">产能统计</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-monitor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:speed-line"></span>
+            <span class="text-sm font-medium">指标监控</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">组织管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-province.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:building-line"></span>
+            <span class="text-sm font-medium">省设备公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-city.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:store-2-line"></span>
+            <span class="text-sm font-medium">市能源公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:group-line"></span>
+            <span class="text-sm font-medium">客户公司</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">人员管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-star-line"></span>
+            <span class="text-sm font-medium">合伙人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner-level.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:medal-line"></span>
+            <span class="text-sm font-medium">合伙人层级</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-investor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:money-cny-circle-line"></span>
+            <span class="text-sm font-medium">投资人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-heart-line"></span>
+            <span class="text-sm font-medium">客户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-maintainer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-settings-line"></span>
+            <span class="text-sm font-medium">维护人管理</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">财务管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-overview.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:funds-line"></span>
+            <span class="text-sm font-medium">分红概览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-rule.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:settings-4-line"></span>
+            <span class="text-sm font-medium">分红规则</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">系统管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:file-copy-line"></span>
+            <span class="text-sm font-medium">合同管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="message-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:mail-line"></span>
+            <span class="text-sm font-medium">系统消息</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">权限设置</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-user.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:admin-line"></span>
+            <span class="text-sm font0507-medium">用户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-role.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:shield-user-line"></span>
+            <span class="text-sm font-medium">角色管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-permission.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:lock-line"></span>
+            <span class="text-sm font-medium">权限管理</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-gray-700/50">
+        <a class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors" href="../index.html">
+            <span class="iconify" data-icon="ri:logout-box-r-line"></span>
+            <span class="text-sm">退出登录</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Header -->
+    <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 shrink-0 shadow-sm">
+        <div class="flex items-center gap-4">
+            <nav class="flex text-sm text-gray-500">
+                <ol class="flex items-center space-x-2">
+                    <li class="flex items-center"><a href="dashboard.html" class="hover:text-emerald-600 transition-colors"><span class="iconify text-gray-400" data-icon="ri:home-4-line"></span></a></li>
+                    <li class="flex items-center space-x-2"><span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span><span class="text-gray-900 font-medium">产能列表</span></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <a href="message-list.html" class="relative">
+                <span class="iconify text-gray-500 text-xl cursor-pointer hover:text-emerald-600 transition-colors" data-icon="ri:notification-3-line"></span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            </a>
+            <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+                <span class="text-sm font-medium text-gray-700">2026年04月11日 周五</span>
+            </div>
+            <a href="profile.html" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">张</div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-800">张浩</p>
+                    <p class="text-[10px] text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>超管</p>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-full mx-auto space-y-5">
+
+            <!-- 顶部统计卡片 -->
+            <div class="grid grid-cols-4 gap-4">
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-xs text-gray-500">今日总产氢量</p><p class="text-2xl font-bold text-gray-800 mt-1">42,850</p></div>
+                        <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600"><span class="iconify text-xl" data-icon="ri:drop-line"></span></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">Nm³</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-xs text-gray-500">运行设备数</p><p class="text-2xl font-bold text-gray-800 mt-1">1,142</p></div>
+                        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><span class="iconify text-xl" data-icon="ri:server-line"></span></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">在线率 88.9%</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-xs text-gray-500">平均利用率</p><p class="text-2xl font-bold text-gray-800 mt-1">87.5%</p></div>
+                        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600"><span class="iconify text-xl" data-icon="ri:speed-line"></span></div>
+                    </div>
+                    <p class="text-xs trend-up mt-2"><span class="iconify text-xs" data-icon="ri:arrow-up-line"></span>较昨日 +1.2%</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-xs text-gray-500">碳减排量</p><p class="text-2xl font-bold text-gray-800 mt-1">328.5</p></div>
+                        <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600"><span class="iconify text-xl" data-icon="ri:leaf-line"></span></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">吨 CO₂</p>
+                </div>
+            </div>
+
+            <!-- 筛选栏 -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div class="grid grid-cols-6 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">日期范围</label>
+                        <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                            <option>今日</option><option>昨日</option><option selected>本周</option><option>本月</option><option>自定义</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">所属地区</label>
+                        <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                            <option>全部地区</option><option>华东</option><option>华南</option><option>华北</option><option>华中</option><option>西南</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">站点名称</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500" placeholder="请输入站点名称">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">设备类型</label>
+                        <select class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                            <option>全部类型</option><option>电解槽</option><option>储氢罐</option><option>加氢站</option><option>燃料电池</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">设备编号</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500" placeholder="请输入设备编号">
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium">查询</button>
+                        <button class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium">重置</button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-gray-500">共 <span class="font-semibold text-gray-800">1,284</span> 条产能记录</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs hover:bg-gray-50 flex items-center gap-1" onclick="alert('导出产能数据')">
+                            <span class="iconify" data-icon="ri:download-line"></span>导出数据
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 产能数据表格 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 border-b text-xs text-gray-500 uppercase">
+                        <tr>
+                            <th class="px-4 py-3">设备编号</th>
+                            <th class="px-4 py-3">设备名称/型号</th>
+                            <th class="px-4 py-3">所属站点</th>
+                            <th class="px-4 py-3">地区</th>
+                            <th class="px-4 py-3">产氢量(Nm³)</th>
+                            <th class="px-4 py-3">运行时长(h)</th>
+                            <th class="px-4 py-3">利用率</th>
+                            <th class="px-4 py-3">效率</th>
+                            <th class="px-4 py-3">数据时间</th>
+                            <th class="px-4 py-3 text-center">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y text-sm">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">SN-2026-001</td>
+                            <td class="px-4 py-4"><span class="font-medium">质子交换膜电解槽</span><p class="text-xs text-gray-400">PEM-500</p></td>
+                            <td class="px-4 py-4">杭州滨江站</td>
+                            <td class="px-4 py-4">华东</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">1,284</td>
+                            <td class="px-4 py-4">23.5</td>
+                            <td class="px-4 py-4"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-green-500 rounded-full" style="width:98%"></div></div><span class="text-xs">98%</span></div></td>
+                            <td class="px-4 py-4"><span class="text-green-600 font-medium">98.5%</span></td>
+                            <td class="px-4 py-4 text-gray-500">04-11 15:30</td>
+                            <td class="px-4 py-4 text-center"><button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看设备详情')">详情</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">SN-2026-045</td>
+                            <td class="px-4 py-4"><span class="font-medium">高压储氢罐</span><p class="text-xs text-gray-400">HST-200</p></td>
+                            <td class="px-4 py-4">上海嘉定站</td>
+                            <td class="px-4 py-4">华东</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">1,120</td>
+                            <td class="px-4 py-4">22.8</td>
+                            <td class="px-4 py-4"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-green-500 rounded-full" style="width:95%"></div></div><span class="text-xs">95%</span></div></td>
+                            <td class="px-4 py-4"><span class="text-green-600 font-medium">96.2%</span></td>
+                            <td class="px-4 py-4 text-gray-500">04-11 15:30</td>
+                            <td class="px-4 py-4 text-center"><button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看设备详情')">详情</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">SN-2026-128</td>
+                            <td class="px-4 py-4"><span class="font-medium">加氢站压缩机</span><p class="text-xs text-gray-400">HPC-1000</p></td>
+                            <td class="px-4 py-4">广州南沙站</td>
+                            <td class="px-4 py-4">华南</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">980</td>
+                            <td class="px-4 py-4">20.5</td>
+                            <td class="px-4 py-4"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-amber-500 rounded-full" style="width:85%"></div></div><span class="text-xs">85%</span></div></td>
+                            <td class="px-4 py-4"><span class="text-amber-600 font-medium">88.5%</span></td>
+                            <td class="px-4 py-4 text-gray-500">04-11 15:30</td>
+                            <td class="px-4 py-4 text-center"><button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看设备详情')">详情</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">SN-2026-256</td>
+                            <td class="px-4 py-4"><span class="font-medium">碱性电解槽</span><p class="text-xs text-gray-400">ALK-800</p></td>
+                            <td class="px-4 py-4">苏州工业园站</td>
+                            <td class="px-4 py-4">华东</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">856</td>
+                            <td class="px-4 py-4">18.2</td>
+                            <td class="px-4 py-4"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-amber-500 rounded-full" style="width:76%"></div></div><span class="text-xs">76%</span></div></td>
+                            <td class="px-4 py-4"><span class="text-amber-600 font-medium">82.1%</span></td>
+                            <td class="px-4 py-4 text-gray-500">04-11 15:30</td>
+                            <td class="px-4 py-4 text-center"><button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看设备详情')">详情</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">SN-2026-089</td>
+                            <td class="px-4 py-4"><span class="font-medium">燃料电池系统</span><p class="text-xs text-gray-400">FC-150</p></td>
+                            <td class="px-4 py-4">北京大兴站</td>
+                            <td class="px-4 py-4">华北</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">0</td>
+                            <td class="px-4 py-4">0</td>
+                            <td class="px-4 py-4"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-gray-400 rounded-full" style="width:0%"></div></div><span class="text-xs">0%</span></div></td>
+                            <td class="px-4 py-4"><span class="text-gray-400">--</span></td>
+                            <td class="px-4 py-4 text-gray-500">04-11 15:30</td>
+                            <td class="px-4 py-4 text-center"><button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看设备详情')">详情</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 font-mono text-gray-700">SN-2026-312</td>
+                            <td class="px-4 py-4"><span class="font-medium">氢气纯化装置</span><p class="text-xs text-gray-400">HPU-50</p></td>
+                            <td class="px-4 py-4">武汉光谷站</td>
+                            <td class="px-4 py-4">华中</td>
+                            <td class="px-4 py-4 font-semibold text-gray-800">1,050</td>
+                            <td class="px-4 py-4">21.0</td>
+                            <td class="px-4 py-4"><div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-gray-200 rounded-full"><div class="h-full bg-green-500 rounded-full" style="width:88%"></div></div><span class="text-xs">88%</span></div></td>
+                            <td class="px-4 py-4"><span class="text-green-600 font-medium">92.5%</span></td>
+                            <td class="px-4 py-4 text-gray-500">04-11 15:30</td>
+                            <td class="px-4 py-4 text-center"><button class="text-emerald-600 hover:text-emerald-700 text-xs font-medium" onclick="alert('查看设备详情')">详情</button></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                    <div class="text-xs text-gray-500">显示第 1-6 条，共 1,284 条</div>
+                    <div class="flex items-center gap-1">
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400"><span class="iconify" data-icon="ri:arrow-left-s-line"></span></button>
+                        <button class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm">1</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 text-sm">2</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 text-sm">3</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 text-sm">4</button>
+                        <span class="px-2 text-gray-400">...</span>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 text-sm">214</button>
+                        <button class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600"><span class="iconify" data-icon="ri:arrow-right-s-line"></span></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+</body>
+</html>

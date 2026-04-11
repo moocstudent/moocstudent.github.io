@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>设备详情 - 艾氢动力 · 氢能智控平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #F0F2F5; }
+        .sidebar-item-active { background: linear-gradient(135deg, #059669, #10B981); color: white; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .info-label { color: #6B7280; font-size: 13px; }
+        .info-value { color: #1F2937; font-size: 14px; font-weight: 500; }
+        .tab-active { color: #059669; border-bottom: 2px solid #059669; font-weight: 600; }
+        .timeline-item { position: relative; padding-left: 28px; }
+        .timeline-item::before { content: ''; position: absolute; left: 4px; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: #10B981; }
+        .timeline-item::after { content: ''; position: absolute; left: 8px; top: 18px; width: 2px; height: calc(100% + 16px); background: #E5E7EB; }
+        .timeline-item:last-child::after { display: none; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-gray-300 flex flex-col shrink-0">
+    <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-700/50">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+            <span class="iconify text-white text-xl" data-icon="ri:leaf-line"></span>
+        </div>
+        <span class="text-white font-bold text-lg tracking-wider">艾氢动力</span>
+    </div>
+    <nav class="flex-1 mt-4 px-3 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dashboard.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:dashboard-3-line"></span>
+            <span class="text-sm font-medium">工作台</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">设备管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-map.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:map-pin-line"></span>
+            <span class="text-sm font-medium">设备一览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 rounded-lg transition-all sidebar-item-active" href="device-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:server-line"></span>
+            <span class="text-sm font-medium">设备列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-repair.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:tools-line"></span>
+            <span class="text-sm font-medium">设备报修</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-warning.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:alert-line"></span>
+            <span class="text-sm font-medium">设备预警</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">产能管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:list-check"></span>
+            <span class="text-sm font-medium">产能列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-stats.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:bar-chart-2-line"></span>
+            <span class="text-sm font-medium">产能统计</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-monitor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:speed-line"></span>
+            <span class="text-sm font-medium">指标监控</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">组织管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-province.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:building-line"></span>
+            <span class="text-sm font-medium">省设备公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-city.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:store-2-line"></span>
+            <span class="text-sm font-medium">市能源公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:group-line"></span>
+            <span class="text-sm font-medium">客户公司</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">人员管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-star-line"></span>
+            <span class="text-sm font-medium">合伙人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner-level.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:medal-line"></span>
+            <span class="text-sm font-medium">合伙人层级</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-investor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:money-cny-circle-line"></span>
+            <span class="text-sm font-medium">投资人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-heart-line"></span>
+            <span class="text-sm font-medium">客户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-maintainer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-settings-line"></span>
+            <span class="text-sm font-medium">维护人管理</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">财务管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-overview.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:funds-line"></span>
+            <span class="text-sm font-medium">分红概览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-rule.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:settings-4-line"></span>
+            <span class="text-sm font-medium">分红规则</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">系统管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:file-copy-line"></span>
+            <span class="text-sm font-medium">合同管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="message-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:mail-line"></span>
+            <span class="text-sm font-medium">系统消息</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">权限设置</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-user.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:admin-line"></span>
+            <span class="text-sm font-medium">用户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-role.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:shield-user-line"></span>
+            <span class="text-sm font-medium">角色管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-permission.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:lock-line"></span>
+            <span class="text-sm font-medium">权限管理</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-gray-700/50">
+        <a class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors" href="../index.html">
+            <span class="iconify" data-icon="ri:logout-box-r-line"></span>
+            <span class="text-sm">退出登录</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Header -->
+    <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 shrink-0 shadow-sm">
+        <div class="flex items-center gap-4">
+            <nav class="flex text-sm text-gray-500">
+                <ol class="flex items-center space-x-2">
+                    <li class="flex items-center"><a href="dashboard.html" class="hover:text-emerald-600 transition-colors"><span class="iconify text-gray-400" data-icon="ri:home-4-line"></span></a></li>
+                    <li class="flex items-center space-x-2"><span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span><a href="device-list.html" class="hover:text-emerald-600">设备列表</a></li>
+                    <li class="flex items-center space-x-2"><span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span><span class="text-gray-900 font-medium">设备详情</span></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <a href="message-list.html" class="relative">
+                <span class="iconify text-gray-500 text-xl cursor-pointer hover:text-emerald-600 transition-colors" data-icon="ri:notification-3-line"></span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            </a>
+            <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+                <span class="text-sm font-medium text-gray-700">2026年04月11日 周五</span>
+            </div>
+            <a href="profile.html" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">张</div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-800">张浩</p>
+                    <p class="text-[10px] text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>超管</p>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-7xl mx-auto space-y-6">
+
+            <!-- 设备标题栏 -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl flex items-center justify-center text-emerald-600">
+                        <span class="iconify text-2xl" data-icon="ri:server-line"></span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h1 class="text-xl font-bold text-gray-800">质子交换膜电解槽</h1>
+                            <span class="status-badge bg-green-100 text-green-700">在线</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">设备编号：SN-2026-001 · 型号：PEM-500</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 transition-colors flex items-center gap-2" onclick="alert('编辑设备')">
+                        <span class="iconify" data-icon="ri:edit-line"></span>编辑
+                    </button>
+                    <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors flex items-center gap-2" onclick="alert('远程控制')">
+                        <span class="iconify" data-icon="ri:remote-control-line"></span>远程控制
+                    </button>
+                    <button class="w-10 h-10 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50" onclick="alert('更多操作')">
+                        <span class="iconify text-gray-500" data-icon="ri:more-2-fill"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 设备概览卡片 -->
+            <div class="grid grid-cols-4 gap-5">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><span class="iconify text-xl" data-icon="ri:flashlight-line"></span></div>
+                        <div><p class="text-xs text-gray-500">实时功率</p><p class="text-xl font-bold text-gray-800">485.5 kW</p></div>
+                    </div>
+                    <p class="text-xs text-gray-400">额定功率 500 kW · 负载率 97.1%</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600"><span class="iconify text-xl" data-icon="ri:drop-line"></span></div>
+                        <div><p class="text-xs text-gray-500">今日产氢量</p><p class="text-xl font-bold text-gray-800">1,284 Nm³</p></div>
+                    </div>
+                    <p class="text-xs text-gray-400">累计产氢 42,850 Nm³ · 效率 82.5%</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600"><span class="iconify text-xl" data-icon="ri:temp-hot-line"></span></div>
+                        <div><p class="text-xs text-gray-500">运行温度</p><p class="text-xl font-bold text-gray-800">68.5 °C</p></div>
+                    </div>
+                    <p class="text-xs text-gray-400">正常范围 60-80°C · 压力 2.8 MPa</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600"><span class="iconify text-xl" data-icon="ri:calendar-check-line"></span></div>
+                        <div><p class="text-xs text-gray-500">运行时长</p><p class="text-xl font-bold text-gray-800">8,432 h</p></div>
+                    </div>
+                    <p class="text-xs text-gray-400">距下次维护 568 h · 健康度 98%</p>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="grid grid-cols-2 gap-5">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:line-chart-line"></span>近24小时产氢趋势</h3>
+                    <div class="h-[220px]" id="trendChart"></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:pie-chart-line"></span>运行参数分布</h3>
+                    <div class="h-[220px]" id="gaugeChart"></div>
+                </div>
+            </div>
+
+            <!-- Tab 切换区域 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="flex border-b border-gray-100 px-5">
+                    <button class="tab-active px-4 py-3 text-sm" onclick="switchTab('basic')">基本信息</button>
+                    <button class="text-gray-500 hover:text-gray-700 px-4 py-3 text-sm" onclick="switchTab('params')">运行参数</button>
+                    <button class="text-gray-500 hover:text-gray-700 px-4 py-3 text-sm" onclick="switchTab('maintain')">维修记录</button>
+                    <button class="text-gray-500 hover:text-gray-700 px-4 py-3 text-sm" onclick="switchTab('related')">关联信息</button>
+                </div>
+
+                <!-- 基本信息 Tab -->
+                <div id="tab-basic" class="p-6">
+                    <div class="grid grid-cols-2 gap-x-12 gap-y-4">
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">设备编号</span><span class="info-value font-mono">SN-2026-001</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">设备名称</span><span class="info-value">质子交换膜电解槽</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">设备型号</span><span class="info-value">PEM-500</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">设备类型</span><span class="info-value">电解槽</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">所属站点</span><span class="info-value">杭州滨江加氢站</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">绑定公司</span><span class="info-value">浙江氢能科技有限公司</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">负责人</span><span class="info-value">王工 (138****1234)</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">维护人</span><span class="info-value">张师傅 (设备维护组)</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">安装日期</span><span class="info-value">2025-03-15</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">质保期限</span><span class="info-value">2028-03-14</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">额定功率</span><span class="info-value">500 kW</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">额定产氢量</span><span class="info-value">55 Nm³/h</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">生产厂家</span><span class="info-value">艾氢动力 · 苏州工厂</span></div>
+                        <div class="flex justify-between py-2 border-b border-gray-50"><span class="info-label">出厂编号</span><span class="info-value">H2-PEM-2025-00128</span></div>
+                    </div>
+                </div>
+
+                <!-- 运行参数 Tab -->
+                <div id="tab-params" class="p-6 hidden">
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs text-gray-500 mb-1">电流密度</p>
+                            <p class="text-2xl font-bold text-gray-800">1.82 A/cm²</p>
+                            <p class="text-xs text-green-600 mt-1">正常范围</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs text-gray-500 mb-1">电压</p>
+                            <p class="text-2xl font-bold text-gray-800">1.95 V</p>
+                            <p class="text-xs text-green-600 mt-1">单池电压</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs text-gray-500 mb-1">氢气纯度</p>
+                            <p class="text-2xl font-bold text-gray-800">99.99%</p>
+                            <p class="text-xs text-green-600 mt-1">优级品</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs text-gray-500 mb-1">进水温度</p>
+                            <p class="text-2xl font-bold text-gray-800">22.5 °C</p>
+                            <p class="text-xs text-gray-400 mt-1">设定值 23°C</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs text-gray-500 mb-1">出水温度</p>
+                            <p class="text-2xl font-bold text-gray-800">68.5 °C</p>
+                            <p class="text-xs text-amber-600 mt-1">接近上限</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs text-gray-500 mb-1">水流量</p>
+                            <p class="text-2xl font-bold text-gray-800">125 L/h</p>
+                            <p class="text-xs text-green-600 mt-1">正常范围</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 维修记录 Tab -->
+                <div id="tab-maintain" class="p-6 hidden">
+                    <div class="space-y-4">
+                        <div class="timeline-item pb-6">
+                            <div class="flex justify-between items-start">
+                                <div><p class="font-semibold text-gray-800">定期保养</p><p class="text-xs text-gray-500 mt-0.5">维护人：张师傅</p></div>
+                                <span class="text-xs text-gray-400">2026-03-20</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">更换滤芯、检查电极、清洁冷却系统。设备运行正常。</p>
+                        </div>
+                        <div class="timeline-item pb-6">
+                            <div class="flex justify-between items-start">
+                                <div><p class="font-semibold text-gray-800">功率异常排查</p><p class="text-xs text-gray-500 mt-0.5">维护人：李工</p></div>
+                                <span class="text-xs text-gray-400">2026-02-15</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">设备功率波动，经排查为控制系统参数偏移，已校准恢复正常。</p>
+                        </div>
+                        <div class="timeline-item pb-6">
+                            <div class="flex justify-between items-start">
+                                <div><p class="font-semibold text-gray-800">年度大修</p><p class="text-xs text-gray-500 mt-0.5">维护人：王工团队</p></div>
+                                <span class="text-xs text-gray-400">2025-12-10</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">更换膜电极组件、密封件，升级控制系统固件。大修后效率提升5%。</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="flex justify-between items-start">
+                                <div><p class="font-semibold text-gray-800">设备安装调试</p><p class="text-xs text-gray-500 mt-0.5">安装团队：艾氢工程部</p></div>
+                                <span class="text-xs text-gray-400">2025-03-15</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-2">设备到货安装，完成72小时连续运行测试，各项指标达标，正式投产。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关联信息 Tab -->
+                <div id="tab-related" class="p-6 hidden">
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs font-medium text-gray-500 mb-2">关联合伙人</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-xs">李</div>
+                                <div><p class="text-sm font-medium text-gray-800">李明</p><p class="text-xs text-gray-500">8级合伙人 · 销售该设备</p></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs font-medium text-gray-500 mb-2">关联投资人</p>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xs">张</div>
+                                        <div><p class="text-sm font-medium text-gray-800">张总</p><p class="text-xs text-gray-500">投资份额 15%</p></div>
+                                    </div>
+                                    <span class="text-sm text-emerald-600 font-medium">¥ 128,500</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xs">王</div>
+                                        <div><p class="text-sm font-medium text-gray-800">王女士</p><p class="text-xs text-gray-500">投资份额 10%</p></div>
+                                    </div>
+                                    <span class="text-sm text-emerald-600 font-medium">¥ 85,600</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl">
+                            <p class="text-xs font-medium text-gray-500 mb-2">关联合同</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3"><span class="iconify text-purple-500" data-icon="ri:file-copy-line"></span><span class="text-sm text-gray-800">设备合伙协议 (SN-2026-001)</span></div>
+                                <button class="text-xs text-emerald-600 hover:underline" onclick="alert('查看合同')">查看</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script>
+    // Tab切换
+    function switchTab(tab) {
+        document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.add('hidden'));
+        document.getElementById('tab-' + tab).classList.remove('hidden');
+        document.querySelectorAll('.border-b button').forEach(btn => {
+            btn.classList.remove('tab-active', 'text-gray-900');
+            btn.classList.add('text-gray-500');
+        });
+        event.target.classList.add('tab-active');
+        event.target.classList.remove('text-gray-500');
+    }
+
+    // 产氢趋势图
+    const trendChart = echarts.init(document.getElementById('trendChart'));
+    trendChart.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '5%', right: '5%', bottom: '15%', top: '5%', containLabel: true },
+        xAxis: { type: 'category', data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'], axisLabel: { fontSize: 10 } },
+        yAxis: { type: 'value', name: 'Nm³/h', nameTextStyle: { fontSize: 10 }, axisLabel: { fontSize: 10 } },
+        series: [{
+            type: 'line', smooth: true, data: [48, 45, 52, 55, 54, 50],
+            lineStyle: { color: '#10B981', width: 2 },
+            areaStyle: { color: 'rgba(16, 185, 129, 0.1)' }
+        }]
+    });
+
+    // 仪表盘图
+    const gaugeChart = echarts.init(document.getElementById('gaugeChart'));
+    gaugeChart.setOption({
+        series: [{
+            type: 'gauge', center: ['50%', '60%'], radius: '80%',
+            startAngle: 180, endAngle: 0, min: 0, max: 100,
+            progress: { show: true, width: 12, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0,
+                        colorStops: [{ offset: 0, color: '#10B981' }, { offset: 0.5, color: '#FBBF24' }, { offset: 1, color: '#EF4444' }] } } },
+            axisLine: { lineStyle: { width: 12, color: [[0.6, '#E5E7EB'], [1, '#E5E7EB']] } },
+            axisTick: { show: false }, splitLine: { show: false },
+            axisLabel: { show: false },
+            detail: { show: false },
+            data: [{ value: 82.5, name: '效率' }]
+        }]
+    });
+
+    window.addEventListener('resize', () => { trendChart.resize(); gaugeChart.resize(); });
+    window.switchTab = switchTab;
+</script>
+</body>
+</html>

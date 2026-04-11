@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>指标监控 - 艾氢动力 · 氢能智控平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #F0F2F5; }
+        .sidebar-item-active { background: linear-gradient(135deg, #059669, #10B981); color: white; }
+        .stat-card { transition: all 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .gauge-container { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #F3F4F6; }
+        .alert-item { border-left: 3px solid; transition: all 0.15s; }
+        .alert-item:hover { background-color: #F9FAFB; }
+        .alert-high { border-left-color: #EF4444; }
+        .alert-mid { border-left-color: #F59E0B; }
+        .alert-low { border-left-color: #3B82F6; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-gray-300 flex flex-col shrink-0">
+    <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-700/50">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+            <span class="iconify text-white text-xl" data-icon="ri:leaf-line"></span>
+        </div>
+        <span class="text-white font-bold text-lg tracking-wider">艾氢动力</span>
+    </div>
+    <nav class="flex-1 mt-4 px-3 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dashboard.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:dashboard-3-line"></span>
+            <span class="text-sm font-medium">工作台</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">设备管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-map.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:map-pin-line"></span>
+            <span class="text-sm font-medium">设备一览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:server-line"></span>
+            <span class="text-sm font-medium">设备列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-repair.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:tools-line"></span>
+            <span class="text-sm font-medium">设备报修</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-warning.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:alert-line"></span>
+            <span class="text-sm font-medium">设备预警</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">产能管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:list-check"></span>
+            <span class="text-sm font-medium">产能列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-stats.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:bar-chart-2-line"></span>
+            <span class="text-sm font-medium">产能统计</span>
+        </a>
+        <a class="flex items-center px-4 py-3 rounded-lg transition-all sidebar-item-active" href="capacity-monitor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:speed-line"></span>
+            <span class="text-sm font-medium">指标监控</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">组织管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-province.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:building-line"></span>
+            <span class="text-sm font-medium">省设备公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-city.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:store-2-line"></span>
+            <span class="text-sm font-medium">市能源公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:group-line"></span>
+            <span class="text-sm font-medium">客户公司</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">人员管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-star-line"></span>
+            <span class="text-sm font-medium">合伙人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner-level.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:medal-line"></span>
+            <span class="text-sm font-medium">合伙人层级</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-investor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:money-cny-circle-line"></span>
+            <span class="text-sm font-medium">投资人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-heart-line"></span>
+            <span class="text-sm font-medium">客户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-maintainer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-settings-line"></span>
+            <span class="text-sm font-medium">维护人管理</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">财务管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-overview.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:funds-line"></span>
+            <span class="text-sm font-medium">分红概览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-rule.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:settings-4-line"></span>
+            <span class="text-sm font-medium">分红规则</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">系统管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:file-copy-line"></span>
+            <span class="text-sm font-medium">合同管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="message-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:mail-line"></span>
+            <span class="text-sm font-medium">系统消息</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">权限设置</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-user.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:admin-line"></span>
+            <span class="text-sm font-medium">用户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-role.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:shield-user-line"></span>
+            <span class="text-sm font-medium">角色管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-permission.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:lock-line"></span>
+            <span class="text-sm font-medium">权限管理</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-gray-700/50">
+        <a class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors" href="../index.html">
+            <span class="iconify" data-icon="ri:logout-box-r-line"></span>
+            <span class="text-sm">退出登录</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Header -->
+    <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 shrink-0 shadow-sm">
+        <div class="flex items-center gap-4">
+            <nav class="flex text-sm text-gray-500">
+                <ol class="flex items-center space-x-2">
+                    <li class="flex items-center"><a href="dashboard.html" class="hover:text-emerald-600 transition-colors"><span class="iconify text-gray-400" data-icon="ri:home-4-line"></span></a></li>
+                    <li class="flex items-center space-x-2"><span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span><span class="text-gray-900 font-medium">指标监控</span></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <div class="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 border border-gray-200">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-xs text-gray-600">实时更新中</span>
+            </div>
+            <a href="message-list.html" class="relative">
+                <span class="iconify text-gray-500 text-xl cursor-pointer hover:text-emerald-600 transition-colors" data-icon="ri:notification-3-line"></span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            </a>
+            <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+                <span class="text-sm font-medium text-gray-700">2026年04月11日 周五</span>
+            </div>
+            <a href="profile.html" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">张</div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-800">张浩</p>
+                    <p class="text-[10px] text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>超管</p>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-full mx-auto space-y-5">
+
+            <!-- 站点选择 -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-gray-500">监控站点：</span>
+                    <select class="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium focus:outline-none focus:border-emerald-500 bg-white">
+                        <option>杭州滨江站</option>
+                        <option>上海嘉定站</option>
+                        <option>广州南沙站</option>
+                        <option>苏州工业园站</option>
+                        <option>北京大兴站</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs hover:bg-gray-50" onclick="alert('刷新数据')">
+                        <span class="iconify mr-1" data-icon="ri:refresh-line"></span>刷新
+                    </button>
+                    <button class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs hover:bg-emerald-700" onclick="alert('配置阈值')">
+                        <span class="iconify mr-1" data-icon="ri:settings-4-line"></span>阈值配置
+                    </button>
+                </div>
+            </div>
+
+            <!-- 核心指标仪表盘 -->
+            <div class="grid grid-cols-4 gap-5">
+                <div class="gauge-container">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:drop-line"></span>产氢量</h3>
+                    <div class="h-[140px]" id="gaugeHydrogen"></div>
+                    <div class="text-center mt-2">
+                        <p class="text-lg font-bold text-gray-800">485.5 <span class="text-xs font-normal text-gray-400">Nm³/h</span></p>
+                        <p class="text-xs text-gray-400">目标值 500 Nm³/h</p>
+                    </div>
+                </div>
+                <div class="gauge-container">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"><span class="iconify text-blue-600" data-icon="ri:speed-line"></span>设备利用率</h3>
+                    <div class="h-[140px]" id="gaugeUsage"></div>
+                    <div class="text-center mt-2">
+                        <p class="text-lg font-bold text-gray-800">87.5%</p>
+                        <p class="text-xs text-gray-400">目标值 90%</p>
+                    </div>
+                </div>
+                <div class="gauge-container">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"><span class="iconify text-amber-600" data-icon="ri:flashlight-line"></span>能耗效率</h3>
+                    <div class="h-[140px]" id="gaugeEfficiency"></div>
+                    <div class="text-center mt-2">
+                        <p class="text-lg font-bold text-gray-800">4.2 <span class="text-xs font-normal text-gray-400">kWh/Nm³</span></p>
+                        <p class="text-xs text-gray-400">目标值 ≤4.0</p>
+                    </div>
+                </div>
+                <div class="gauge-container">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"><span class="iconify text-green-600" data-icon="ri:leaf-line"></span>碳减排</h3>
+                    <div class="h-[140px]" id="gaugeCarbon"></div>
+                    <div class="text-center mt-2">
+                        <p class="text-lg font-bold text-gray-800">328.5 <span class="text-xs font-normal text-gray-400">吨</span></p>
+                        <p class="text-xs text-gray-400">累计减排量</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 趋势图 + 实时参数 -->
+            <div class="grid grid-cols-3 gap-5">
+                <div class="gauge-container col-span-2">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-gray-800 flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:line-chart-line"></span>实时产氢趋势（近1小时）</h3>
+                        <div class="flex items-center gap-2">
+                            <select class="text-xs border border-gray-200 rounded-lg px-2 py-1">
+                                <option>近1小时</option><option>近6小时</option><option>近24小时</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="h-[220px]" id="trendChart"></div>
+                </div>
+                <div class="gauge-container">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:settings-5-line"></span>实时运行参数</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div class="flex items-center gap-2"><span class="iconify text-gray-400" data-icon="ri:temp-hot-line"></span><span class="text-sm text-gray-600">运行温度</span></div>
+                            <div class="flex items-center gap-2"><span class="text-lg font-semibold text-gray-800">68.5</span><span class="text-xs text-gray-400">°C</span><span class="w-2 h-2 bg-green-500 rounded-full"></span></div>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div class="flex items-center gap-2"><span class="iconify text-gray-400" data-icon="ri:pressure-line"></span><span class="text-sm text-gray-600">系统压力</span></div>
+                            <div class="flex items-center gap-2"><span class="text-lg font-semibold text-gray-800">2.8</span><span class="text-xs text-gray-400">MPa</span><span class="w-2 h-2 bg-green-500 rounded-full"></span></div>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div class="flex items-center gap-2"><span class="iconify text-gray-400" data-icon="ri:water-flash-line"></span><span class="text-sm text-gray-600">电流密度</span></div>
+                            <div class="flex items-center gap-2"><span class="text-lg font-semibold text-gray-800">1.82</span><span class="text-xs text-gray-400">A/cm²</span><span class="w-2 h-2 bg-green-500 rounded-full"></span></div>
+                        </div>
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                            <div class="flex items-center gap-2"><span class="iconify text-gray-400" data-icon="ri:drop-line"></span><span class="text-sm text-gray-600">氢气纯度</span></div>
+                            <div class="flex items-center gap-2"><span class="text-lg font-semibold text-gray-800">99.99</span><span class="text-xs text-gray-400">%</span><span class="w-2 h-2 bg-green-500 rounded-full"></span></div>
+                        </div>
+                        <div class="flex items-center justify-between py-2">
+                            <div class="flex items-center gap-2"><span class="iconify text-gray-400" data-icon="ri:timer-line"></span><span class="text-sm text-gray-600">累计运行</span></div>
+                            <div class="flex items-center gap-2"><span class="text-lg font-semibold text-gray-800">8,432</span><span class="text-xs text-gray-400">h</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备状态列表 + 预警信息 -->
+            <div class="grid grid-cols-2 gap-5">
+                <div class="gauge-container">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:server-line"></span>设备运行状态</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-3"><span class="w-2 h-2 bg-green-500 rounded-full"></span><span class="font-medium text-gray-800">SN-2026-001</span><span class="text-xs text-gray-400">质子交换膜电解槽</span></div>
+                            <div class="flex items-center gap-3"><span class="text-sm text-gray-600">485.5 kW</span><span class="text-xs text-green-600">正常</span></div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-3"><span class="w-2 h-2 bg-green-500 rounded-full"></span><span class="font-medium text-gray-800">SN-2026-045</span><span class="text-xs text-gray-400">高压储氢罐</span></div>
+                            <div class="flex items-center gap-3"><span class="text-sm text-gray-600">2.8 MPa</span><span class="text-xs text-green-600">正常</span></div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-3"><span class="w-2 h-2 bg-amber-500 rounded-full"></span><span class="font-medium text-gray-800">SN-2026-128</span><span class="text-xs text-gray-400">加氢站压缩机</span></div>
+                            <div class="flex items-center gap-3"><span class="text-sm text-amber-600">功率波动</span><span class="text-xs text-amber-600">注意</span></div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-3"><span class="w-2 h-2 bg-green-500 rounded-full"></span><span class="font-medium text-gray-800">SN-2026-312</span><span class="text-xs text-gray-400">氢气纯化装置</span></div>
+                            <div class="flex items-center gap-3"><span class="text-sm text-gray-600">99.99%</span><span class="text-xs text-green-600">正常</span></div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center gap-3"><span class="w-2 h-2 bg-red-500 rounded-full"></span><span class="font-medium text-gray-800">SN-2026-256</span><span class="text-xs text-gray-400">碱性电解槽</span></div>
+                            <div class="flex items-center gap-3"><span class="text-sm text-red-600">效率下降</span><span class="text-xs text-red-600">告警</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gauge-container">
+                    <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:alert-line"></span>实时预警</h3>
+                    <div class="space-y-2">
+                        <div class="alert-item alert-high p-3 bg-red-50/30 rounded-lg">
+                            <div class="flex items-start justify-between">
+                                <div><p class="font-medium text-gray-800">温度过高</p><p class="text-xs text-gray-500 mt-0.5">SN-2026-001 · 当前92.5°C，阈值85°C</p></div>
+                                <span class="text-xs text-red-600 bg-red-100 px-2 py-0.5 rounded-full">高危</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2">5分钟前</p>
+                        </div>
+                        <div class="alert-item alert-mid p-3 bg-amber-50/30 rounded-lg">
+                            <div class="flex items-start justify-between">
+                                <div><p class="font-medium text-gray-800">压力异常</p><p class="text-xs text-gray-500 mt-0.5">SN-2026-045 · 当前4.2MPa，阈值3.8MPa</p></div>
+                                <span class="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">中危</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2">15分钟前</p>
+                        </div>
+                        <div class="alert-item alert-low p-3 bg-blue-50/30 rounded-lg">
+                            <div class="flex items-start justify-between">
+                                <div><p class="font-medium text-gray-800">功率波动</p><p class="text-xs text-gray-500 mt-0.5">SN-2026-128 · 波动22%，阈值15%</p></div>
+                                <span class="text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">低危</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-2">35分钟前</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script>
+    // 产氢量仪表盘
+    const gaugeHydrogen = echarts.init(document.getElementById('gaugeHydrogen'));
+    gaugeHydrogen.setOption({
+        series: [{
+            type: 'gauge', center: ['50%', '60%'], radius: '80%', min: 0, max: 600,
+            progress: { show: true, width: 10, itemStyle: { color: '#10B981' } },
+            axisLine: { lineStyle: { width: 10, color: [[0.8, '#E5E7EB'], [1, '#E5E7EB']] } },
+            axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+            pointer: { show: false }, detail: { show: false },
+            data: [{ value: 485.5 }]
+        }]
+    });
+
+    // 利用率仪表盘
+    const gaugeUsage = echarts.init(document.getElementById('gaugeUsage'));
+    gaugeUsage.setOption({
+        series: [{
+            type: 'gauge', center: ['50%', '60%'], radius: '80%', min: 0, max: 100,
+            progress: { show: true, width: 10, itemStyle: { color: '#3B82F6' } },
+            axisLine: { lineStyle: { width: 10, color: [[0.9, '#E5E7EB'], [1, '#E5E7EB']] } },
+            axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+            pointer: { show: false }, detail: { show: false },
+            data: [{ value: 87.5 }]
+        }]
+    });
+
+    // 能耗效率仪表盘
+    const gaugeEfficiency = echarts.init(document.getElementById('gaugeEfficiency'));
+    gaugeEfficiency.setOption({
+        series: [{
+            type: 'gauge', center: ['50%', '60%'], radius: '80%', min: 0, max: 6,
+            progress: { show: true, width: 10, itemStyle: { color: '#F59E0B' } },
+            axisLine: { lineStyle: { width: 10, color: [[0.67, '#E5E7EB'], [1, '#E5E7EB']] } },
+            axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+            pointer: { show: false }, detail: { show: false },
+            data: [{ value: 4.2 }]
+        }]
+    });
+
+    // 碳减排仪表盘
+    const gaugeCarbon = echarts.init(document.getElementById('gaugeCarbon'));
+    gaugeCarbon.setOption({
+        series: [{
+            type: 'gauge', center: ['50%', '60%'], radius: '80%', min: 0, max: 500,
+            progress: { show: true, width: 10, itemStyle: { color: '#059669' } },
+            axisLine: { lineStyle: { width: 10 } },
+            axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+            pointer: { show: false }, detail: { show: false },
+            data: [{ value: 328.5 }]
+        }]
+    });
+
+    // 趋势图
+    const trendChart = echarts.init(document.getElementById('trendChart'));
+    trendChart.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '5%', right: '5%', bottom: '10%', top: '5%' },
+        xAxis: { type: 'category', data: ['15:30', '15:40', '15:50', '16:00', '16:10', '16:20', '16:30'] },
+        yAxis: { type: 'value', name: 'Nm³/h' },
+        series: [{
+            type: 'line', smooth: true, data: [480, 485, 478, 490, 488, 482, 485.5],
+            lineStyle: { color: '#10B981', width: 2 },
+            areaStyle: { color: 'rgba(16, 185, 129, 0.1)' }
+        }]
+    });
+
+    window.addEventListener('resize', () => {
+        gaugeHydrogen.resize(); gaugeUsage.resize(); gaugeEfficiency.resize(); gaugeCarbon.resize(); trendChart.resize();
+    });
+</script>
+</body>
+</html>

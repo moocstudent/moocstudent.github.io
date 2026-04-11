@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>登录 - 艾氢动力 · 氢能智控平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #064E3B 100%);
+            min-height: 100vh;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .input-focus:focus {
+            border-color: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        .role-option {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .role-option.active {
+            background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+            border-color: #10B981;
+        }
+        .role-option.active .role-check {
+            display: flex;
+        }
+        .role-check {
+            display: none;
+        }
+        .login-btn {
+            background: linear-gradient(135deg, #059669, #10B981);
+            transition: all 0.3s ease;
+        }
+        .login-btn:hover {
+            background: linear-gradient(135deg, #047857, #059669);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px -5px rgba(5, 150, 105, 0.3);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+<div class="w-full max-w-5xl flex rounded-3xl overflow-hidden login-card">
+    <!-- 左侧品牌区域 -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 to-green-700 p-12 flex-col justify-between relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-80 h-80 bg-white/10 rounded-full"></div>
+        <div class="absolute -bottom-32 -left-20 w-96 h-96 bg-white/5 rounded-full"></div>
+
+        <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                    <span class="iconify text-white text-3xl" data-icon="ri:leaf-line"></span>
+                </div>
+                <span class="text-white text-3xl font-bold tracking-wider">艾氢动力</span>
+            </div>
+            <h1 class="text-white text-4xl font-bold leading-tight mb-4">
+                氢能智控平台<br/>驱动绿色未来
+            </h1>
+            <p class="text-emerald-100 text-lg mb-8">
+                智能化设备管理 · 实时产能监控 · 合伙人激励体系
+            </p>
+            <div class="flex gap-4">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
+                    <p class="text-white text-2xl font-bold">1,284+</p>
+                    <p class="text-emerald-200 text-sm">在线设备</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
+                    <p class="text-white text-2xl font-bold">42.8K</p>
+                    <p class="text-emerald-200 text-sm">日产氢量(Nm³)</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3">
+                    <p class="text-white text-2xl font-bold">328t</p>
+                    <p class="text-emerald-200 text-sm">碳减排/日</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-10 text-emerald-200 text-sm">
+            <p>© 2026 艾氢动力 · 让每一克氢都有价值</p>
+        </div>
+    </div>
+
+    <!-- 右侧登录区域 -->
+    <div class="w-full lg:w-1/2 p-8 md:p-12">
+        <div class="max-w-sm mx-auto">
+            <div class="text-center mb-8">
+                <div class="lg:hidden flex items-center justify-center gap-2 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
+                        <span class="iconify text-white text-2xl" data-icon="ri:leaf-line"></span>
+                    </div>
+                    <span class="text-gray-800 text-2xl font-bold">艾氢动力</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">欢迎回来</h2>
+                <p class="text-gray-500 mt-2">请登录您的账号</p>
+            </div>
+
+            <form class="space-y-5" onsubmit="handleLogin(event)">
+                <!-- 账号 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">账号</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <span class="iconify" data-icon="ri:user-3-line"></span>
+                        </span>
+                        <input
+                                type="text"
+                                id="username"
+                                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none input-focus transition-all"
+                                placeholder="请输入手机号或邮箱"
+                                value="admin@h2power.com"
+                                required
+                        />
+                    </div>
+                </div>
+
+                <!-- 密码 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">密码</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <span class="iconify" data-icon="ri:lock-line"></span>
+                        </span>
+                        <input
+                                type="password"
+                                id="password"
+                                class="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:outline-none input-focus transition-all"
+                                placeholder="请输入密码"
+                                value="123456"
+                                required
+                        />
+                        <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword()">
+                            <span class="iconify" data-icon="ri:eye-line" id="eyeIcon"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 角色选择 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择登录角色</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="role-option p-3 border-2 border-gray-200 rounded-xl text-center active" data-role="super" onclick="selectRole('super')">
+                            <span class="iconify text-xl text-gray-600 mb-1" data-icon="ri:admin-line"></span>
+                            <p class="text-xs font-medium text-gray-700">超管</p>
+                            <span class="role-check w-5 h-5 bg-emerald-500 rounded-full text-white items-center justify-center mx-auto mt-1">
+                                <span class="iconify text-xs" data-icon="ri:check-line"></span>
+                            </span>
+                        </div>
+                        <div class="role-option p-3 border-2 border-gray-200 rounded-xl text-center" data-role="province" onclick="selectRole('province')">
+                            <span class="iconify text-xl text-gray-600 mb-1" data-icon="ri:building-line"></span>
+                            <p class="text-xs font-medium text-gray-700">省公司</p>
+                            <span class="role-check w-5 h-5 bg-emerald-500 rounded-full text-white items-center justify-center mx-auto mt-1">
+                                <span class="iconify text-xs" data-icon="ri:check-line"></span>
+                            </span>
+                        </div>
+                        <div class="role-option p-3 border-2 border-gray-200 rounded-xl text-center" data-role="city" onclick="selectRole('city')">
+                            <span class="iconify text-xl text-gray-600 mb-1" data-icon="ri:store-2-line"></span>
+                            <p class="text-xs font-medium text-gray-700">市公司</p>
+                            <span class="role-check w-5 h-5 bg-emerald-500 rounded-full text-white items-center justify-center mx-auto mt-1">
+                                <span class="iconify text-xs" data-icon="ri:check-line"></span>
+                            </span>
+                        </div>
+                        <div class="role-option p-3 border-2 border-gray-200 rounded-xl text-center" data-role="partner" onclick="selectRole('partner')">
+                            <span class="iconify text-xl text-gray-600 mb-1" data-icon="ri:user-star-line"></span>
+                            <p class="text-xs font-medium text-gray-700">合伙人</p>
+                            <span class="role-check w-5 h-5 bg-emerald-500 rounded-full text-white items-center justify-center mx-auto mt-1">
+                                <span class="iconify text-xs" data-icon="ri:check-line"></span>
+                            </span>
+                        </div>
+                        <div class="role-option p-3 border-2 border-gray-200 rounded-xl text-center" data-role="investor" onclick="selectRole('investor')">
+                            <span class="iconify text-xl text-gray-600 mb-1" data-icon="ri:money-cny-circle-line"></span>
+                            <p class="text-xs font-medium text-gray-700">投资人</p>
+                            <span class="role-check w-5 h-5 bg-emerald-500 rounded-full text-white items-center justify-center mx-auto mt-1">
+                                <span class="iconify text-xs" data-icon="ri:check-line"></span>
+                            </span>
+                        </div>
+                        <div class="role-option p-3 border-2 border-gray-200 rounded-xl text-center" data-role="maintainer" onclick="selectRole('maintainer')">
+                            <span class="iconify text-xl text-gray-600 mb-1" data-icon="ri:tools-line"></span>
+                            <p class="text-xs font-medium text-gray-700">维护人</p>
+                            <span class="role-check w-5 h-5 bg-emerald-500 rounded-full text-white items-center justify-center mx-auto mt-1">
+                                <span class="iconify text-xs" data-icon="ri:check-line"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 记住密码 & 忘记密码 -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" checked />
+                        <span class="text-sm text-gray-600">记住密码</span>
+                    </label>
+                    <a href="#" class="text-sm text-emerald-600 hover:text-emerald-700 font-medium">忘记密码？</a>
+                </div>
+
+                <!-- 登录按钮 -->
+                <button type="submit" class="login-btn w-full py-3 text-white font-semibold rounded-xl text-base">
+                    登录系统
+                </button>
+            </form>
+
+            <!-- 其他登录方式 -->
+            <div class="mt-8">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-3 bg-white text-gray-400">其他登录方式</span>
+                    </div>
+                </div>
+                <div class="flex justify-center gap-4 mt-4">
+                    <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors" onclick="alert('微信扫码登录')">
+                        <span class="iconify text-xl" data-icon="ri:wechat-line"></span>
+                    </button>
+                    <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors" onclick="alert('手机号验证码登录')">
+                        <span class="iconify text-xl" data-icon="ri:smartphone-line"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 注册入口 -->
+            <p class="text-center text-sm text-gray-500 mt-6">
+                还没有账号？
+                <a href="#" class="text-emerald-600 font-medium hover:text-emerald-700">立即注册</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 当前选中的角色
+    let selectedRole = 'super';
+
+    // 角色选择交互
+    function selectRole(role) {
+        selectedRole = role;
+        document.querySelectorAll('.role-option').forEach(opt => opt.classList.remove('active'));
+        document.querySelector(`[data-role="${role}"]`).classList.add('active');
+    }
+
+    // 密码显示/隐藏
+    function togglePassword() {
+        const pwdInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        if (pwdInput.type === 'password') {
+            pwdInput.type = 'text';
+            eyeIcon.setAttribute('data-icon', 'ri:eye-off-line');
+        } else {
+            pwdInput.type = 'password';
+            eyeIcon.setAttribute('data-icon', 'ri:eye-line');
+        }
+    }
+
+    // 登录处理
+    function handleLogin(event) {
+        event.preventDefault();
+
+        const rolePageMap = {
+            'super': 'admin/dashboard.html',
+            'province': 'admin/dashboard-province.html',
+            'city': 'admin/dashboard-city.html',
+            'partner': 'mobile/partner.html',
+            'investor': 'mobile/investor.html',
+            'maintainer': 'mobile/maintainer.html'
+        };
+
+        const roleNames = {
+            'super': '超管', 'province': '省公司', 'city': '市公司',
+            'partner': '合伙人', 'investor': '投资人', 'maintainer': '维护人'
+        };
+
+        const btn = document.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<span class="iconify animate-spin mr-2" data-icon="ri:loader-4-line"></span>正在登录...`;
+        btn.disabled = true;
+
+        setTimeout(() => {
+            const targetPage = rolePageMap[selectedRole];
+            if (selectedRole === 'partner' || selectedRole === 'investor' || selectedRole === 'maintainer') {
+                alert(`您选择了${roleNames[selectedRole]}角色，将跳转到小程序端页面。`);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            } else {
+                window.location.href = targetPage;
+            }
+        }, 1000);
+    }
+
+    window.selectRole = selectRole;
+    window.togglePassword = togglePassword;
+    window.handleLogin = handleLogin;
+</script>
+</body>
+</html>

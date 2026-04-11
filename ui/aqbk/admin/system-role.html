@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>角色管理 - 艾氢动力 · 氢能智控平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #F0F2F5; }
+        .sidebar-item-active { background: linear-gradient(135deg, #059669, #10B981); color: white; }
+        .stat-card { transition: all 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+        .role-card { transition: all 0.2s; border: 2px solid transparent; }
+        .role-card:hover { border-color: #10B981; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-gray-300 flex flex-col shrink-0">
+    <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-700/50">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+            <span class="iconify text-white text-xl" data-icon="ri:leaf-line"></span>
+        </div>
+        <span class="text-white font-bold text-lg tracking-wider">艾氢动力</span>
+    </div>
+    <nav class="flex-1 mt-4 px-3 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dashboard.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:dashboard-3-line"></span>
+            <span class="text-sm font-medium">工作台</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">设备管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-map.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:map-pin-line"></span>
+            <span class="text-sm font-medium">设备一览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:server-line"></span>
+            <span class="text-sm font-medium">设备列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-repair.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:tools-line"></span>
+            <span class="text-sm font-medium">设备报修</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-warning.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:alert-line"></span>
+            <span class="text-sm font-medium">设备预警</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">产能管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:list-check"></span>
+            <span class="text-sm font-medium">产能列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-stats.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:bar-chart-2-line"></span>
+            <span class="text-sm font-medium">产能统计</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-monitor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:speed-line"></span>
+            <span class="text-sm font-medium">指标监控</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">组织管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-province.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:building-line"></span>
+            <span class="text-sm font-medium">省设备公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-city.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:store-2-line"></span>
+            <span class="text-sm font-medium">市能源公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:group-line"></span>
+            <span class="text-sm font-medium">客户公司</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">人员管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-star-line"></span>
+            <span class="text-sm font-medium">合伙人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner-level.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:medal-line"></span>
+            <span class="text-sm font-medium">合伙人层级</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-investor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:money-cny-circle-line"></span>
+            <span class="text-sm font-medium">投资人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-heart-line"></span>
+            <span class="text-sm font-medium">客户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-maintainer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-settings-line"></span>
+            <span class="text-sm font-medium">维护人管理</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">财务管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-overview.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:funds-line"></span>
+            <span class="text-sm font-medium">分红概览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-rule.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:settings-4-line"></span>
+            <span class="text-sm font-medium">分红规则</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">系统管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:file-copy-line"></span>
+            <span class="text-sm font-medium">合同管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-category.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:folder-line"></span>
+            <span class="text-sm font-medium">合同分类</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="message-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:mail-line"></span>
+            <span class="text-sm font-medium">系统消息</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">权限设置</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-user.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:admin-line"></span>
+            <span class="text-sm font-medium">用户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 rounded-lg transition-all sidebar-item-active" href="system-role.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:shield-user-line"></span>
+            <span class="text-sm font-medium">角色管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-permission.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:lock-line"></span>
+            <span class="text-sm font-medium">权限管理</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-gray-700/50">
+        <a class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors" href="../index.html">
+            <span class="iconify" data-icon="ri:logout-box-r-line"></span>
+            <span class="text-sm">退出登录</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Header -->
+    <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 shrink-0 shadow-sm">
+        <div class="flex items-center gap-4">
+            <nav class="flex text-sm text-gray-500">
+                <ol class="flex items-center space-x-2">
+                    <li class="flex items-center"><a href="dashboard.html" class="hover:text-emerald-600 transition-colors"><span class="iconify text-gray-400" data-icon="ri:home-4-line"></span></a></li>
+                    <li class="flex items-center space-x-2"><span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span><span class="text-gray-900 font-medium">角色管理</span></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <a href="message-list.html" class="relative">
+                <span class="iconify text-gray-500 text-xl cursor-pointer hover:text-emerald-600 transition-colors" data-icon="ri:notification-3-line"></span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            </a>
+            <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+                <span class="text-sm font-medium text-gray-700">2026年04月11日 周五</span>
+            </div>
+            <a href="profile.html" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">张</div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-800">张浩</p>
+                    <p class="text-[10px] text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>超管</p>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-full mx-auto space-y-5">
+
+            <!-- 统计卡片 -->
+            <div class="grid grid-cols-3 gap-4">
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500">角色总数</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1">6</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500">已启用角色</p>
+                    <p class="text-2xl font-bold text-green-600 mt-1">6</p>
+                </div>
+                <div class="stat-card bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-xs text-gray-500">关联用户总数</p>
+                    <p class="text-2xl font-bold text-gray-800 mt-1">86</p>
+                </div>
+            </div>
+
+            <!-- 角色卡片列表 -->
+            <div class="grid grid-cols-3 gap-5">
+                <!-- 超管 -->
+                <div class="role-card bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center text-white shadow-md">
+                                <span class="iconify text-2xl" data-icon="ri:admin-line"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">超管</h3>
+                                <p class="text-xs text-gray-400">super_admin</p>
+                            </div>
+                        </div>
+                        <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">拥有系统全部功能权限，可管理所有数据、用户、角色和权限配置</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>关联用户：3 人</span>
+                        <span>创建时间：2025-01-01</span>
+                    </div>
+                    <div class="flex items-center gap-2 pt-3 border-t border-gray-100">
+                        <button class="flex-1 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm hover:bg-emerald-100" onclick="window.location.href='system-permission.html'">
+                            <span class="iconify mr-1" data-icon="ri:lock-line"></span>权限配置
+                        </button>
+                        <button class="px-3 py-2 border border-gray-200 rounded-lg text-gray-500 hover:text-blue-600" onclick="alert('编辑角色')">
+                            <span class="iconify" data-icon="ri:edit-line"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 省公司 -->
+                <div class="role-card bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-white shadow-md">
+                                <span class="iconify text-2xl" data-icon="ri:building-line"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">省公司</h3>
+                                <p class="text-xs text-gray-400">province_admin</p>
+                            </div>
+                        </div>
+                        <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">管理本省范围内的设备、产能、人员及市公司，可查看分红数据</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>关联用户：12 人</span>
+                        <span>创建时间：2025-01-15</span>
+                    </div>
+                    <div class="flex items-center gap-2 pt-3 border-t border-gray-100">
+                        <button class="flex-1 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm hover:bg-emerald-100" onclick="window.location.href='system-permission.html'">
+                            <span class="iconify mr-1" data-icon="ri:lock-line"></span>权限配置
+                        </button>
+                        <button class="px-3 py-2 border border-gray-200 rounded-lg text-gray-500 hover:text-blue-600" onclick="alert('编辑角色')">
+                            <span class="iconify" data-icon="ri:edit-line"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 市公司 -->
+                <div class="role-card bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-xl flex items-center justify-center text-white shadow-md">
+                                <span class="iconify text-2xl" data-icon="ri:store-2-line"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">市公司</h3>
+                                <p class="text-xs text-gray-400">city_admin</p>
+                            </div>
+                        </div>
+                        <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">管理本市范围内的设备、产能、客户及人员，可查看合同数据</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>关联用户：28 人</span>
+                        <span>创建时间：2025-02-10</span>
+                    </div>
+                    <div class="flex items-center gap-2 pt-3 border-t border-gray-100">
+                        <button class="flex-1 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm hover:bg-emerald-100" onclick="window.location.href='system-permission.html'">
+                            <span class="iconify mr-1" data-icon="ri:lock-line"></span>权限配置
+                        </button>
+                        <button class="px-3 py-2 border border-gray-200 rounded-lg text-gray-500 hover:text-blue-600" onclick="alert('编辑角色')">
+                            <span class="iconify" data-icon="ri:edit-line"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 合伙人 -->
+                <div class="role-card bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center text-white shadow-md">
+                                <span class="iconify text-2xl" data-icon="ri:user-star-line"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">合伙人</h3>
+                                <p class="text-xs text-gray-400">partner</p>
+                            </div>
+                        </div>
+                        <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">小程序端用户，可查看持有设备、收益、报修设备，使用推广工具</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>关联用户：156 人</span>
+                        <span>创建时间：2025-01-01</span>
+                    </div>
+                    <div class="flex items-center gap-2 pt-3 border-t border-gray-100">
+                        <button class="flex-1 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm hover:bg-emerald-100" onclick="window.location.href='system-permission.html'">
+                            <span class="iconify mr-1" data-icon="ri:lock-line"></span>权限配置
+                        </button>
+                        <button class="px-3 py-2 border border-gray-200 rounded-lg text-gray-500 hover:text-blue-600" onclick="alert('编辑角色')">
+                            <span class="iconify" data-icon="ri:edit-line"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 投资人 -->
+                <div class="role-card bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-white shadow-md">
+                                <span class="iconify text-2xl" data-icon="ri:money-cny-circle-line"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">投资人</h3>
+                                <p class="text-xs text-gray-400">investor</p>
+                            </div>
+                        </div>
+                        <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">小程序端用户，可查看投资设备、分红收益、投资标的等财务信息</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>关联用户：86 人</span>
+                        <span>创建时间：2025-01-20</span>
+                    </div>
+                    <div class="flex items-center gap-2 pt-3 border-t border-gray-100">
+                        <button class="flex-1 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm hover:bg-emerald-100" onclick="window.location.href='system-permission.html'">
+                            <span class="iconify mr-1" data-icon="ri:lock-line"></span>权限配置
+                        </button>
+                        <button class="px-3 py-2 border border-gray-200 rounded-lg text-gray-500 hover:text-blue-600" onclick="alert('编辑角色')">
+                            <span class="iconify" data-icon="ri:edit-line"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 维护人 -->
+                <div class="role-card bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                                <span class="iconify text-2xl" data-icon="ri:user-settings-line"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg">维护人</h3>
+                                <p class="text-xs text-gray-400">maintainer</p>
+                            </div>
+                        </div>
+                        <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">小程序端用户，可接单维修、查看工单记录、管理积分兑换</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
+                        <span>关联用户：24 人</span>
+                        <span>创建时间：2025-03-01</span>
+                    </div>
+                    <div class="flex items-center gap-2 pt-3 border-t border-gray-100">
+                        <button class="flex-1 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm hover:bg-emerald-100" onclick="window.location.href='system-permission.html'">
+                            <span class="iconify mr-1" data-icon="ri:lock-line"></span>权限配置
+                        </button>
+                        <button class="px-3 py-2 border border-gray-200 rounded-lg text-gray-500 hover:text-blue-600" onclick="alert('编辑角色')">
+                            <span class="iconify" data-icon="ri:edit-line"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 新增角色按钮 -->
+            <div class="flex justify-center">
+                <button class="px-6 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-emerald-500 hover:text-emerald-600 transition-colors flex items-center gap-2" onclick="alert('新增角色')">
+                    <span class="iconify" data-icon="ri:add-line"></span>新增角色
+                </button>
+            </div>
+
+        </div>
+    </div>
+</main>
+</body>
+</html>

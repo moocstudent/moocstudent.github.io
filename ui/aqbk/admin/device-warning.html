@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>设备预警 - 艾氢动力 · 氢能智控平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Microsoft YaHei', sans-serif; background-color: #F0F2F5; }
+        .sidebar-item-active { background: linear-gradient(135deg, #059669, #10B981); color: white; }
+        .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+        .warning-level-high { background: #FEF2F2; color: #DC2626; border-left: 3px solid #DC2626; }
+        .warning-level-mid { background: #FFFBEB; color: #D97706; border-left: 3px solid #D97706; }
+        .warning-level-low { background: #F0FDF4; color: #16A34A; border-left: 3px solid #16A34A; }
+        .tab-active { color: #059669; border-bottom: 2px solid #059669; font-weight: 600; }
+        .rule-card { transition: all 0.2s; }
+        .rule-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 bg-gradient-to-b from-[#0F172A] to-[#1E293B] text-gray-300 flex flex-col shrink-0">
+    <div class="h-16 flex items-center px-6 gap-3 border-b border-gray-700/50">
+        <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+            <span class="iconify text-white text-xl" data-icon="ri:leaf-line"></span>
+        </div>
+        <span class="text-white font-bold text-lg tracking-wider">艾氢动力</span>
+    </div>
+    <nav class="flex-1 mt-4 px-3 space-y-1 overflow-y-auto">
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dashboard.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:dashboard-3-line"></span>
+            <span class="text-sm font-medium">工作台</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">设备管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-map.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:map-pin-line"></span>
+            <span class="text-sm font-medium">设备一览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:server-line"></span>
+            <span class="text-sm font-medium">设备列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="device-repair.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:tools-line"></span>
+            <span class="text-sm font-medium">设备报修</span>
+        </a>
+        <a class="flex items-center px-4 py-3 rounded-lg transition-all sidebar-item-active" href="device-warning.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:alert-line"></span>
+            <span class="text-sm font-medium">设备预警</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">产能管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:list-check"></span>
+            <span class="text-sm font-medium">产能列表</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-stats.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:bar-chart-2-line"></span>
+            <span class="text-sm font-medium">产能统计</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="capacity-monitor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:speed-line"></span>
+            <span class="text-sm font-medium">指标监控</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">组织管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-province.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:building-line"></span>
+            <span class="text-sm font-medium">省设备公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-city.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:store-2-line"></span>
+            <span class="text-sm font-medium">市能源公司</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="org-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:group-line"></span>
+            <span class="text-sm font-medium">客户公司</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">人员管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-star-line"></span>
+            <span class="text-sm font-medium">合伙人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-partner-level.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:medal-line"></span>
+            <span class="text-sm font-medium">合伙人层级</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-investor.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:money-cny-circle-line"></span>
+            <span class="text-sm font-medium">投资人管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-customer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-heart-line"></span>
+            <span class="text-sm font-medium">客户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="person-maintainer.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:user-settings-line"></span>
+            <span class="text-sm font-medium">维护人管理</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">财务管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-overview.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:funds-line"></span>
+            <span class="text-sm font-medium">分红概览</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="dividend-rule.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:settings-4-line"></span>
+            <span class="text-sm font-medium">分红规则</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">系统管理</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="contract-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:file-copy-line"></span>
+            <span class="text-sm font-medium">合同管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="message-list.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:mail-line"></span>
+            <span class="text-sm font-medium">系统消息</span>
+        </a>
+        <div class="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-widest">权限设置</div>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-user.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:admin-line"></span>
+            <span class="text-sm font-medium">用户管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-role.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:shield-user-line"></span>
+            <span class="text-sm font-medium">角色管理</span>
+        </a>
+        <a class="flex items-center px-4 py-3 hover:bg-white/10 rounded-lg transition-all" href="system-permission.html">
+            <span class="iconify mr-3 text-lg" data-icon="ri:lock-line"></span>
+            <span class="text-sm font-medium">权限管理</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-gray-700/50">
+        <a class="flex items-center gap-3 text-gray-400 hover:text-white transition-colors" href="../index.html">
+            <span class="iconify" data-icon="ri:logout-box-r-line"></span>
+            <span class="text-sm">退出登录</span>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Header -->
+    <header class="h-16 bg-white/90 backdrop-blur-sm border-b border-gray-200/50 flex items-center justify-between px-6 shrink-0 shadow-sm">
+        <div class="flex items-center gap-4">
+            <nav class="flex text-sm text-gray-500">
+                <ol class="flex items-center space-x-2">
+                    <li class="flex items-center"><a href="dashboard.html" class="hover:text-emerald-600 transition-colors"><span class="iconify text-gray-400" data-icon="ri:home-4-line"></span></a></li>
+                    <li class="flex items-center space-x-2"><span class="iconify text-xs" data-icon="ri:arrow-right-s-line"></span><span class="text-gray-900 font-medium">设备预警</span></li>
+                </ol>
+            </nav>
+        </div>
+        <div class="flex items-center gap-5">
+            <a href="message-list.html" class="relative">
+                <span class="iconify text-gray-500 text-xl cursor-pointer hover:text-emerald-600 transition-colors" data-icon="ri:notification-3-line"></span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            </a>
+            <div class="flex items-center gap-3 pl-3 border-l border-gray-200">
+                <span class="text-sm font-medium text-gray-700">2026年04月11日 周五</span>
+            </div>
+            <a href="profile.html" class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">张</div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-800">张浩</p>
+                    <p class="text-[10px] text-gray-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>超管</p>
+                </div>
+            </a>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto p-6">
+        <div class="max-w-full mx-auto space-y-6">
+
+            <!-- 预警统计卡片 -->
+            <div class="grid grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-sm text-gray-500">总预警数</p><p class="text-2xl font-bold text-gray-800 mt-1">24</p></div>
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-600"><span class="iconify text-xl" data-icon="ri:alert-line"></span></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">本月累计 156 次</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-sm text-gray-500">高危预警</p><p class="text-2xl font-bold text-red-500 mt-1">8</p></div>
+                        <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-red-500"><span class="iconify text-xl" data-icon="ri:error-warning-fill"></span></div>
+                    </div>
+                    <p class="text-xs text-red-400 mt-2">需立即处理</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-sm text-gray-500">中危预警</p><p class="text-2xl font-bold text-amber-500 mt-1">10</p></div>
+                        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-500"><span class="iconify text-xl" data-icon="ri:alert-fill"></span></div>
+                    </div>
+                    <p class="text-xs text-amber-400 mt-2">建议尽快处理</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-sm text-gray-500">低危预警</p><p class="text-2xl font-bold text-green-500 mt-1">6</p></div>
+                        <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-500"><span class="iconify text-xl" data-icon="ri:information-fill"></span></div>
+                    </div>
+                    <p class="text-xs text-green-400 mt-2">可延后处理</p>
+                </div>
+            </div>
+
+            <!-- Tab切换 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="flex border-b border-gray-100 px-5">
+                    <button class="tab-active px-5 py-3 text-sm" onclick="switchMainTab('records')">预警记录</button>
+                    <button class="text-gray-500 hover:text-gray-700 px-5 py-3 text-sm" onclick="switchMainTab('rules')">预警规则</button>
+                    <button class="text-gray-500 hover:text-gray-700 px-5 py-3 text-sm" onclick="switchMainTab('history')">历史预警</button>
+                </div>
+
+                <!-- 预警记录 Tab -->
+                <div id="tab-records" class="p-5">
+                    <!-- 筛选栏 -->
+                    <div class="flex items-center gap-3 mb-5 flex-wrap">
+                        <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                            <option>全部等级</option><option>高危</option><option>中危</option><option>低危</option>
+                        </select>
+                        <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                            <option>全部状态</option><option>待处理</option><option>处理中</option><option>已解决</option><option>已忽略</option>
+                        </select>
+                        <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-emerald-500">
+                            <option>全部设备类型</option><option>电解槽</option><option>储氢罐</option><option>加氢站</option>
+                        </select>
+                        <input type="text" placeholder="搜索设备编号/名称" class="px-3 py-2 border border-gray-200 rounded-lg text-sm w-56 focus:outline-none focus:border-emerald-500">
+                        <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700">查询</button>
+                        <button class="px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">重置</button>
+                        <button class="ml-auto px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm hover:bg-red-100" onclick="alert('批量处理预警')">批量处理</button>
+                    </div>
+
+                    <!-- 预警列表 -->
+                    <div class="space-y-3">
+                        <div class="warning-level-high p-4 rounded-xl">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-red-600"><span class="iconify text-xl" data-icon="ri:temp-hot-line"></span></div>
+                                    <div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="font-semibold text-gray-800">温度过高预警</span>
+                                            <span class="status-badge bg-red-100 text-red-700">高危</span>
+                                            <span class="status-badge bg-yellow-100 text-yellow-700">待处理</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-1">设备 <span class="font-mono">SN-2026-001</span> · 质子交换膜电解槽 · 当前温度 92.5°C，超过阈值 85°C</p>
+                                        <p class="text-xs text-gray-400 flex items-center gap-3"><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:time-line"></span>10分钟前</span><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:map-pin-line"></span>杭州滨江站</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs hover:bg-red-100" onclick="alert('立即处理')">立即处理</button>
+                                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs hover:bg-gray-50" onclick="alert('查看详情')">详情</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="warning-level-high p-4 rounded-xl">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-red-600"><span class="iconify text-xl" data-icon="ri:pressure-line"></span></div>
+                                    <div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="font-semibold text-gray-800">压力异常预警</span>
+                                            <span class="status-badge bg-red-100 text-red-700">高危</span>
+                                            <span class="status-badge bg-yellow-100 text-yellow-700">待处理</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-1">设备 <span class="font-mono">SN-2026-045</span> · 高压储氢罐 · 当前压力 4.2 MPa，超过阈值 3.8 MPa</p>
+                                        <p class="text-xs text-gray-400 flex items-center gap-3"><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:time-line"></span>25分钟前</span><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:map-pin-line"></span>上海嘉定站</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs hover:bg-red-100" onclick="alert('立即处理')">立即处理</button>
+                                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs hover:bg-gray-50" onclick="alert('查看详情')">详情</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="warning-level-mid p-4 rounded-xl">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600">
+                                    <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600"><span class="iconify text-xl" data-icon="ri:flashlight-line"></span></div>
+                                    <div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="font-semibold text-gray-800">功率波动预警</span>
+                                            <span class="status-badge bg-amber-100 text-amber-700">中危</span>
+                                            <span class="status-badge bg-blue-100 text-blue-700">处理中</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-1">设备 <span class="font-mono">SN-2026-128</span> · 加氢站压缩机 · 功率波动超过15%，当前波动 22%</p>
+                                        <p class="text-xs text-gray-400 flex items-center gap-3"><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:time-line"></span>1小时前</span><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:map-pin-line"></span>广州南沙站</span><span class="flex items-center gap-1 text-blue-600"><span class="iconify text-xs" data-icon="ri:user-line"></span>李工处理中</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs hover:bg-gray-50" onclick="alert('查看详情')">详情</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="warning-level-mid p-4 rounded-xl">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600">
+                                    <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600"><span class="iconify text-xl" data-icon="ri:water-flash-line"></span></div>
+                                    <div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="font-semibold text-gray-800">产氢效率下降</span>
+                                            <span class="status-badge bg-amber-100 text-amber-700">中危</span>
+                                            <span class="status-badge bg-yellow-100 text-yellow-700">待处理</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-1">设备 <span class="font-mono">SN-2026-256</span> · 碱性电解槽 · 效率下降至 68%，低于阈值 75%</p>
+                                        <p class="text-xs text-gray-400 flex items-center gap-3"><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:time-line"></span>2小时前</span><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:map-pin-line"></span>苏州工业园站</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-xs hover:bg-amber-100" onclick="alert('处理预警')">处理</button>
+                                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs hover:bg-gray-50" onclick="alert('查看详情')">详情</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="warning-level-low p-4 rounded-xl">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox" class="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600"><span class="iconify text-xl" data-icon="ri:calendar-check-line"></span></div>
+                                    <div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="font-semibold text-gray-800">维护周期提醒</span>
+                                            <span class="status-badge bg-green-100 text-green-700">低危</span>
+                                            <span class="status-badge bg-yellow-100 text-yellow-700">待处理</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-1">设备 <span class="font-mono">SN-2026-001</span> · 质子交换膜电解槽 · 距下次维护剩余 568 小时</p>
+                                        <p class="text-xs text-gray-400 flex items-center gap-3"><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:time-line"></span>3小时前</span><span class="flex items-center gap-1"><span class="iconify text-xs" data-icon="ri:map-pin-line"></span>杭州滨江站</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button class="px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-xs hover:bg-green-100" onclick="alert('创建维护工单')">创建工单</button>
+                                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-xs hover:bg-gray-50" onclick="alert('查看详情')">详情</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="flex items-center justify-between mt-5 pt-3 border-t border-gray-100">
+                        <div class="text-xs text-gray-500">显示第 1-5 条，共 24 条预警</div>
+                        <div class="flex items-center gap-1">
+                            <button class="w-7 h-7 rounded border border-gray-200 flex items-center justify-center text-gray-400"><span class="iconify text-sm" data-icon="ri:arrow-left-s-line"></span></button>
+                            <button class="w-7 h-7 rounded bg-emerald-600 text-white flex items-center justify-center text-xs">1</button>
+                            <button class="w-7 h-7 rounded border border-gray-200 flex items-center justify-center text-gray-600 text-xs">2</button>
+                            <button class="w-7 h-7 rounded border border-gray-200 flex items-center justify-center text-gray-600 text-xs">3</button>
+                            <button class="w-7 h-7 rounded border border-gray-200 flex items-center justify-center text-gray-600"><span class="iconify text-sm" data-icon="ri:arrow-right-s-line"></span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 预警规则 Tab -->
+                <div id="tab-rules" class="p-5 hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold text-gray-800">预警规则配置</h3>
+                        <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 flex items-center gap-1" onclick="alert('新增规则')"><span class="iconify" data-icon="ri:add-line"></span>新增规则</button>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="rule-card bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center text-red-600"><span class="iconify text-xl" data-icon="ri:temp-hot-line"></span></div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">温度过高预警</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">适用设备：电解槽、燃料电池 · 检测周期：实时</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                                    <button class="text-gray-400 hover:text-emerald-600" onclick="alert('编辑规则')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                </div>
+                            </div>
+                            <div class="mt-3 grid grid-cols-3 gap-4 text-xs">
+                                <div><span class="text-gray-500">高危阈值：</span><span class="font-medium text-red-600">≥ 85°C</span></div>
+                                <div><span class="text-gray-500">中危阈值：</span><span class="font-medium text-amber-600">75-85°C</span></div>
+                                <div><span class="text-gray-500">低危阈值：</span><span class="font-medium text-green-600">65-75°C</span></div>
+                            </div>
+                        </div>
+                        <div class="rule-card bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600"><span class="iconify text-xl" data-icon="ri:pressure-line"></span></div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">压力异常预警</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">适用设备：储氢罐、加氢站 · 检测周期：实时</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                                    <button class="text-gray-400 hover:text-emerald-600" onclick="alert('编辑规则')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                </div>
+                            </div>
+                            <div class="mt-3 grid grid-cols-3 gap-4 text-xs">
+                                <div><span class="text-gray-500">高危阈值：</span><span class="font-medium text-red-600">≥ 3.8 MPa</span></div>
+                                <div><span class="text-gray-500">中危阈值：</span><span class="font-medium text-amber-600">3.2-3.8 MPa</span></div>
+                                <div><span class="text-gray-500">低危阈值：</span><span class="font-medium text-green-600">2.8-3.2 MPa</span></div>
+                            </div>
+                        </div>
+                        <div class="rule-card bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><span class="iconify text-xl" data-icon="ri:flashlight-line"></span></div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">功率波动预警</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">适用设备：全部设备 · 检测周期：每5分钟</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-9 h-5 bg-emerald-600 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute right-0.5 top-0.5"></span></span>
+                                    <button class="text-gray-400 hover:text-emerald-600" onclick="alert('编辑规则')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                </div>
+                            </div>
+                            <div class="mt-3 grid grid-cols-3 gap-4 text-xs">
+                                <div><span class="text-gray-500">高危阈值：</span><span class="font-medium text-red-600">波动 ≥ 30%</span></div>
+                                <div><span class="text-gray-500">中危阈值：</span><span class="font-medium text-amber-600">波动 15-30%</span></div>
+                                <div><span class="text-gray-500">低危阈值：</span><span class="font-medium text-green-600">波动 10-15%</span></div>
+                            </div>
+                        </div>
+                        <div class="rule-card bg-white border border-gray-200 rounded-xl p-4">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600"><span class="iconify text-xl" data-icon="ri:calendar-check-line"></span></div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">维护周期提醒</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">适用设备：全部设备 · 检测周期：每日</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-9 h-5 bg-gray-300 rounded-full relative cursor-pointer"><span class="w-4 h-4 bg-white rounded-full absolute left-0.5 top-0.5"></span></span>
+                                    <button class="text-gray-400 hover:text-emerald-600" onclick="alert('编辑规则')"><span class="iconify" data-icon="ri:edit-line"></span></button>
+                                </div>
+                            </div>
+                            <div class="mt-3 grid grid-cols-3 gap-4 text-xs">
+                                <div><span class="text-gray-500">提醒阈值：</span><span class="font-medium">距维护 < 500h</span></div>
+                                <div><span class="text-gray-500">重复提醒：</span><span class="font-medium">每24小时</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史预警 Tab -->
+                <div id="tab-history" class="p-5 hidden">
+                    <div class="flex items-center gap-3 mb-4">
+                        <select class="px-3 py-2 border border-gray-200 rounded-lg text-sm"><option>近7天</option><option>近30天</option><option>近90天</option></select>
+                        <input type="text" placeholder="搜索设备" class="px-3 py-2 border border-gray-200 rounded-lg text-sm w-48">
+                        <button class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm">查询</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 border-b text-xs text-gray-500 uppercase">
+                            <tr><th class="px-4 py-3">设备</th><th class="px-4 py-3">预警类型</th><th class="px-4 py-3">等级</th><th class="px-4 py-3">触发时间</th><th class="px-4 py-3">恢复时间</th><th class="px-4 py-3">处理人</th><th class="px-4 py-3">状态</th></tr>
+                            </thead>
+                            <tbody class="divide-y text-sm">
+                            <tr><td class="px-4 py-3">SN-2026-001</td><td>温度过高</td><td><span class="text-red-600">高危</span></td><td>04-10 14:30</td><td>04-10 15:45</td><td>王工</td><td><span class="text-green-600">已解决</span></td></tr>
+                            <tr><td class="px-4 py-3">SN-2026-045</td><td>压力异常</td><td><span class="text-red-600">高危</span></td><td>04-10 09:15</td><td>04-10 11:20</td><td>李工</td><td><span class="text-green-600">已解决</span></td></tr>
+                            <tr><td class="px-4 py-3">SN-2026-089</td><td>通讯中断</td><td><span class="text-amber-600">中危</span></td><td>04-09 22:10</td><td>04-10 08:30</td><td>系统</td><td><span class="text-green-600">自动恢复</span></td></tr>
+                            <tr><td class="px-4 py-3">SN-2026-312</td><td>效率下降</td><td><span class="text-amber-600">中危</span></td><td>04-09 16:20</td><td>04-09 18:00</td><td>张师傅</td><td><span class="text-green-600">已解决</span></td></tr>
+                            <tr><td class="px-4 py-3">SN-2026-128</td><td>功率波动</td><td><span class="text-green-600">低危</span></td><td>04-08 10:30</td><td>04-08 11:15</td><td>系统</td><td><span class="text-gray-500">已忽略</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实时监控图表 -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="iconify text-emerald-600" data-icon="ri:line-chart-line"></span>近24小时预警趋势</h3>
+                <div class="h-[200px]" id="warningChart"></div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script>
+    function switchMainTab(tab) {
+        document.getElementById('tab-records').classList.add('hidden');
+        document.getElementById('tab-rules').classList.add('hidden');
+        document.getElementById('tab-history').classList.add('hidden');
+        document.getElementById('tab-' + tab).classList.remove('hidden');
+
+        document.querySelectorAll('.border-b button').forEach(btn => {
+            btn.classList.remove('tab-active', 'text-gray-900');
+            btn.classList.add('text-gray-500');
+        });
+        event.target.classList.add('tab-active');
+        event.target.classList.remove('text-gray-500');
+    }
+
+    const warningChart = echarts.init(document.getElementById('warningChart'));
+    warningChart.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '5%', right: '5%', bottom: '10%', top: '5%' },
+        xAxis: { type: 'category', data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'] },
+        yAxis: { type: 'value', name: '预警次数' },
+        series: [
+            { name: '高危', type: 'bar', stack: 'total', data: [1, 0, 2, 3, 2, 1], itemStyle: { color: '#DC2626' } },
+            { name: '中危', type: 'bar', stack: 'total', data: [2, 1, 3, 4, 3, 2], itemStyle: { color: '#D97706' } },
+            { name: '低危', type: 'bar', stack: 'total', data: [1, 1, 2, 3, 2, 1], itemStyle: { color: '#16A34A' } }
+        ],
+        legend: { bottom: 0 }
+    });
+
+    window.addEventListener('resize', () => warningChart.resize());
+    window.switchMainTab = switchMainTab;
+</script>
+</body>
+</html>
