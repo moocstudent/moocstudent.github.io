@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskSaaS · 任务、文档、测试用例,一站打包</title>
+<meta name="description" content="TaskSaaS 把工单、看板、需求、Wiki、测试用例、燃尽图、AI 助手装进一个工具。⌘K 全局搜索,代码自动联动,Web / iOS / Android 实时同步。">
+<meta name="theme-color" content="#0f172a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ===== Reset & Tokens ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  :root {
+    --ink:        #0b1020;
+    --ink-2:      #1f2937;
+    --muted:      #6b7280;
+    --muted-2:    #9ca3af;
+    --line:       #e5e7eb;
+    --line-soft:  #f1f2f6;
+    --bg:         #ffffff;
+    --bg-soft:    #fafbff;
+    --bg-tint:    #f6f7fb;
+    --brand:      #5b6cff;
+    --brand-2:    #8b5cf6;
+    --brand-soft: rgba(91,108,255,0.10);
+    --ok:         #16a34a;
+    --warn:       #f59e0b;
+    --err:        #ef4444;
+    --grad:       linear-gradient(135deg, #5b6cff 0%, #8b5cf6 100%);
+    --grad-soft:  linear-gradient(135deg, rgba(91,108,255,0.12), rgba(139,92,246,0.12));
+    --shadow-sm:  0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow:     0 6px 20px -8px rgba(15, 23, 42, 0.12), 0 2px 6px -2px rgba(15, 23, 42, 0.06);
+    --shadow-lg:  0 24px 60px -20px rgba(91, 108, 255, 0.28), 0 8px 24px -10px rgba(15, 23, 42, 0.10);
+    --radius:     12px;
+    --radius-lg:  16px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+                 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    color: var(--ink);
+    line-height: 1.6;
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+  }
+  a { color: var(--brand); text-decoration: none; transition: color .15s; }
+  a:hover { color: #4b5cee; }
+  code, .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; }
+  ::selection { background: var(--brand-soft); color: var(--ink); }
+
+  /* ===== Layout helpers ===== */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .container-narrow { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  .gradient-text {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .eyebrow {
+    display: inline-block;
+    color: var(--brand); font-weight: 600; font-size: 13px;
+    text-transform: uppercase; letter-spacing: 1.4px;
+    margin-bottom: 14px;
+  }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 11px 20px;
+    border-radius: 10px;
+    font-size: 14.5px; font-weight: 600;
+    transition: transform .15s, box-shadow .15s, background .15s, border-color .15s, color .15s;
+    cursor: pointer; border: none;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--grad);
+    color: #fff;
+    box-shadow: 0 6px 16px -4px rgba(91, 108, 255, 0.45);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -4px rgba(91, 108, 255, 0.55);
+    color: #fff;
+  }
+  .btn-secondary {
+    background: #fff; color: var(--ink-2);
+    border: 1px solid var(--line);
+  }
+  .btn-secondary:hover { background: var(--bg-tint); border-color: #d1d5db; }
+  .btn-ghost { background: transparent; color: var(--ink-2); }
+  .btn-ghost:hover { color: var(--brand); }
+  .btn-dark { background: var(--ink); color: #fff; }
+  .btn-dark:hover { background: #1a213a; color: #fff; transform: translateY(-1px); }
+  .btn-sm { padding: 8px 14px; font-size: 13px; }
+
+  /* ===== Top nav ===== */
+  header.nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: saturate(160%) blur(12px);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.55);
+  }
+  header.nav .container {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .logo-link { display: flex; align-items: center; gap: 10px; color: var(--ink); font-weight: 800; font-size: 18px; }
+  .logo-link svg { display: block; }
+  nav.menu { display: flex; gap: 26px; }
+  nav.menu a { color: #4b5563; font-size: 14px; font-weight: 500; }
+  nav.menu a:hover { color: var(--ink); }
+  .nav-actions { display: flex; gap: 8px; align-items: center; }
+  .menu-toggle { display: none; background: transparent; border: none; cursor: pointer; padding: 8px; color: var(--ink); }
+
+  /* ===== Hero ===== */
+  section.hero {
+    padding: 88px 0 80px;
+    background:
+      radial-gradient(ellipse 900px 600px at 50% -120px, rgba(139, 92, 246, 0.12), transparent 70%),
+      radial-gradient(ellipse 700px 480px at 88% 200px, rgba(91, 108, 255, 0.10), transparent 70%),
+      radial-gradient(ellipse 500px 320px at 4% 320px, rgba(34, 197, 94, 0.06), transparent 70%),
+      var(--bg-soft);
+    position: relative; overflow: hidden;
+  }
+  .hero-grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(91, 108, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(91, 108, 255, 0.045) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 800px 480px at 50% 0%, #000 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 800px 480px at 50% 0%, #000 20%, transparent 75%);
+    pointer-events: none;
+  }
+  .hero-content { position: relative; display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+  .hero-text .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    padding: 6px 14px 6px 8px; border-radius: 999px;
+    font-size: 13px; font-weight: 500;
+    margin-bottom: 22px;
+    box-shadow: var(--shadow-sm);
+  }
+  .hero-text .badge .pip {
+    display: inline-flex; align-items: center;
+    background: var(--grad); color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 2px 7px; border-radius: 999px;
+    letter-spacing: 0.3px;
+  }
+  .hero-text .badge .arrow { color: var(--muted-2); margin-left: 2px; }
+
+  .hero-text h1 {
+    font-size: 60px; font-weight: 800; line-height: 1.08;
+    letter-spacing: -0.025em;
+    margin-bottom: 22px;
+  }
+  .hero-text .tagline {
+    font-size: 18.5px; color: #4b5563; margin-bottom: 32px; line-height: 1.65;
+    max-width: 540px;
+  }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .hero-cta .hint { font-size: 13px; color: var(--muted); margin-left: 6px; }
+  .hero-trust {
+    margin-top: 36px;
+    display: flex; align-items: center; gap: 14px;
+    color: var(--muted); font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .hero-trust .stars { color: #fbbf24; letter-spacing: 1px; }
+  .hero-trust .sep { color: var(--line); }
+  .hero-trust strong { color: var(--ink-2); font-weight: 700; }
+
+  /* ===== Hero mockup — 模拟真实产品 (sidebar + main + AI panel) ===== */
+  .mockup-wrap { position: relative; }
+  .mockup {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    transform: perspective(1800px) rotateY(-3deg) rotateX(1.5deg);
+    transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .mockup:hover { transform: perspective(1800px) rotateY(0) rotateX(0); }
+
+  .mockup-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 11px 14px; border-bottom: 1px solid var(--line-soft);
+    background: linear-gradient(180deg, #fafbfc, #f6f7fb);
+  }
+  .mockup-dots { display: flex; gap: 6px; }
+  .mockup-dots span { width: 11px; height: 11px; border-radius: 50%; background: #e5e7eb; }
+  .mockup-dots span:first-child { background: #ff5f57; }
+  .mockup-dots span:nth-child(2) { background: #ffbd2e; }
+  .mockup-dots span:nth-child(3) { background: #28c940; }
+  .mockup-url {
+    flex: 1; background: #fff; border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 10px; font-size: 11.5px; color: var(--muted);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .mockup-url::before {
+    content: ''; width: 9px; height: 9px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2316a34a' stroke-width='2.5'><path d='M12 1L3 5v6c0 5 3.5 9.5 9 11 5.5-1.5 9-6 9-11V5l-9-4z'/></svg>") center/contain no-repeat;
+  }
+
+  .mockup-body {
+    display: grid; grid-template-columns: 52px 1fr 240px;
+    height: 360px;
+    background: #fff;
+  }
+  /* sidebar */
+  .mk-sidebar {
+    border-right: 1px solid var(--line-soft);
+    background: #fafafa;
+    padding: 12px 0;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+  }
+  .mk-side-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #71717a; cursor: pointer;
+  }
+  .mk-side-icon.brand { background: var(--ink); color: #fff; font-weight: 700; font-size: 11px; margin-bottom: 6px; }
+  .mk-side-icon.active { background: #ecedf5; color: var(--brand); }
+  .mk-side-icon svg { width: 16px; height: 16px; }
+  .mk-side-spacer { flex: 1; }
+  .mk-side-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--grad); color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  /* main area = list of issues */
+  .mk-main { padding: 14px 16px; min-width: 0; }
+  .mk-main-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .mk-main-title { font-size: 14.5px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .mk-main-title .count { color: var(--muted-2); font-weight: 500; font-size: 12px; }
+  .mk-tabs { display: flex; gap: 4px; }
+  .mk-tab { font-size: 11.5px; padding: 4px 9px; border-radius: 6px; color: var(--muted); cursor: pointer; }
+  .mk-tab.active { background: #ecedf5; color: var(--brand); font-weight: 600; }
+
+  .mk-row {
+    display: grid; grid-template-columns: 18px 56px 1fr auto auto;
+    gap: 10px; align-items: center;
+    padding: 9px 6px; border-bottom: 1px solid var(--line-soft);
+    font-size: 12.5px;
+  }
+  .mk-row:last-child { border-bottom: none; }
+  .mk-row .mk-pri { width: 10px; height: 10px; border-radius: 50%; }
+  .mk-row .mk-pri.p1 { background: #f97316; }
+  .mk-row .mk-pri.p2 { background: var(--brand); }
+  .mk-row .mk-pri.p3 { background: #94a3b8; }
+  .mk-row .mk-pri.p4 { background: #cbd5e1; }
+  .mk-row .mk-id { color: var(--muted-2); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .mk-row .mk-title { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mk-row .mk-status {
+    font-size: 10.5px; padding: 1px 8px; border-radius: 4px; font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  .mk-row .mk-st-doing { background: #dbeafe; color: #1e40af; }
+  .mk-row .mk-st-todo { background: #f1f5f9; color: #475569; }
+  .mk-row .mk-st-done { background: #dcfce7; color: #166534; }
+  .mk-row .mk-st-block { background: #fee2e2; color: #b91c1c; }
+  .mk-row .mk-ava {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--grad); color: #fff;
+    font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mk-row .mk-ava.a2 { background: linear-gradient(135deg, #f97316, #fb923c); }
+  .mk-row .mk-ava.a3 { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .mk-row .mk-ava.a4 { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+  /* ai panel */
+  .mk-ai {
+    border-left: 1px solid var(--line-soft);
+    background: linear-gradient(180deg, #fdfcff 0%, #faf6ff 100%);
+    padding: 14px 14px;
+    display: flex; flex-direction: column;
+  }
+  .mk-ai-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--grad); color: #fff;
+    padding: 3px 8px; border-radius: 999px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
+    align-self: flex-start;
+    margin-bottom: 10px;
+  }
+  .mk-ai h6 { font-size: 12.5px; color: var(--ink); margin-bottom: 4px; font-weight: 700; }
+  .mk-ai p { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+  .mk-ai-suggest {
+    background: #fff; border: 1px solid #e9eaf6;
+    border-radius: 8px; padding: 10px;
+    margin-bottom: 8px;
+    font-size: 11px; color: var(--ink-2);
+    line-height: 1.55;
+  }
+  .mk-ai-suggest strong { color: var(--brand); display: block; margin-bottom: 3px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .mk-ai-bar {
+    margin-top: auto;
+    background: var(--ink); color: #fff;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 4px 12px -4px rgba(91, 108, 255, 0.4);
+  }
+  .mk-ai-bar .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #4ade80;
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+  }
+
+  /* floating ⌘K palette badge over the mockup */
+  .mockup-float-kbd {
+    position: absolute;
+    bottom: -16px; left: -16px;
+    background: var(--ink); color: #fff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.4);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12.5px;
+  }
+  .mockup-float-kbd kbd {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 5px;
+    padding: 2px 6px;
+    font-family: inherit; font-size: 11px;
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.08);
+  }
+  .mockup-float-kbd .key-sep { opacity: 0.5; font-size: 10px; }
+
+  /* logo strip */
+  .logo-strip {
+    margin-top: 56px;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 28px;
+    text-align: center;
+  }
+  .logo-strip-title { font-size: 12px; color: var(--muted-2); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 18px; }
+  .logos { display: flex; justify-content: center; align-items: center; gap: 56px; flex-wrap: wrap; opacity: 0.7; }
+  .logos span {
+    color: #6b7280; font-weight: 700; font-size: 16px; letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .logos span::before {
+    content: ''; width: 18px; height: 18px; border-radius: 5px;
+    background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+  }
+
+  /* ===== generic section ===== */
+  section { padding: 88px 0; }
+  .section-header { text-align: center; margin-bottom: 56px; }
+  .section-header h2 {
+    font-size: 40px; font-weight: 800; line-height: 1.18;
+    letter-spacing: -0.02em;
+    margin-bottom: 14px;
+  }
+  .section-header p {
+    font-size: 17px; color: var(--muted); max-width: 620px; margin: 0 auto;
+  }
+
+  /* ===== Section: All-in-one (6 modules) ===== */
+  section.all-in-one { background: #fff; }
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .module {
+    padding: 22px;
+    border-radius: 14px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    display: flex; gap: 14px;
+    transition: all .2s;
+    cursor: default;
+  }
+  .module:hover {
+    background: #fff;
+    border-color: #c7d2fe;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+  .module-icon {
+    width: 38px; height: 38px;
+    border-radius: 9px;
+    background: var(--grad-soft);
+    color: var(--brand);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .module-icon svg { width: 18px; height: 18px; }
+  .module-body h4 { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .module-body p { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+
+  /* ===== Section: AI focus ===== */
+  section.ai-focus {
+    background: var(--ink);
+    color: #e2e8f0;
+    position: relative; overflow: hidden;
+  }
+  section.ai-focus::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 600px 360px at 20% 30%, rgba(139, 92, 246, 0.15), transparent 70%),
+      radial-gradient(ellipse 500px 320px at 80% 70%, rgba(91, 108, 255, 0.18), transparent 70%);
+    pointer-events: none;
+  }
+  section.ai-focus .container { position: relative; z-index: 1; }
+  .ai-grid {
+    display: grid; grid-template-columns: 1fr 1.05fr; gap: 56px; align-items: center;
+  }
+  .ai-text .eyebrow { color: #a78bfa; }
+  .ai-text h2 {
+    font-size: 38px; font-weight: 800; color: #fff;
+    line-height: 1.2; letter-spacing: -0.02em;
+    margin-bottom: 18px;
+  }
+  .ai-text > p {
+    font-size: 16.5px; color: #94a3b8; line-height: 1.7; margin-bottom: 24px;
+  }
+  .ai-bullets { list-style: none; margin-bottom: 28px; }
+  .ai-bullets li {
+    padding: 8px 0; color: #cbd5e1; font-size: 14.5px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .ai-bullets li::before {
+    content: ''; width: 16px; height: 16px; flex-shrink: 0; margin-top: 4px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M3 8.5L6.5 12L13 5' stroke='%23a78bfa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/contain no-repeat;
+  }
+  .ai-text .btn-light {
+    background: #fff; color: var(--ink);
+  }
+  .ai-text .btn-light:hover { background: #f1f5f9; color: var(--ink); transform: translateY(-1px); }
+
+  /* AI panel mockup */
+  .ai-card {
+    background: #0f1530;
+    border: 1px solid #2d3052;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5);
+  }
+  .ai-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 14px; border-bottom: 1px solid #2a2e4f;
+    margin-bottom: 14px;
+  }
+  .ai-issue-id { color: #94a3b8; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+  .ai-issue-status {
+    background: rgba(139, 92, 246, 0.18); color: #c4b5fd;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .ai-card h5 {
+    color: #fff; font-size: 15.5px; font-weight: 600; line-height: 1.4;
+    margin-bottom: 16px;
+  }
+  .ai-suggest-btn {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.20), rgba(91, 108, 255, 0.20));
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    color: #c4b5fd;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+  }
+  .ai-suggest-block {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid #2a2e4f;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #cbd5e1;
+  }
+  .ai-suggest-block .label {
+    color: #a78bfa; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 8px;
+  }
+  .ai-suggest-block .label::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%; background: #a78bfa;
+    box-shadow: 0 0 8px #a78bfa;
+  }
+  .ai-suggest-block ol { margin: 0; padding-left: 18px; }
+  .ai-suggest-block ol li { margin-bottom: 6px; }
+  .ai-suggest-block ol li:last-child { margin-bottom: 0; }
+  .ai-suggest-block code {
+    background: rgba(167, 139, 250, 0.12);
+    color: #c4b5fd;
+    padding: 1px 6px; border-radius: 4px;
+    font-size: 12px;
+  }
+
+  /* ===== Section: Features (secondary) ===== */
+  section.features { background: #fff; }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .feature {
+    padding: 28px;
+    border-radius: 14px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    transition: all .2s;
+  }
+  .feature:hover {
+    transform: translateY(-3px);
+    border-color: #e0e7ff;
+    box-shadow: 0 8px 24px -8px rgba(91, 108, 255, 0.15);
+  }
+  .feature-icon {
+    width: 44px; height: 44px;
+    background: var(--grad);
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+    color: #fff;
+  }
+  .feature-icon svg { width: 20px; height: 20px; }
+  .feature h3 {
+    font-size: 17px; font-weight: 700;
+    margin-bottom: 8px; color: var(--ink);
+  }
+  .feature p { color: var(--muted); font-size: 14.5px; line-height: 1.65; }
+  .feature .kbd-inline {
+    display: inline-flex; align-items: center; gap: 2px;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 4px; padding: 1px 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--ink-2);
+    box-shadow: 0 1px 0 var(--line);
+  }
+
+  /* ===== Section: Comparison ===== */
+  section.compare { background: var(--bg-soft); }
+  .compare-table {
+    background: #fff;
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .compare-table table { width: 100%; border-collapse: collapse; }
+  .compare-table th, .compare-table td {
+    padding: 16px 20px; text-align: left;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 14px;
+  }
+  .compare-table tbody tr:last-child td { border-bottom: none; }
+  .compare-table thead th {
+    background: var(--bg-tint); font-size: 13px; font-weight: 700;
+    color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .compare-table .col-feature { width: 32%; font-weight: 600; color: var(--ink); }
+  .compare-table .col-ts { background: rgba(91, 108, 255, 0.04); position: relative; }
+  .compare-table .col-ts::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+    background: var(--grad);
+  }
+  .compare-table .yes { color: var(--ok); font-weight: 600; }
+  .compare-table .no  { color: #cbd5e1; }
+  .compare-table .partial { color: var(--warn); font-size: 13px; }
+
+  /* ===== Section: Workflow ===== */
+  section.workflow { background: #fff; }
+  .workflow-steps {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+    position: relative;
+  }
+  .workflow-steps::before {
+    content: '';
+    position: absolute; top: 36px; left: 16%; right: 16%;
+    height: 2px;
+    background: linear-gradient(90deg, #c7d2fe, #ddd6fe);
+    z-index: 0;
+  }
+  .step { text-align: center; position: relative; z-index: 1; }
+  .step-num {
+    width: 72px; height: 72px;
+    background: #fff;
+    border: 2px solid var(--brand);
+    color: var(--brand);
+    font-size: 28px; font-weight: 800;
+    border-radius: 50%;
+    margin: 0 auto 18px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(91, 108, 255, 0.18);
+  }
+  .step h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
+  .step p { color: var(--muted); font-size: 14.5px; }
+
+  /* ===== Section: Developer (code snippet) ===== */
+  section.dev { background: var(--bg-soft); }
+  .dev-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; }
+  .dev-text h2 { font-size: 36px; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 16px; color: var(--ink); }
+  .dev-text > p { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 22px; }
+  .dev-bullets { list-style: none; }
+  .dev-bullets li { padding: 6px 0; color: var(--ink-2); font-size: 14.5px; display: flex; align-items: flex-start; gap: 8px; }
+  .dev-bullets li::before {
+    content: '→'; color: var(--brand); font-weight: 700; flex-shrink: 0;
+  }
+  .code-card {
+    background: var(--ink);
+    color: #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px -20px rgba(15, 23, 42, 0.4);
+    border: 1px solid #1e293b;
+  }
+  .code-tabs {
+    display: flex; gap: 0;
+    background: #0a0e1f;
+    padding: 0 14px;
+    border-bottom: 1px solid #1e293b;
+  }
+  .code-tab {
+    padding: 12px 16px;
+    font-size: 12.5px; color: #94a3b8;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .code-tab.active { color: #fff; border-bottom-color: var(--brand); }
+  .code-block {
+    padding: 22px 24px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.75;
+    overflow-x: auto;
+  }
+  .code-block .ln { color: #475569; padding-right: 18px; user-select: none; display: inline-block; min-width: 24px; text-align: right; }
+  .code-block .kw { color: #c4b5fd; }
+  .code-block .fn { color: #93c5fd; }
+  .code-block .str { color: #86efac; }
+  .code-block .num { color: #fcd34d; }
+  .code-block .com { color: #64748b; font-style: italic; }
+  .code-block .pn { color: #fb7185; }
+  .code-block .ty { color: #fda4af; }
+  .code-block-row { display: block; }
+
+  /* ===== Section: Pricing ===== */
+  section.pricing { background: #fff; }
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+    align-items: stretch;
+  }
+  .plan {
+    padding: 30px 26px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1.5px solid var(--line-soft);
+    display: flex; flex-direction: column;
+    transition: all .2s;
+  }
+  .plan:hover { border-color: #e0e7ff; transform: translateY(-2px); box-shadow: var(--shadow); }
+  .plan.featured {
+    border-color: var(--brand);
+    background: linear-gradient(180deg, #fafbff 0%, #fff 60%);
+    box-shadow: 0 16px 40px -16px rgba(91, 108, 255, 0.32);
+    position: relative;
+  }
+  .plan.featured::before {
+    content: '推荐';
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--grad);
+    color: #fff; font-size: 11px; font-weight: 700;
+    padding: 4px 14px; border-radius: 999px;
+    letter-spacing: 1px;
+  }
+  .plan-name { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .plan-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px; }
+  .plan-price .num { font-size: 42px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
+  .plan-price .unit { font-size: 14.5px; color: var(--muted); }
+  .plan-desc { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+  .plan ul { list-style: none; flex: 1; }
+  .plan ul li {
+    padding: 7px 0; color: var(--ink-2); font-size: 14px;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .plan ul li::before {
+    content: ''; flex-shrink: 0; margin-top: 5px;
+    width: 15px; height: 15px;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'><path d='M3 8.5L6.5 12L13 5' stroke='%235b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/contain no-repeat;
+  }
+  .plan ul li.muted { color: var(--muted-2); }
+  .plan ul li.muted::before { opacity: 0.4; }
+  .plan .btn { margin-top: 22px; width: 100%; justify-content: center; }
+
+  /* ===== Section: Testimonials ===== */
+  section.testimonials { background: var(--bg-soft); }
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+  }
+  .quote {
+    background: #fff;
+    border-radius: 14px;
+    padding: 26px;
+    border: 1px solid var(--line-soft);
+    position: relative;
+    transition: all .2s;
+  }
+  .quote:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+  .quote .stars { color: #fbbf24; letter-spacing: 1px; font-size: 13px; margin-bottom: 12px; }
+  .quote-text {
+    font-size: 14.5px; line-height: 1.7;
+    color: #374151;
+    margin-bottom: 20px;
+  }
+  .quote-text mark { background: rgba(91, 108, 255, 0.10); color: var(--ink); padding: 0 2px; border-radius: 2px; }
+  .quote-author { display: flex; align-items: center; gap: 12px; }
+  .author-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--grad);
+    color: #fff; font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .author-avatar.a2 { background: linear-gradient(135deg, #f97316, #fb923c); }
+  .author-avatar.a3 { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+  .author-info .name { font-weight: 600; color: var(--ink); font-size: 14.5px; }
+  .author-info .title { color: var(--muted-2); font-size: 12.5px; }
+
+  /* ===== Section: FAQ ===== */
+  section.faq { background: #fff; }
+  .faq-list { max-width: 760px; margin: 0 auto; }
+  details.faq-item {
+    background: var(--bg-soft);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--line-soft);
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  details.faq-item[open] { border-color: #c7d2fe; }
+  details.faq-item summary {
+    cursor: pointer; padding: 18px 22px;
+    font-weight: 600; font-size: 15.5px;
+    color: var(--ink);
+    list-style: none;
+    display: flex; align-items: center; justify-content: space-between;
+    user-select: none;
+  }
+  details.faq-item summary::-webkit-details-marker { display: none; }
+  details.faq-item summary::after {
+    content: '+';
+    font-size: 22px; font-weight: 300; color: var(--muted);
+    transition: transform .2s;
+  }
+  details.faq-item[open] summary::after { transform: rotate(45deg); }
+  .faq-answer { padding: 0 22px 18px; color: #4b5563; line-height: 1.7; font-size: 14.5px; }
+
+  /* ===== Final CTA ===== */
+  section.cta-final {
+    background: var(--grad);
+    color: #fff; text-align: center;
+    border-radius: 24px;
+    margin: 0 24px 80px;
+    padding: 60px 32px;
+    position: relative; overflow: hidden;
+  }
+  section.cta-final::before {
+    content: '';
+    position: absolute; top: -50%; left: -10%; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 60%);
+    pointer-events: none;
+  }
+  section.cta-final::after {
+    content: '';
+    position: absolute; bottom: -50%; right: -10%; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 60%);
+    pointer-events: none;
+  }
+  section.cta-final .container { position: relative; z-index: 1; }
+  section.cta-final h2 {
+    font-size: 38px; font-weight: 800;
+    margin-bottom: 14px;
+    letter-spacing: -0.02em;
+  }
+  section.cta-final p { font-size: 17px; opacity: 0.95; margin-bottom: 28px; max-width: 540px; margin-left: auto; margin-right: auto; }
+  section.cta-final .cta-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  section.cta-final .btn-w {
+    background: #fff; color: var(--brand);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  section.cta-final .btn-w:hover { background: #f9fafb; }
+  section.cta-final .btn-o {
+    background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.5);
+  }
+  section.cta-final .btn-o:hover { background: rgba(255,255,255,0.10); }
+  section.cta-final .micro { margin-top: 18px; font-size: 13px; opacity: 0.8; }
+
+  /* ===== Footer ===== */
+  footer {
+    background: #0a0e1f;
+    color: #cbd5e1;
+    padding: 60px 0 30px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 40px;
+  }
+  .footer-brand .logo-link { color: #fff; margin-bottom: 14px; }
+  .footer-brand p { color: #94a3b8; font-size: 14px; line-height: 1.7; max-width: 320px; }
+  .footer-col h5 {
+    color: #fff; font-size: 12.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 18px;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { padding: 6px 0; }
+  .footer-col ul a { color: #94a3b8; font-size: 14px; transition: color .15s; }
+  .footer-col ul a:hover { color: #fff; }
+  .footer-bottom {
+    border-top: 1px solid #1e293b;
+    padding-top: 28px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; color: #64748b;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .footer-social { display: flex; gap: 10px; }
+  .footer-social a {
+    width: 36px; height: 36px;
+    background: #1e293b; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #cbd5e1; transition: all .15s;
+  }
+  .footer-social a:hover { background: var(--brand); color: #fff; }
+
+  /* ===== Animations ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s, transform .6s; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .hero-text { animation: fadeUp .8s ease-out; }
+  .mockup-wrap { animation: fadeUp 1s ease-out .15s both; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    .mockup { transform: none; }
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1080px) {
+    .hero-text h1 { font-size: 50px; }
+    .ai-grid, .dev-grid { gap: 40px; }
+  }
+  @media (max-width: 980px) {
+    .hero-content { grid-template-columns: 1fr; gap: 50px; text-align: center; }
+    .hero-text { order: 1; }
+    .hero-text .tagline { margin-left: auto; margin-right: auto; }
+    .mockup-wrap { order: 2; max-width: 640px; margin: 0 auto; }
+    .hero-cta { justify-content: center; }
+    .hero-trust { justify-content: center; }
+    .features-grid, .modules-grid { grid-template-columns: repeat(2, 1fr); }
+    .ai-grid, .dev-grid { grid-template-columns: 1fr; gap: 40px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .compare-table { overflow-x: auto; }
+  }
+  @media (max-width: 768px) {
+    .hero-text h1 { font-size: 38px; }
+    .section-header h2, .ai-text h2, .dev-text h2 { font-size: 28px; }
+    nav.menu { display: none; }
+    .menu-toggle { display: block; }
+    nav.menu.open {
+      display: flex; flex-direction: column; gap: 0;
+      position: absolute; top: 64px; left: 0; right: 0;
+      background: #fff; padding: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    nav.menu.open a { padding: 12px 0; border-bottom: 1px solid var(--line-soft); }
+    .features-grid, .modules-grid, .pricing-grid, .testimonials-grid, .workflow-steps {
+      grid-template-columns: 1fr;
+    }
+    .workflow-steps::before { display: none; }
+    section { padding: 60px 0; }
+    section.cta-final { margin: 0 16px 60px; padding: 44px 22px; }
+    section.cta-final h2 { font-size: 26px; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+    .mockup-body { grid-template-columns: 44px 1fr; height: auto; }
+    .mk-ai { display: none; }
+    .logos { gap: 28px; }
+    .logos span { font-size: 14px; }
+    .mockup-float-kbd { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== Top Nav ============== -->
+<header class="nav">
+  <div class="container">
+    <a href="#top" class="logo-link" aria-label="TaskSaaS 首页">
+      <svg width="30" height="30" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="navg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#5b6cff"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+        <rect x="28" y="28" width="200" height="200" rx="44" fill="url(#navg)"/>
+        <path d="M 80 132 L 116 168 L 192 92" stroke="white" stroke-width="22"
+              stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span>Task<span class="gradient-text">SaaS</span></span>
+    </a>
+    <nav class="menu" id="menu">
+      <a href="#modules">功能</a>
+      <a href="#ai">AI 助手</a>
+      <a href="#compare">为什么换</a>
+      <a href="#dev">开发者</a>
+      <a href="#pricing">价格</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-actions">
+      <a href="#login" class="btn btn-ghost btn-sm">登录</a>
+      <a href="#signup" class="btn btn-primary btn-sm">免费开始</a>
+      <button class="menu-toggle" aria-label="菜单" onclick="document.getElementById('menu').classList.toggle('open')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============== Hero ============== -->
+<section class="hero" id="top">
+  <div class="hero-grid-bg"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-text">
+        <span class="badge">
+          <span class="pip">v2.0</span>
+          AI 改善建议 · 已上线
+          <span class="arrow">→</span>
+        </span>
+        <h1>任务、文档、测试用例<br/><span class="gradient-text">一站打包</span></h1>
+        <p class="tagline">
+          告别在 Jira、Confluence、Notion 之间来回跳转。<strong style="color:var(--ink-2)">工单、看板、需求、Wiki、测试用例、燃尽图</strong> 在同一个工作区,AI 帮你写改善建议,代码 commit 自动联动 ——⌘K 一键直达。
+        </p>
+        <div class="hero-cta">
+          <a href="#signup" class="btn btn-primary">
+            免费开始
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M5 12h14M13 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="#demo" class="btn btn-secondary">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
+            </svg>
+            观看 2 分钟演示
+          </a>
+          <span class="hint">无需信用卡 · 30 天试用团队版</span>
+        </div>
+        <div class="hero-trust">
+          <div class="stars">★★★★★</div>
+          <span>4.9 / 5</span>
+          <span class="sep">·</span>
+          <span><strong>1,200+</strong> 团队在用</span>
+          <span class="sep">·</span>
+          <span>Web · iOS · Android 三端同步</span>
+        </div>
+      </div>
+
+      <!-- Hero mockup: 仿真实产品截图 (sidebar + issue list + AI panel) -->
+      <div class="mockup-wrap">
+        <div class="mockup">
+          <div class="mockup-bar">
+            <div class="mockup-dots"><span></span><span></span><span></span></div>
+            <div class="mockup-url">app.tasksaas.io / projects / mobile-v2</div>
+          </div>
+          <div class="mockup-body">
+            <!-- sidebar -->
+            <div class="mk-sidebar">
+              <div class="mk-side-icon brand">TS</div>
+              <div class="mk-side-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg></div>
+              <div class="mk-side-icon active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+              <div class="mk-side-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg></div>
+              <div class="mk-side-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 6-6"/></svg></div>
+              <div class="mk-side-spacer"></div>
+              <div class="mk-side-avatar">YW</div>
+            </div>
+            <!-- main content: issue list -->
+            <div class="mk-main">
+              <div class="mk-main-head">
+                <div class="mk-main-title">移动端 v2.0 <span class="count">· 12 项</span></div>
+                <div class="mk-tabs">
+                  <div class="mk-tab active">列表</div>
+                  <div class="mk-tab">看板</div>
+                  <div class="mk-tab">燃尽图</div>
+                </div>
+              </div>
+              <div class="mk-row">
+                <span class="mk-pri p1"></span>
+                <span class="mk-id">TS-289</span>
+                <span class="mk-title">iOS 推送在 v17 上失效</span>
+                <span class="mk-status mk-st-doing">进行中</span>
+                <span class="mk-ava a2">志</span>
+              </div>
+              <div class="mk-row">
+                <span class="mk-pri p2"></span>
+                <span class="mk-id">TS-287</span>
+                <span class="mk-title">导出工单为 CSV / XLSX</span>
+                <span class="mk-status mk-st-doing">进行中</span>
+                <span class="mk-ava">小</span>
+              </div>
+              <div class="mk-row">
+                <span class="mk-pri p1"></span>
+                <span class="mk-id">TS-285</span>
+                <span class="mk-title">看板拖拽时偶发掉帧</span>
+                <span class="mk-status mk-st-block">阻塞</span>
+                <span class="mk-ava a3">明</span>
+              </div>
+              <div class="mk-row">
+                <span class="mk-pri p3"></span>
+                <span class="mk-id">TS-281</span>
+                <span class="mk-title">修复 envelope 格式 race condition</span>
+                <span class="mk-status mk-st-done">已解决</span>
+                <span class="mk-ava">小</span>
+              </div>
+              <div class="mk-row">
+                <span class="mk-pri p2"></span>
+                <span class="mk-id">TS-275</span>
+                <span class="mk-title">升级 Postgres 到 16.6</span>
+                <span class="mk-status mk-st-todo">待办</span>
+                <span class="mk-ava a4">林</span>
+              </div>
+              <div class="mk-row">
+                <span class="mk-pri p3"></span>
+                <span class="mk-id">TS-270</span>
+                <span class="mk-title">移动端集成指南 (Wiki)</span>
+                <span class="mk-status mk-st-todo">待办</span>
+                <span class="mk-ava a2">志</span>
+              </div>
+            </div>
+            <!-- AI panel -->
+            <div class="mk-ai">
+              <div class="mk-ai-tag">✨ AI 助手</div>
+              <h6>当前工单 #TS-289</h6>
+              <p>已识别为 iOS 17 平台兼容性 bug,可能与 APNs 新签名机制有关。</p>
+              <div class="mk-ai-suggest">
+                <strong>建议步骤</strong>
+                1. 校验 APNs token 是否含旧字符<br/>
+                2. 抓 device console 看 silent reject<br/>
+                3. 关联 #TS-201 (上次同类问题)
+              </div>
+              <div class="mk-ai-bar">
+                <span class="dot"></span>
+                AI 还在分析关联工单…
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ⌘K floating badge -->
+        <div class="mockup-float-kbd">
+          <span>全局搜索</span>
+          <kbd>⌘</kbd><span class="key-sep">+</span><kbd>K</kbd>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logo strip -->
+    <div class="logo-strip">
+      <div class="logo-strip-title">受到这些团队信赖</div>
+      <div class="logos">
+        <span>Yolomassage</span>
+        <span>鲜橙数据</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: All-in-one ============== -->
+<section class="all-in-one" id="modules">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">一站式</div>
+      <h2>八个模块,<span class="gradient-text">一个工作区</span></h2>
+      <p>过去你需要 Jira + Confluence + Linear + TestRail + 几个表格。现在一个 TaskSaaS 都装下了。</p>
+    </div>
+    <div class="modules-grid">
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>工单 · Issues</h4>
+          <p>状态机自定义、子任务、阻塞标记、内联编辑、活动时间线。</p>
+        </div>
+      </div>
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
+            <line x1="15" y1="3" x2="15" y2="21"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>看板 · Kanban</h4>
+          <p>列宽 / 状态 / WIP 限制都可配。拖拽改状态,实时同步给团队。</p>
+        </div>
+      </div>
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>需求 · Stories</h4>
+          <p>用户故事 + 验收标准 + 关联工单。从需求到交付一条链。</p>
+        </div>
+      </div>
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>Wiki · 文档</h4>
+          <p>所见即所得编辑器,Markdown 双向兼容,支持版本回溯。</p>
+        </div>
+      </div>
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3 8-8"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>测试用例 · TestCases</h4>
+          <p>用例库 + 执行历史 + 失败工单一键转,QA 不再用 Excel。</p>
+        </div>
+      </div>
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/><path d="M19 9l-5 5-4-4-3 3"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>燃尽图 · Burndown</h4>
+          <p>每个 Sprint 自动生成进度图,延期风险一眼看出。</p>
+        </div>
+      </div>
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>收件箱 · Inbox</h4>
+          <p>所有 @ 你 / 分给你 / 状态变更,一个收件箱聚合处理。</p>
+        </div>
+      </div>
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>审计日志 · Audit</h4>
+          <p>谁、什么时间、改了什么字段。SOC2 需要的痕迹全有。</p>
+        </div>
+      </div>
+      <div class="module reveal">
+        <div class="module-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </div>
+        <div class="module-body">
+          <h4>文件 · Files</h4>
+          <p>S3 兼容存储,工单 / Wiki / 评论附件统一管理。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: AI Focus ============== -->
+<section class="ai-focus" id="ai">
+  <div class="container">
+    <div class="ai-grid">
+      <div class="ai-text reveal">
+        <div class="eyebrow">AI 助手 · v2.0 上线</div>
+        <h2>让 AI 替你想<br/>下一步该怎么办</h2>
+        <p>
+          每个工单上,一键让 AI 给出 <strong style="color:#fff">具体的改善建议</strong> ——
+          不是套话,是基于工单上下文 + 历史关联工单 + 项目知识库的实操步骤。
+          再也不用 "@ 老员工帮我看看"。
+        </p>
+        <ul class="ai-bullets">
+          <li>分析工单标题 / 描述 / 评论,识别根因方向</li>
+          <li>关联历史相似工单,直接给出参考 commit</li>
+          <li>为 QA 自动生成测试用例草稿</li>
+          <li>支持自部署 / 自带 Anthropic / OpenAI Key</li>
+        </ul>
+        <a href="#signup" class="btn btn-light">看看 AI 怎么帮我</a>
+      </div>
+
+      <div class="ai-card reveal">
+        <div class="ai-card-head">
+          <span class="ai-issue-id">#TS-289 · iOS 推送在 v17 上失效</span>
+          <span class="ai-issue-status">进行中</span>
+        </div>
+        <h5>用户报告升级 iOS 17.4 之后收不到推送,但安卓没问题。</h5>
+
+        <div class="ai-suggest-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l1.5 4 4 1.5L14.5 10 13 14l-1.5-4L7.5 8.5 11.5 7zM18 13l1 2.5 2.5 1L19 17.5 18 20l-1-2.5L14.5 16.5 17 15.5z"/>
+          </svg>
+          请 AI 给出改善建议
+        </div>
+
+        <div class="ai-suggest-block">
+          <div class="label">AI 建议(基于 12 个相似工单)</div>
+          <ol>
+            <li>检查 APNs <code>device_token</code> 是否在 iOS 17 升级后被刷新但未上报后端</li>
+            <li>在 <code>NotificationService</code> 加 console 日志,看 <code>silent push</code> 是否被系统 reject</li>
+            <li>关联工单 <code>#TS-201</code> 同类问题,解决方案是更换 APNs 签名算法</li>
+            <li>建议把这个 bug 关联到里程碑 <code>iOS 17 兼容性</code></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: Features (small) ============== -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">细节里的体贴</div>
+      <h2>每一处都为<span class="gradient-text">日常用</span>而生</h2>
+      <p>不堆砌功能。我们只做你 80% 时间用得上的那几件事。</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/>
+          </svg>
+        </div>
+        <h3>⌘K 命令面板</h3>
+        <p>键盘选手友好。 <span class="kbd-inline">⌘K</span> 打开搜索,任何工单 / Wiki / 项目 / 操作都能直达。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </div>
+        <h3>代码自动联动</h3>
+        <p>提交信息里写 <span class="kbd-inline">#TS-289</span> ,commit / PR 自动出现在工单的活动流里。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </div>
+        <h3>多渠道通知</h3>
+        <p>邮件、移动推送、Webhook、企业微信、Slack。被 @ / 状态变更即时送达,可按事件订阅。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+        </div>
+        <h3>三端实时同步</h3>
+        <p>Web、iOS、Android 同源 Flutter 编译。看板拖动 / 评论 / 状态变更,所有端 1s 内同步。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h3>租户级隔离</h3>
+        <p>Postgres 行级安全 (RLS) + 独立对象存储桶。多租户数据物理隔离,审计材料随时导出。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 6-6"/>
+          </svg>
+        </div>
+        <h3>原生可观测</h3>
+        <p>Prometheus 指标 + Loki 日志 + 完整链路 trace。每个工单的处理耗时一查就知道。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: Comparison ============== -->
+<section class="compare" id="compare">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">为什么从别家迁过来</div>
+      <h2>更快上手,<span class="gradient-text">不为不用的功能买单</span></h2>
+      <p>对比同类产品。我们不卖你"用不到的强大",只卖你"日常顺手"。</p>
+    </div>
+    <div class="compare-table reveal">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-feature">能力</th>
+            <th class="col-ts">TaskSaaS</th>
+            <th>Jira</th>
+            <th>Linear</th>
+            <th>飞书项目</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-feature">5 分钟上手</td>
+            <td class="col-ts yes">✓ 注册即用</td>
+            <td class="no">需要配置 1-2 周</td>
+            <td class="yes">✓</td>
+            <td class="partial">需读文档</td>
+          </tr>
+          <tr>
+            <td class="col-feature">内置 Wiki + 测试用例</td>
+            <td class="col-ts yes">✓ 同一工作区</td>
+            <td class="partial">需买 Confluence + Xray</td>
+            <td class="no">无</td>
+            <td class="partial">需切换应用</td>
+          </tr>
+          <tr>
+            <td class="col-feature">AI 改善建议</td>
+            <td class="col-ts yes">✓ 工单级,自带 prompt</td>
+            <td class="partial">付费 add-on</td>
+            <td class="partial">付费</td>
+            <td class="no">—</td>
+          </tr>
+          <tr>
+            <td class="col-feature">⌘K 命令面板</td>
+            <td class="col-ts yes">✓</td>
+            <td class="no">—</td>
+            <td class="yes">✓</td>
+            <td class="no">—</td>
+          </tr>
+          <tr>
+            <td class="col-feature">私有部署</td>
+            <td class="col-ts yes">✓ 企业版 Helm chart</td>
+            <td class="partial">仅 Data Center 版</td>
+            <td class="no">不支持</td>
+            <td class="no">不支持</td>
+          </tr>
+          <tr>
+            <td class="col-feature">10 人团队月费</td>
+            <td class="col-ts yes">¥99 起</td>
+            <td>~¥600</td>
+            <td>~$80 (~¥580)</td>
+            <td>免费基础版</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: Workflow ============== -->
+<section class="workflow" id="workflow">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">三步上手</div>
+      <h2>不用培训,看一眼就会用</h2>
+      <p>从注册到团队跑起来,平均不到 10 分钟。</p>
+    </div>
+    <div class="workflow-steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h3>创建工单</h3>
+        <p>邮件 / 聊天 / Web 表单 / API 都能创建。常用场景有模板,一键生成。</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <h3>分配 + 通知</h3>
+        <p>智能推荐处理人(基于历史负载和领域)。多渠道即时送达通知。</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <h3>处理 + 复盘</h3>
+        <p>看板拖动改状态,关单后自动归档。每周自动生成团队效率周报。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: Developer (code snippet) ============== -->
+<section class="dev" id="dev">
+  <div class="container">
+    <div class="dev-grid">
+      <div class="dev-text reveal">
+        <div class="eyebrow">开发者优先</div>
+        <h2>每个 UI 操作<br/>都对应一个稳定的 API</h2>
+        <p>OpenAPI 自动文档,Python / TypeScript / Go SDK 现成。无需 OAuth 折腾,Token 即用。</p>
+        <ul class="dev-bullets">
+          <li>所有列表都支持 cursor 分页 + 字段过滤</li>
+          <li>Webhook 重投 + HMAC 签名,失败自动退避</li>
+          <li>Rate limit 透明:响应头有 quota / reset 提示</li>
+          <li>Sandbox 环境免费,生产 token 隔离</li>
+        </ul>
+        <a href="#docs" class="btn btn-dark">查看 API 文档 →</a>
+      </div>
+
+      <div class="code-card reveal">
+        <div class="code-tabs">
+          <div class="code-tab active">python</div>
+          <div class="code-tab">typescript</div>
+          <div class="code-tab">curl</div>
+        </div>
+        <div class="code-block">
+<span class="code-block-row"><span class="ln"> 1</span><span class="com"># 创建一个工单 + 分配 + 加标签 — 一次调用搞定</span></span><span class="code-block-row"><span class="ln"> 2</span><span class="kw">from</span> tasksaas <span class="kw">import</span> <span class="ty">Client</span></span><span class="code-block-row"><span class="ln"> 3</span></span><span class="code-block-row"><span class="ln"> 4</span>ts = <span class="ty">Client</span>(<span class="pn">token</span>=<span class="str">"sk_live_…"</span>)</span><span class="code-block-row"><span class="ln"> 5</span></span><span class="code-block-row"><span class="ln"> 6</span>issue = ts.<span class="fn">issues</span>.<span class="fn">create</span>(</span><span class="code-block-row"><span class="ln"> 7</span>    <span class="pn">project</span>=<span class="str">"mobile-v2"</span>,</span><span class="code-block-row"><span class="ln"> 8</span>    <span class="pn">title</span>=<span class="str">"iOS 推送在 v17 上失效"</span>,</span><span class="code-block-row"><span class="ln"> 9</span>    <span class="pn">priority</span>=<span class="str">"high"</span>,</span><span class="code-block-row"><span class="ln">10</span>    <span class="pn">assignee</span>=<span class="str">"zhiyuan@team.io"</span>,</span><span class="code-block-row"><span class="ln">11</span>    <span class="pn">tags</span>=[<span class="str">"bug"</span>, <span class="str">"ios-17"</span>],</span><span class="code-block-row"><span class="ln">12</span>)</span><span class="code-block-row"><span class="ln">13</span></span><span class="code-block-row"><span class="ln">14</span><span class="com"># 触发 AI 给改善建议</span></span><span class="code-block-row"><span class="ln">15</span>tips = ts.<span class="fn">ai</span>.<span class="fn">suggest</span>(issue.id)</span><span class="code-block-row"><span class="ln">16</span><span class="kw">print</span>(tips.steps)  <span class="com"># → ["check APNs token", ...]</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: Pricing ============== -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">价格</div>
+      <h2>诚实定价,<span class="gradient-text">先用后买</span></h2>
+      <p>个人版永久免费。团队版前 30 天免费试用,无需信用卡。</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="plan reveal">
+        <div class="plan-name">个人版</div>
+        <div class="plan-price">
+          <span class="num">¥0</span>
+          <span class="unit">永久免费</span>
+        </div>
+        <p class="plan-desc">独立开发者 / 个人 side project 用着够。</p>
+        <ul>
+          <li>1 个项目</li>
+          <li>3 个用户</li>
+          <li>工单 + 看板 + Wiki</li>
+          <li>邮件通知</li>
+          <li class="muted">AI 改善建议</li>
+          <li class="muted">移动推送 / Webhook</li>
+          <li class="muted">SSO / 审计日志</li>
+        </ul>
+        <a href="#signup" class="btn btn-secondary">免费开始</a>
+      </div>
+      <div class="plan featured reveal">
+        <div class="plan-name">团队版</div>
+        <div class="plan-price">
+          <span class="num">¥99</span>
+          <span class="unit">/ 月起 (10 人内)</span>
+        </div>
+        <p class="plan-desc">10 人团队最划算,前 30 天免费试用。</p>
+        <ul>
+          <li>无限项目</li>
+          <li>10 个用户(超出 ¥9/人/月)</li>
+          <li>八大模块全开</li>
+          <li>AI 改善建议(每月 1000 次)</li>
+          <li>邮件 + 移动推送 + Webhook</li>
+          <li>完整 REST API</li>
+          <li>每周效率报表</li>
+          <li class="muted">SSO / 审计日志</li>
+        </ul>
+        <a href="#signup" class="btn btn-primary">开始 30 天试用</a>
+      </div>
+      <div class="plan reveal">
+        <div class="plan-name">企业版</div>
+        <div class="plan-price">
+          <span class="num">联系</span>
+          <span class="unit">销售</span>
+        </div>
+        <p class="plan-desc">私有部署,SLA 保障,专属支持。</p>
+        <ul>
+          <li>无限用户</li>
+          <li>私有部署 / 内网</li>
+          <li>SAML SSO + LDAP</li>
+          <li>完整审计日志</li>
+          <li>AI 自带 Key / 自部署模型</li>
+          <li>专属客户经理</li>
+          <li>99.95% SLA</li>
+        </ul>
+        <a href="#contact" class="btn btn-secondary">联系我们</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: Testimonials ============== -->
+<section class="testimonials" id="testimonials">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="eyebrow">用户怎么说</div>
+      <h2>1,200+ 团队<span class="gradient-text">真实在用</span></h2>
+      <p>从 5 人创业团队到 200 人技术部门。</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="quote reveal">
+        <div class="stars">★★★★★</div>
+        <p class="quote-text">
+          以前我们用 Jira,光配置就花了两周。换 TaskSaaS 之后,新人入职第二天就能熟练用了。
+          <mark>API 文档清晰</mark>,我们自己写了三个 webhook 把它接进了内部 chatops。
+        </p>
+        <div class="quote-author">
+          <div class="author-avatar">陈</div>
+          <div class="author-info">
+            <div class="name">陈志远</div>
+            <div class="title">CTO · 极简云</div>
+          </div>
+        </div>
+      </div>
+      <div class="quote reveal">
+        <div class="stars">★★★★★</div>
+        <p class="quote-text">
+          AI 改善建议这功能本来以为是噱头。结果上周一个新人接的 bug,
+          <mark>AI 直接关联到三个月前类似的工单</mark>,两小时就修完了。
+        </p>
+        <div class="quote-author">
+          <div class="author-avatar a2">L</div>
+          <div class="author-info">
+            <div class="name">Linda Wu</div>
+            <div class="title">前端 Lead · TypeStream</div>
+          </div>
+        </div>
+      </div>
+      <div class="quote reveal">
+        <div class="stars">★★★★★</div>
+        <p class="quote-text">
+          租户级 RLS 帮我们省了一整层多租户中间件代码。客户对数据隔离的合规要求一次过审,
+          <mark>SOC2 审计员只问了我两个问题</mark>。
+        </p>
+        <div class="quote-author">
+          <div class="author-avatar a3">王</div>
+          <div class="author-info">
+            <div class="name">王明</div>
+            <div class="title">基础架构 · 雀凰科技</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Section: FAQ ============== -->
+<section class="faq" id="faq">
+  <div class="container-narrow">
+    <div class="section-header reveal">
+      <div class="eyebrow">常见问题</div>
+      <h2>你想问的,我们都回答了</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item reveal">
+        <summary>AI 改善建议用的是什么模型?数据会被训练吗?</summary>
+        <div class="faq-answer">
+          云版本默认用 Anthropic Claude 处理,工单内容只用于实时推理,<strong>不会被任何模型用作训练语料</strong> ——
+          这是合同条款级别的承诺。企业版可以接你自己的 Claude / OpenAI Key,或者用 Ollama / vLLM 自部署的开源模型。
+        </div>
+      </details>
+      <details class="faq-item reveal">
+        <summary>支持私有部署吗?数据完全自己掌控可以做到吗?</summary>
+        <div class="faq-answer">
+          可以,企业版提供完整的私有部署方案 —— Helm chart + Docker 镜像,部署到你自己的
+          K8s 集群,数据库 / 对象存储 / 日志全部在你的网络内。我们提供安装支持但不接触你的数据。
+        </div>
+      </details>
+      <details class="faq-item reveal">
+        <summary>从 Jira / Trello / 飞书项目 迁移要多久?</summary>
+        <div class="faq-answer">
+          典型迁移 1-3 天。我们提供 CLI 工具直接拉 Jira 的工单 / 评论 / 附件,重映射字段。
+          迁移过程中老系统不需要停机,你可以用脚本做增量同步。
+        </div>
+      </details>
+      <details class="faq-item reveal">
+        <summary>移动端是原生 App 还是 Web 套壳?</summary>
+        <div class="faq-answer">
+          Flutter 编译的原生 App,iOS 和 Android 各一个 .ipa / .apk。性能跟原生几乎无差,
+          但开发节奏快得多 —— 这也是为什么我们能做到 Web / iOS / Android 三端始终保持功能对齐。
+        </div>
+      </details>
+      <details class="faq-item reveal">
+        <summary>API 限流是怎么算的?会不会卡到我们集成?</summary>
+        <div class="faq-answer">
+          默认每个 token 60 请求/分钟,写操作另外有 10/分钟。超限返回 429 + Retry-After。
+          团队版可以申请提到 600/分钟,企业版无限。绝大多数集成场景默认配额都用不完。
+        </div>
+      </details>
+      <details class="faq-item reveal">
+        <summary>能不能跟 GitHub / GitLab 双向同步?</summary>
+        <div class="faq-answer">
+          可以。我们有官方的 GitHub / GitLab Webhook 集成 —— PR 关联工单、Issue 同步、
+          commit 自动改工单状态。如果你的代码托管平台没有官方集成,API 也能 30 行写完一个。
+        </div>
+      </details>
+      <details class="faq-item reveal">
+        <summary>是否支持 SSO?有哪些身份提供商?</summary>
+        <div class="faq-answer">
+          团队版支持 Google / GitHub / 飞书 / 钉钉 OAuth。企业版额外支持 SAML 2.0
+          (Okta / Azure AD / Auth0 等) + LDAP / Active Directory。
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============== Final CTA ============== -->
+<section class="cta-final">
+  <div class="container">
+    <h2>把工单、文档、AI 装进同一个工作区</h2>
+    <p>5 分钟创建账号,30 天免费试用,无需信用卡。八大模块全开,看你的团队究竟能跑多快。</p>
+    <div class="cta-row">
+      <a href="#signup" class="btn btn-w">免费开始 →</a>
+      <a href="#demo" class="btn btn-o">预约 30 分钟演示</a>
+    </div>
+    <div class="micro">已被 1,200+ 团队选用 · 4.9/5 评分</div>
+  </div>
+</section>
+
+<!-- ============== Footer ============== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#top" class="logo-link">
+          <svg width="28" height="28" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="footerg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#5b6cff"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+            <rect x="28" y="28" width="200" height="200" rx="44" fill="url(#footerg)"/>
+            <path d="M 80 132 L 116 168 L 192 92" stroke="white" stroke-width="22"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <span style="color: #fff; font-weight: 800;">TaskSaaS</span>
+        </a>
+        <p>把任务、看板、需求、Wiki、测试用例、AI 助手装进一个工作区。让中小团队的协作终于跟得上业务的速度。</p>
+      </div>
+      <div class="footer-col">
+        <h5>产品</h5>
+        <ul>
+          <li><a href="#modules">功能</a></li>
+          <li><a href="#ai">AI 助手</a></li>
+          <li><a href="#compare">对比</a></li>
+          <li><a href="#pricing">价格</a></li>
+          <li><a href="#">更新日志</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>开发者</h5>
+        <ul>
+          <li><a href="#dev">API 文档</a></li>
+          <li><a href="#">SDK</a></li>
+          <li><a href="#">Webhook 指南</a></li>
+          <li><a href="#">Status 页</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>公司</h5>
+        <ul>
+          <li><a href="#">关于</a></li>
+          <li><a href="#">博客</a></li>
+          <li><a href="#">联系</a></li>
+          <li><a href="#">招聘</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 TaskSaaS Inc. · 保留所有权利。</div>
+      <div class="footer-social">
+        <a href="#" aria-label="GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.4 0 0 5.4 0 12c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6V20c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2.9-.3 2-.4 3-.4s2.1.1 3 .4c2.3-1.6 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6C20.6 21.8 24 17.3 24 12c0-6.6-5.4-12-12-12z"/>
+          </svg>
+        </a>
+        <a href="#" aria-label="Twitter">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+          </svg>
+        </a>
+        <a href="#" aria-label="微信">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8.5 4C4.36 4 1 6.69 1 10c0 1.89 1.08 3.56 2.78 4.66l-.78 2.34 2.74-1.37c.86.22 1.78.37 2.76.37.27 0 .54-.02.8-.05a4.5 4.5 0 0 1-.3-1.7c0-3.04 2.95-5.5 6.59-5.5.18 0 .36.01.54.02C15.43 5.92 12.21 4 8.5 4zm-3 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm5 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM16.5 9.75c-3.04 0-5.5 2.13-5.5 4.75 0 1.4.71 2.65 1.84 3.5l-.59 1.78 2.13-1.07c.66.18 1.37.29 2.12.29 3.04 0 5.5-2.13 5.5-4.75s-2.46-4.5-5.5-4.5zm-2 2.5a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5zm4 0a.75.75 0 1 1 0 1.5.75.75 0 0 1 0-1.5z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // 滚动渐入(IntersectionObserver,无依赖)
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // 锚点平滑 + 移动端菜单点击后关闭
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', () => {
+      const menu = document.getElementById('menu');
+      if (menu && menu.classList.contains('open')) menu.classList.remove('open');
+    });
+  });
+
+  // 代码 tab 切换(只切 active 样式,代码块本身保持示例)
+  document.querySelectorAll('.code-tabs').forEach(tabs => {
+    tabs.querySelectorAll('.code-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
