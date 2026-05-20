@@ -135,6 +135,7 @@
     <input id="shareLink" class="link-in" readonly placeholder="保存连接后出现…" />
     <div class="btn-row">
       <button class="btn sec" id="copyShare">复制邀请链接</button><span id="copyShareOk"></span>
+      <button class="btn sec" id="wipeRoomBtn">🧹 清空当前房间</button>
       <button class="btn sec" id="clearBtn" style="margin-left:auto;">清除本机配置</button>
     </div>
 
@@ -218,9 +219,11 @@
   var HEARTBEAT_MS = 20000, STALE_MS = 70000;
 
   var LS = window.localStorage;
+  // 身份 ID 用 localStorage：同一浏览器始终是同一个身份，
+  // 重开/刷新都复用同一 Firebase 节点（set 覆盖），避免攒出多个"自己"。
   function getId() {
-    var id = sessionStorage.getItem("ws_uid");
-    if (!id) { id = "u_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); sessionStorage.setItem("ws_uid", id); }
+    var id = LS.getItem("ws_uid");
+    if (!id) { id = "u_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); LS.setItem("ws_uid", id); }
     return id;
   }
   var MY_ID = getId();
@@ -344,7 +347,7 @@
     db.ref(".info/connected").on("value", function (snap) {
       if (snap.val() === true) {
         setConn("online", "已连接");
-        myRef.onDisconnect().update({ status: "offline", updatedAt: firebase.database.ServerValue.TIMESTAMP });
+        myRef.onDisconnect().remove();       // 断开/关页面时删除自己的节点，不留幽灵
         publish();
       } else { setConn("offline", "连接中…"); }
     });
@@ -364,7 +367,7 @@
     });
 
     setInterval(function () { if (connected) publish(); }, HEARTBEAT_MS);
-    window.addEventListener("beforeunload", function () { try { me.status = "offline"; publish(); } catch (e) {} });
+    window.addEventListener("beforeunload", function () { try { myRef.remove(); } catch (e) {} });
   }
 
   // ---------- 渲染 ----------
@@ -464,6 +467,13 @@
     if (!confirm("清除本机保存的 Firebase 配置和房间？")) return;
     LS.removeItem("ws_fb_cfg"); LS.removeItem("ws_fb_room");
     location.href = location.origin + location.pathname; location.reload();
+  };
+  $("wipeRoomBtn").onclick = function () {
+    if (!usersRef) { alert("尚未连接房间"); return; }
+    if (!confirm("将删除房间「" + (roomIn.value.trim() || "?") + "」里所有人的节点（含离线/重复残留）。\n清空后会立刻只保留你自己；让对方刷新即可重新进入。\n\n继续？")) return;
+    usersRef.remove()
+      .then(function () { publish(); render(); alert("已清空房间，现在只剩你自己 ✓"); })
+      .catch(function (e) { alert("清空失败：" + (e && e.message || e)); });
   };
 
   // 解析链接里的配置：#cfg=...&room=...
