@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkSync · 跨时区状态同步</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #1a1d24;
+    --card-2: #232730;
+    --border: #2d323d;
+    --text: #e6e8ec;
+    --muted: #8a909c;
+    --accent: #5b8cff;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --gray: #6b7280;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, #1b2333 0%, var(--bg) 55%);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 28px 18px 60px; }
+
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 22px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .logo {
+    width: 38px; height: 38px; border-radius: 11px;
+    background: linear-gradient(135deg, var(--accent), #9b6bff);
+    display: grid; place-items: center; font-size: 20px;
+  }
+  .brand h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
+  .brand p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+
+  .room-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 6px 8px 6px 12px;
+  }
+  .room-box label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .room-box input {
+    background: transparent; border: none; color: var(--text);
+    font-size: 13px; width: 120px; outline: none;
+  }
+  .room-box button {
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 7px; padding: 6px 12px; font-size: 12px; cursor: pointer;
+  }
+  .room-box button:hover { filter: brightness(1.08); }
+
+  .conn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--muted);
+  }
+  .conn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gray); }
+  .conn.online .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+  .notify-btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 6px 11px; font-size: 12px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .notify-btn:hover { border-color: var(--accent); }
+  .notify-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+  .section-title {
+    font-size: 13px; color: var(--muted); margin: 6px 2px 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  /* ===== my panel ===== */
+  .me {
+    background: linear-gradient(180deg, var(--card-2), var(--card));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px;
+  }
+  .me .row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .field { flex: 1; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 9px; color: var(--text); padding: 9px 11px; font-size: 14px;
+    outline: none; font-family: inherit;
+  }
+  .field textarea { resize: vertical; min-height: 38px; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+
+  .status-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    border: 1px solid var(--border); background: var(--bg);
+    border-radius: 999px; padding: 7px 13px; font-size: 13px; cursor: pointer;
+    color: var(--text); display: inline-flex; align-items: center; gap: 6px;
+    transition: all .12s;
+  }
+  .pill:hover { border-color: var(--accent); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pill .ic { font-size: 14px; }
+
+  /* ===== people list ===== */
+  .people { display: flex; flex-direction: column; gap: 12px; }
+  .person {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 15px 16px;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .person.self { border-color: #3a4660; background: var(--card-2); }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    display: grid; place-items: center; font-size: 18px; font-weight: 700;
+    color: #fff;
+  }
+  .pinfo { flex: 1; min-width: 0; }
+  .pname { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 5px; font-weight: 500;
+  }
+  .badge .d { width: 7px; height: 7px; border-radius: 50%; }
+  .pmsg { font-size: 13px; color: var(--text); margin-top: 5px; word-break: break-word; }
+  .pmsg:empty { display: none; }
+  .pmeta { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+  .pmeta .clock { color: var(--text); font-variant-numeric: tabular-nums; }
+  .stale { color: var(--amber); }
+
+  .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 24px; }
+
+  footer { margin-top: 30px; text-align: center; font-size: 12px; color: var(--muted); line-height: 1.7; }
+  footer code { background: var(--card); padding: 2px 6px; border-radius: 5px; color: var(--text); }
+  a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">🌐</div>
+      <div>
+        <h1>WorkSync</h1>
+        <p>跨时区 · 实时工作状态同步 · 纯前端 P2P</p>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+      <span class="conn" id="conn"><span class="dot"></span><span id="connText">连接中…</span></span>
+      <button class="notify-btn" id="notifyBtn" title="开启桌面通知，对方状态变化时提醒你">🔕 通知</button>
+      <div class="room-box">
+        <label>房间</label>
+        <input id="roomInput" placeholder="房间名" />
+        <button id="roomBtn">进入</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- 我的状态 -->
+    <div>
+      <div class="section-title">我的状态</div>
+      <div class="me">
+        <div class="row">
+          <div class="field">
+            <label>昵称</label>
+            <input id="nameInput" placeholder="你的名字" maxlength="20" />
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>状态</label>
+          <div class="status-pills" id="statusPills"></div>
+        </div>
+        <div class="field">
+          <label>留言 / 备注（可选）</label>
+          <textarea id="msgInput" placeholder="例：12:00 后有空 / 在写需求文档…" maxlength="120"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 大家的状态 -->
+    <div>
+      <div class="section-title">同房间的人</div>
+      <div class="people" id="people">
+        <div class="empty">还没有人。把链接和房间名发给对方，让 TA 进同一个房间。</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    数据通过 Gun.js 公共中继实时同步，无后端服务器。把本页地址 +
+    相同的<strong>房间名</strong>发给对方即可。<br/>
+    🔒 昵称与留言已用<strong>房间名作为密钥端到端加密</strong>，中继服务器看不到明文。
+    所以请把房间名设成只有你俩知道的随机字符串（如 <code>jody-alex-7x9k</code>）——它既是频道也是密码。
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---------- 配置 ----------
+  var PEERS = [
+    "https://gun-manhattan.herokuapp.com/gun",
+    "https://peer.wallie.io/gun",
+    "https://gunjs.herokuapp.com/gun"
+  ];
+  var HEARTBEAT_MS = 8000;   // 心跳：定期刷新 updatedAt
+  var STALE_MS = 25000;      // 超过此时长未更新 → 视为不活跃
+  var STATUSES = [
+    { key: "working", label: "工作中", ic: "💼", color: "#34d399" },
+    { key: "focus",   label: "专注勿扰", ic: "🎯", color: "#5b8cff" },
+    { key: "meeting", label: "开会中", ic: "📞", color: "#a78bfa" },
+    { key: "break",   label: "休息", ic: "☕", color: "#fbbf24" },
+    { key: "lunch",   label: "吃饭", ic: "🍜", color: "#fb923c" },
+    { key: "away",    label: "离开", ic: "🚶", color: "#9ca3af" },
+    { key: "offline", label: "下班", ic: "🌙", color: "#6b7280" }
+  ];
+  function statusOf(key) {
+    for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].key === key) return STATUSES[i];
+    return STATUSES[STATUSES.length - 1];
+  }
+
+  // ---------- 持久身份 ----------
+  var LS = window.localStorage;
+  function getId() {
+    var id = LS.getItem("ws_uid");
+    if (!id) { id = "u_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); LS.setItem("ws_uid", id); }
+    return id;
+  }
+  var MY_ID = getId();
+  var MY_TZ = (Intl.DateTimeFormat().resolvedOptions().timeZone) || "UTC";
+
+  // 房间：URL ?room= 优先，其次 localStorage，最后默认
+  var params = new URLSearchParams(location.search);
+  var room = params.get("room") || LS.getItem("ws_room") || "demo";
+
+  // ---------- 状态 ----------
+  var me = {
+    id: MY_ID,
+    name: LS.getItem("ws_name") || "",
+    status: LS.getItem("ws_status") || "working",
+    message: LS.getItem("ws_msg") || "",
+    tz: MY_TZ,
+    ip: "",
+    loc: "",
+    updatedAt: Date.now()
+  };
+  var others = {};   // id -> data
+  var gun, roomNode, usersNode;
+
+  // ---------- DOM ----------
+  var $ = function (id) { return document.getElementById(id); };
+  var nameInput = $("nameInput"), msgInput = $("msgInput"), pillsEl = $("statusPills");
+  var peopleEl = $("people"), roomInput = $("roomInput"), roomBtn = $("roomBtn");
+  var connEl = $("conn"), connText = $("connText"), notifyBtn = $("notifyBtn");
+
+  nameInput.value = me.name;
+  msgInput.value = me.message;
+  roomInput.value = room;
+
+  // ---------- 端到端加密（房间名即密钥）----------
+  var SECRET = room;          // 房间名同时作为加密口令
+  me._enc = "";               // 缓存的加密 {name, message, ip, loc}
+  function refreshEnc() {      // 内容变化时重新加密
+    return SEA.encrypt({ name: me.name || "匿名", message: me.message || "", ip: me.ip || "", loc: me.loc || "" }, SECRET)
+      .then(function (e) { me._enc = e || ""; })
+      .catch(function () { me._enc = ""; });
+  }
+  function decryptBundle(enc) {
+    if (!enc) return Promise.resolve(null);
+    return SEA.decrypt(enc, SECRET).then(function (d) {
+      if (d && typeof d === "object")
+        return { name: d.name || "匿名", message: d.message || "", ip: d.ip || "", loc: d.loc || "" };
+      return null;
+    }).catch(function () { return null; });
+  }
+
+  // ---------- 公网 IP / 大致位置（纯前端调公共服务，按序回退）----------
+  var IP_PROVIDERS = [
+    { url: "https://ipapi.co/json/",          parse: function (j) { return { ip: j.ip, loc: [j.city, j.region, j.country_name].filter(Boolean).join(", ") }; } },
+    { url: "https://ipinfo.io/json",          parse: function (j) { return { ip: j.ip, loc: [j.city, j.region, j.country].filter(Boolean).join(", ") }; } },
+    { url: "https://api.ipify.org?format=json", parse: function (j) { return { ip: j.ip, loc: "" }; } }
+  ];
+  function fetchIp() {
+    var i = 0;
+    function tryNext() {
+      if (i >= IP_PROVIDERS.length) return;          // 全失败：保持空
+      var p = IP_PROVIDERS[i++];
+      return fetch(p.url)
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (j) {
+          var d = p.parse(j);
+          if (!d.ip) throw 0;
+          me.ip = d.ip; me.loc = d.loc || "";
+        })
+        .catch(function () { return tryNext(); });    // 失败就换下一家
+    }
+    return tryNext();
+  }
+
+  // ---------- 桌面通知 ----------
+  var notifyOn = LS.getItem("ws_notify") === "1";
+  var notifyReady = false;                                  // 抑制初次加载时的批量提醒
+  setTimeout(function () { notifyReady = true; }, 3500);
+  var lastSeen = {};                                        // id -> {status, message, name}
+  function notifySupported() { return ("Notification" in window); }
+  function updateNotifyBtn() {
+    var granted = notifySupported() && Notification.permission === "granted";
+    var on = notifyOn && granted;
+    notifyBtn.classList.toggle("on", on);
+    notifyBtn.textContent = on ? "🔔 通知开" : "🔕 通知";
+  }
+  notifyBtn.onclick = function () {
+    if (!notifySupported()) { alert("当前浏览器不支持桌面通知"); return; }
+    if (Notification.permission === "granted") {
+      notifyOn = !notifyOn;
+      LS.setItem("ws_notify", notifyOn ? "1" : "0");
+      updateNotifyBtn();
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(function (p) {
+        notifyOn = (p === "granted");
+        LS.setItem("ws_notify", notifyOn ? "1" : "0");
+        updateNotifyBtn();
+        if (notifyOn) fireNotify("WorkSync 通知已开启", "对方状态变化时会提醒你");
+      });
+    } else {
+      alert("通知权限已被浏览器拒绝，请在浏览器站点设置里手动允许。");
+    }
+  };
+  function fireNotify(title, body) {
+    try { new Notification(title, { body: body || "", tag: "worksync", renotify: true }); } catch (e) {}
+  }
+  function maybeNotify(d) {
+    var prev = lastSeen[d.id];
+    lastSeen[d.id] = { status: d.status, message: d.message, name: d.name };
+    if (!notifyOn || !(notifySupported() && Notification.permission === "granted") || !notifyReady) return;
+    if (!prev) { fireNotify(d.name + " 加入了房间", statusOf(d.status).label); return; }
+    if (prev.status !== d.status) fireNotify(d.name + " · " + statusOf(d.status).label, d.message || "");
+    else if (prev.message !== d.message && d.message) fireNotify(d.name + " 更新了留言", d.message);
+  }
+
+  // 渲染状态 pills
+  STATUSES.forEach(function (s) {
+    var b = document.createElement("button");
+    b.className = "pill" + (s.key === me.status ? " active" : "");
+    b.dataset.key = s.key;
+    b.innerHTML = '<span class="ic">' + s.ic + '</span>' + s.label;
+    b.onclick = function () {
+      me.status = s.key;
+      LS.setItem("ws_status", s.key);
+      Array.prototype.forEach.call(pillsEl.children, function (c) {
+        c.classList.toggle("active", c.dataset.key === s.key);
+      });
+      publish();
+    };
+    pillsEl.appendChild(b);
+  });
+
+  // 防抖发布
+  var pubTimer = null;
+  function debouncedPublish() {
+    clearTimeout(pubTimer);
+    pubTimer = setTimeout(function () { refreshEnc().then(publish); }, 350);
+  }
+  nameInput.oninput = function () { me.name = nameInput.value.trim(); LS.setItem("ws_name", me.name); debouncedPublish(); };
+  msgInput.oninput = function () { me.message = msgInput.value; LS.setItem("ws_msg", me.message); debouncedPublish(); };
+
+  // ---------- Gun 连接 ----------
+  function connect() {
+    gun = Gun({ peers: PEERS });
+    roomNode = gun.get("worksync/room/" + room);
+    usersNode = roomNode.get("users");
+
+    usersNode.map().on(function (data, key) {
+      if (!data || !data.id) return;
+      if (data.id === MY_ID) return;        // 跳过自己
+      var base = {
+        id: data.id,
+        status: data.status || "offline",
+        tz: data.tz || "UTC",
+        updatedAt: data.updatedAt || 0
+      };
+      decryptBundle(data.enc).then(function (b) {
+        base.name = (b && b.name) || data.name || "匿名";        // 兼容旧的明文记录
+        base.message = (b && b.message) || data.message || "";
+        base.ip = (b && b.ip) || "";
+        base.loc = (b && b.loc) || "";
+        others[base.id] = base;
+        maybeNotify(base);
+        render();
+      });
+    });
+
+    // 连接状态指示
+    gun.on("hi", function () { setConn(true); });
+    gun.on("bye", function () { setConn(false); });
+    setTimeout(function () { setConn(true); }, 1500);
+  }
+  function setConn(ok) {
+    connEl.classList.toggle("online", ok);
+    connText.textContent = ok ? "已连接" : "连接中…";
+  }
+
+  function publish() {
+    if (!usersNode) return;
+    me.updatedAt = Date.now();
+    usersNode.get(MY_ID).put({
+      id: me.id, enc: me._enc || "",
+      status: me.status, tz: me.tz, updatedAt: me.updatedAt
+    });
+  }
+
+  // ---------- 渲染 ----------
+  function initials(name) {
+    if (!name) return "?";
+    var t = name.trim();
+    return t ? t.slice(0, 1).toUpperCase() : "?";
+  }
+  function colorFor(id) {
+    var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+    return "hsl(" + h + ",55%,45%)";
+  }
+  function fmtTime(tz) {
+    try {
+      return new Intl.DateTimeFormat("zh-CN", {
+        timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+      }).format(new Date());
+    } catch (e) { return "--:--:--"; }
+  }
+  function tzOffsetLabel(tz) {
+    try {
+      var p = new Intl.DateTimeFormat("en-US", { timeZone: tz, timeZoneName: "shortOffset" })
+        .formatToParts(new Date());
+      for (var i = 0; i < p.length; i++) if (p[i].type === "timeZoneName") return p[i].value;
+    } catch (e) {}
+    return "";
+  }
+  function ago(ts) {
+    if (!ts) return "未知";
+    var s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 5) return "刚刚";
+    if (s < 60) return s + " 秒前";
+    var m = Math.floor(s / 60);
+    if (m < 60) return m + " 分钟前";
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + " 小时前";
+    return Math.floor(h / 24) + " 天前";
+  }
+
+  function personCard(d, isSelf) {
+    var st = statusOf(d.status);
+    var stale = (Date.now() - d.updatedAt) > STALE_MS && d.status !== "offline";
+    var div = document.createElement("div");
+    div.className = "person" + (isSelf ? " self" : "");
+    div.dataset.tz = d.tz;
+    div.dataset.id = d.id;
+
+    var effLabel = stale ? "不活跃" : st.label;
+    var effColor = stale ? "var(--gray)" : st.color;
+
+    div.innerHTML =
+      '<div class="avatar" style="background:' + colorFor(d.id) + '">' + initials(d.name) + '</div>' +
+      '<div class="pinfo">' +
+        '<div class="pname">' + escapeHtml(d.name) +
+          (isSelf ? ' <span style="font-size:11px;color:var(--muted)">（我）</span>' : '') +
+          '<span class="badge" style="background:' + effColor + '22;color:' + effColor + '">' +
+            '<span class="d" style="background:' + effColor + '"></span>' + st.ic + ' ' + effLabel +
+          '</span>' +
+        '</div>' +
+        '<div class="pmsg">' + escapeHtml(d.message) + '</div>' +
+        '<div class="pmeta">' +
+          '🕐 当地时间 <span class="clock" data-tz="' + d.tz + '">' + fmtTime(d.tz) + '</span> ' +
+            '<span style="color:var(--muted)">(' + tzOffsetLabel(d.tz) + ' · ' + shortTz(d.tz) + ')</span><br/>' +
+          (d.ip
+            ? '🌍 IP ' + escapeHtml(d.ip) + (d.loc ? ' <span style="color:var(--muted)">· ' + escapeHtml(d.loc) + '</span>' : '') + '<br/>'
+            : '') +
+          '<span class="' + (stale ? 'stale' : '') + '">更新于 ' + ago(d.updatedAt) + '</span>' +
+        '</div>' +
+      '</div>';
+    return div;
+  }
+  function shortTz(tz) { var p = (tz || "").split("/"); return p[p.length - 1].replace(/_/g, " "); }
+  function escapeHtml(s) {
+    return (s || "").replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function render() {
+    peopleEl.innerHTML = "";
+    // 自己置顶
+    peopleEl.appendChild(personCard(me, true));
+    var ids = Object.keys(others).sort(function (a, b) { return others[b].updatedAt - others[a].updatedAt; });
+    if (ids.length === 0) {
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "暂无其他人。把链接 + 房间名发给对方，进同一个房间即可看到 TA。";
+      peopleEl.appendChild(e);
+    } else {
+      ids.forEach(function (id) { peopleEl.appendChild(personCard(others[id], false)); });
+    }
+  }
+
+  // 每秒只更新时钟与"更新于"，不重绘整卡（避免闪烁）
+  setInterval(function () {
+    var clocks = peopleEl.querySelectorAll(".clock");
+    Array.prototype.forEach.call(clocks, function (c) { c.textContent = fmtTime(c.dataset.tz); });
+  }, 1000);
+  // 每 5 秒重绘一次以刷新"更新于 / 不活跃"
+  setInterval(render, 5000);
+
+  // ---------- 房间切换 ----------
+  function enterRoom(r) {
+    r = (r || "").trim() || "demo";
+    LS.setItem("ws_room", r);
+    var u = new URL(location.href);
+    u.searchParams.set("room", r);
+    location.href = u.toString();   // 简单可靠：重载进入新房间
+  }
+  roomBtn.onclick = function () { enterRoom(roomInput.value); };
+  roomInput.onkeydown = function (e) { if (e.key === "Enter") enterRoom(roomInput.value); };
+
+  // ---------- 启动 ----------
+  connect();
+  updateNotifyBtn();
+  refreshEnc().then(publish);                               // 先加密内容再首发
+  fetchIp().then(function () { return refreshEnc(); })      // 拿到 IP 后再发一次
+           .then(function () { publish(); render(); });
+  render();
+  setInterval(publish, HEARTBEAT_MS);                       // 心跳
+  window.addEventListener("beforeunload", function () {     // 离开置为下班
+    me.status = "offline"; me.updatedAt = Date.now();
+    try { usersNode.get(MY_ID).put({ id: me.id, enc: me._enc || "", status: "offline", tz: me.tz, updatedAt: me.updatedAt }); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
