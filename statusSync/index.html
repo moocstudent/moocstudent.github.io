@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>WorkSync · 跨时区状态同步（纯 P2P · 手动信令）</title>
+<title>WorkSync · 跨时区状态同步（Firebase 实时库）</title>
 <style>
   :root {
     --bg: #0f1115; --card: #1a1d24; --card-2: #232730; --border: #2d323d;
@@ -22,7 +22,7 @@
 
   header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 10px; }
-  .brand .logo { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--accent), #9b6bff); display: grid; place-items: center; font-size: 20px; }
+  .brand .logo { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, #ffca28, #ff8f00); display: grid; place-items: center; font-size: 20px; }
   .brand h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
   .brand p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
 
@@ -34,29 +34,27 @@
   .notify-btn:hover { border-color: var(--accent); }
   .notify-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-  /* connection card */
   .conn-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; }
   .conn-card h2 { font-size: 14px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
-  .conn-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-  .conn-tabs button { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 7px 14px; border-radius: 9px; cursor: pointer; font-size: 13px; }
-  .conn-tabs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   .conn-step { font-size: 13px; color: var(--text); margin: 12px 0 6px; font-weight: 500; }
-  .conn-card textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 9px 11px; font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; resize: vertical; min-height: 60px; word-break: break-all; outline: none; }
-  .conn-card textarea:focus { border-color: var(--accent); }
+  .conn-card textarea, .conn-card input.t { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 9px 11px; font-size: 13px; outline: none; font-family: inherit; }
+  .conn-card textarea { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; resize: vertical; min-height: 90px; word-break: break-all; }
+  .conn-card textarea:focus, .conn-card input.t:focus { border-color: var(--accent); }
   .btn { background: var(--accent); color: #fff; border: none; border-radius: 9px; padding: 9px 14px; font-size: 13px; cursor: pointer; }
   .btn:hover { filter: brightness(1.08); }
-  .btn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
   .btn.sec { background: var(--card-2); border: 1px solid var(--border); color: var(--text); }
-  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
-  .stun-row { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
   .hint { font-size: 12px; color: var(--muted); line-height: 1.65; margin: 8px 0 0; }
   .ok-flash { color: var(--green); font-size: 12px; margin-left: 4px; }
-  .conn-card .link-in { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; color: var(--accent); padding: 9px 11px; font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; outline: none; word-break: break-all; }
-  .conn-card .link-in:focus { border-color: var(--accent); }
-  .qr { margin-top: 10px; min-height: 0; }
-  .qr img { display: block; background: #fff; padding: 8px; border-radius: 8px; max-width: 220px; height: auto; }
-  .hash-banner { background: #1e2a44; border: 1px solid #34507f; color: #cfe0ff; border-radius: 10px; padding: 10px 13px; font-size: 13px; margin-bottom: 14px; line-height: 1.55; }
-  .or-sep { font-size: 12px; color: var(--muted); margin: 12px 0 4px; }
+  .link-in { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; color: var(--accent); padding: 9px 11px; font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; outline: none; word-break: break-all; }
+  details { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+  details summary { cursor: pointer; font-size: 13px; color: var(--accent); }
+  details ol { margin: 10px 0 0; padding-left: 20px; font-size: 13px; color: var(--text); line-height: 1.8; }
+  details code, .codeblock { background: var(--bg); border: 1px solid var(--border); padding: 1px 6px; border-radius: 5px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; color: var(--text); }
+  .codeblock { display: block; padding: 10px 12px; margin-top: 8px; white-space: pre; overflow-x: auto; }
+  .row2 { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .row2 .grow { flex: 1; min-width: 160px; }
+  .lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
 
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
@@ -93,75 +91,69 @@
   footer { margin-top: 30px; text-align: center; font-size: 12px; color: var(--muted); line-height: 1.8; }
   footer code { background: var(--card); padding: 2px 6px; border-radius: 5px; color: var(--text); }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <div class="logo">🛰️</div>
+      <div class="logo">🔥</div>
       <div>
         <h1>WorkSync</h1>
-        <p>跨时区 · 实时状态同步 · 纯 P2P（无后端 / 无中继）</p>
+        <p>跨时区 · 实时状态同步 · Firebase 实时库（任何网络可用）</p>
       </div>
     </div>
     <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-      <span class="conn" id="conn"><span class="dot"></span><span id="connText">未连接</span></span>
+      <span class="conn" id="conn"><span class="dot"></span><span id="connText">未配置</span></span>
       <button class="notify-btn" id="notifyBtn" title="开启桌面通知，对方状态变化时提醒你">🔕 通知</button>
     </div>
   </header>
 
-  <!-- 连接管理 -->
+  <!-- Firebase 配置 -->
   <div class="conn-card">
-    <div id="hashBanner" class="hash-banner" hidden></div>
-    <h2>🔗 建立连接 <span style="font-weight:400;color:var(--muted);font-size:12px;">（手动交换信令，数据设备直连）</span></h2>
-    <div class="conn-tabs">
-      <button data-tab="invite" class="active" id="tabInvite">我来发起</button>
-      <button data-tab="join" id="tabJoin">我来加入</button>
-    </div>
+    <h2>🔧 连接设置 <span id="setupState" style="font-weight:400;color:var(--muted);font-size:12px;"></span></h2>
 
-    <!-- 发起方 -->
-    <div data-pane="invite">
-      <div class="btn-row">
-        <button class="btn" id="genInvite">① 生成邀请</button>
-        <span class="hint" style="margin:0;">把下面的链接 / 二维码 / 文本任选一种发给对方</span>
+    <div class="conn-step">① 粘贴你的 Firebase 配置（控制台里的 firebaseConfig）：</div>
+    <textarea id="cfgIn" placeholder='const firebaseConfig = {
+  apiKey: "...",
+  authDomain: "xxx.firebaseapp.com",
+  databaseURL: "https://xxx-default-rtdb.firebaseio.com",
+  projectId: "xxx",
+  ...
+};'></textarea>
+
+    <div class="row2" style="margin-top:12px;">
+      <div class="grow">
+        <span class="lbl">② 房间名（你和对方填一样的，建议用随机串）</span>
+        <input class="t" id="roomIn" placeholder="如 jody-alex-7x9k" />
       </div>
-
-      <div class="conn-step">邀请链接（对方点开自动载入并生成应答）：</div>
-      <input id="inviteLink" class="link-in" readonly placeholder="点上面「生成邀请」后出现…" />
-      <div class="btn-row"><button class="btn sec" id="copyInviteLink">复制链接</button><span id="copyInviteLinkOk"></span></div>
-      <div id="inviteQr" class="qr"></div>
-
-      <div class="or-sep">— 或者复制文本邀请码 —</div>
-      <textarea id="inviteOut" readonly placeholder="点上面「生成邀请」…"></textarea>
-      <div class="btn-row"><button class="btn sec" id="copyInvite">复制邀请码</button><span id="copyInviteOk"></span></div>
-
-      <div class="conn-step">② 粘贴对方回传的「应答码」，完成连接：</div>
-      <textarea id="answerIn" placeholder="把对方生成的应答码粘到这里…"></textarea>
-      <div class="btn-row"><button class="btn" id="finishInvite" disabled>完成连接</button><span id="finishOk"></span></div>
+      <button class="btn" id="saveBtn">保存并连接</button>
     </div>
 
-    <!-- 加入方 -->
-    <div data-pane="join" hidden>
-      <div class="conn-step">① 粘贴对方发来的「邀请码」（若是点链接进来的已自动填好）：</div>
-      <textarea id="inviteIn" placeholder="把对方发来的邀请码粘到这里…"></textarea>
-      <div class="btn-row"><button class="btn" id="genAnswer">② 生成应答</button></div>
-
-      <div class="conn-step">应答链接 / 二维码 / 文本（回传给发起方，对方粘到 TA 那一页即连上）：</div>
-      <input id="answerLink" class="link-in" readonly placeholder="生成应答后出现…" />
-      <div class="btn-row"><button class="btn sec" id="copyAnswerLink">复制应答链接</button><span id="copyAnswerLinkOk"></span></div>
-      <div id="answerQr" class="qr"></div>
-      <div class="or-sep">— 或者复制文本应答码 —</div>
-      <textarea id="answerOut" readonly placeholder="生成后把这段回传给发起方…"></textarea>
-      <div class="btn-row"><button class="btn sec" id="copyAnswer">复制应答码</button><span id="copyAnswerOk"></span></div>
+    <div class="conn-step">③ 把邀请链接发给对方（已含配置，对方点开自动连上同一房间）：</div>
+    <input id="shareLink" class="link-in" readonly placeholder="保存连接后出现…" />
+    <div class="btn-row">
+      <button class="btn sec" id="copyShare">复制邀请链接</button><span id="copyShareOk"></span>
+      <button class="btn sec" id="clearBtn" style="margin-left:auto;">清除本机配置</button>
     </div>
 
-    <label class="stun-row">
-      <input type="checkbox" id="stunChk" checked />
-      使用公共 STUN 辅助穿透（推荐；它只帮发现公网地址、不转发数据。关掉则仅限同一局域网）
-    </label>
-    <p class="hint">💡 多人时不必两两都连：只要大家整体连成一张图（如 A—B—C），状态会自动在所有人之间扩散。要再加一个人，重新「生成邀请」与 TA 握手即可。<br/>
-    🔗 链接用的是当前页面地址，所以把本页托管到一个公网地址（GitHub Pages 等）链接才能跨设备点开；若以本地文件打开，链接只在同机有效，跨设备请用「文本」方式。</p>
+    <details>
+      <summary>📖 还没有 Firebase 配置？点这里看 3 分钟建库步骤（免费、免信用卡）</summary>
+      <ol>
+        <li>打开 <code>console.firebase.google.com</code> → 用 Google 账号登录 → 「添加项目」，名字随便填，关掉 Google Analytics 即可。</li>
+        <li>左侧「构建 / Build」→「Realtime Database」→「创建数据库」→ 位置随便选 → <strong>选「以测试模式启动」</strong>（或之后到「规则」粘贴下面的规则）。</li>
+        <li>项目首页点「&lt;/&gt;」（Web）图标添加一个网页应用 → 注册后会显示一段 <code>firebaseConfig = {…}</code> → <strong>整段复制</strong>粘到上面①。</li>
+        <li>填②房间名 → 点「保存并连接」。把③的邀请链接发给对方即可。</li>
+        <li>建议把数据库规则设为（控制台 → Realtime Database → 规则）：
+          <span class="codeblock">{
+  "rules": {
+    "rooms": { "$r": { ".read": true, ".write": true } }
+  }
+}</span>
+          （仅靠房间名保密；要更严可加身份验证，超出当前范围。）</li>
+      </ol>
+    </details>
   </div>
 
   <div class="grid">
@@ -188,9 +180,9 @@
   </div>
 
   <footer>
-    纯 WebRTC 点对点：状态数据经加密的数据通道在你们设备之间<strong>直连传输，不经过任何服务器</strong>。<br/>
-    没有后端、没有中继；仅在开启时用一次性的公共 STUN 做 NAT 地址发现。<br/>
-    可直接把本页文件双击打开，或扔到任意静态托管（GitHub Pages 等）。
+    数据通过你自己的 Firebase 实时库同步——纯前端、无需你维护服务器，任何网络都能连。<br/>
+    昵称/状态/留言/IP 存在你的 Firebase 项目里；用随机房间名 + 数据库规则保护隐私。<br/>
+    可托管到 GitHub Pages 等静态托管，或直接双击本文件打开。
   </footer>
 </div>
 
@@ -198,7 +190,18 @@
 (function () {
   "use strict";
 
-  // ---------- 状态定义 ----------
+  // 内置默认 Firebase 配置（无需手动粘贴；下方仍可覆盖或改房间）
+  var BUILTIN_CONFIG = {
+    apiKey: "***REMOVED***",
+    authDomain: "statussync-4b436.firebaseapp.com",
+    databaseURL: "https://statussync-4b436-default-rtdb.firebaseio.com",
+    projectId: "statussync-4b436",
+    storageBucket: "statussync-4b436.firebasestorage.app",
+    messagingSenderId: "244540775131",
+    appId: "1:244540775131:web:e168e34d4f03711e0b0afe"
+  };
+  var DEFAULT_ROOM = "main";
+
   var STATUSES = [
     { key: "working", label: "工作中", ic: "💼", color: "#34d399" },
     { key: "focus",   label: "专注勿扰", ic: "🎯", color: "#5b8cff" },
@@ -212,20 +215,17 @@
     for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].key === key) return STATUSES[i];
     return STATUSES[STATUSES.length - 1];
   }
+  var HEARTBEAT_MS = 20000, STALE_MS = 70000;
 
-  var HEARTBEAT_MS = 8000, STALE_MS = 25000, DROP_MS = 5 * 60 * 1000;
-
-  // ---------- 持久身份 ----------
   var LS = window.localStorage;
   function getId() {
-    var id = LS.getItem("ws_uid");
-    if (!id) { id = "u_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); LS.setItem("ws_uid", id); }
+    var id = sessionStorage.getItem("ws_uid");
+    if (!id) { id = "u_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); sessionStorage.setItem("ws_uid", id); }
     return id;
   }
   var MY_ID = getId();
   var MY_TZ = (Intl.DateTimeFormat().resolvedOptions().timeZone) || "UTC";
 
-  // ---------- 我的状态 + 全体状态表 ----------
   var me = {
     id: MY_ID,
     name: LS.getItem("ws_name") || "",
@@ -234,35 +234,19 @@
     tz: MY_TZ, ip: "", loc: "",
     updatedAt: Date.now()
   };
-  var states = {};            // id -> state（含自己）
-  states[MY_ID] = me;
-  var links = [];             // 每条 P2P 连接 { pc, dc }
-  var pendingInvite = null;   // 发起方待 finalize 的 link
+  var others = {};
+  var db = null, usersRef = null, myRef = null, connected = false;
 
-  // ---------- DOM ----------
   var $ = function (id) { return document.getElementById(id); };
   var nameInput = $("nameInput"), msgInput = $("msgInput"), pillsEl = $("statusPills");
   var peopleEl = $("people"), connEl = $("conn"), connText = $("connText"), notifyBtn = $("notifyBtn");
-  var stunChk = $("stunChk");
+  var cfgIn = $("cfgIn"), roomIn = $("roomIn");
 
-  nameInput.value = me.name;
-  msgInput.value = me.message;
-
-  // ---------- STUN ----------
-  var useStun = LS.getItem("ws_stun") !== "0";
-  stunChk.checked = useStun;
-  stunChk.onchange = function () { useStun = stunChk.checked; LS.setItem("ws_stun", useStun ? "1" : "0"); };
-  function rtcConfig() {
-    return { iceServers: useStun ? [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" }
-    ] : [] };
-  }
+  nameInput.value = me.name; msgInput.value = me.message;
 
   // ---------- 通知 ----------
   var notifyOn = LS.getItem("ws_notify") === "1";
-  var notifyReady = false;
-  setTimeout(function () { notifyReady = true; }, 3500);
+  var notifyReady = false; setTimeout(function () { notifyReady = true; }, 3500);
   var lastSeen = {};
   function notifySupported() { return ("Notification" in window); }
   function updateNotifyBtn() {
@@ -282,9 +266,7 @@
       });
     } else { alert("通知权限已被浏览器拒绝，请在浏览器站点设置里手动允许。"); }
   };
-  function fireNotify(title, body) {
-    try { new Notification(title, { body: body || "", tag: "worksync", renotify: true }); } catch (e) {}
-  }
+  function fireNotify(title, body) { try { new Notification(title, { body: body || "", tag: "worksync", renotify: true }); } catch (e) {} }
   function maybeNotify(d) {
     var prev = lastSeen[d.id];
     lastSeen[d.id] = { status: d.status, message: d.message, name: d.name };
@@ -294,7 +276,7 @@
     else if (prev.message !== d.message && d.message) fireNotify((d.name || "对方") + " 更新了留言", d.message);
   }
 
-  // ---------- 公网 IP（仅展示用，按序回退）----------
+  // ---------- IP ----------
   var IP_PROVIDERS = [
     { url: "https://ipapi.co/json/",           parse: function (j) { return { ip: j.ip, loc: [j.city, j.region, j.country_name].filter(Boolean).join(", ") }; } },
     { url: "https://ipinfo.io/json",           parse: function (j) { return { ip: j.ip, loc: [j.city, j.region, j.country].filter(Boolean).join(", ") }; } },
@@ -321,146 +303,73 @@
     b.onclick = function () {
       me.status = s.key; LS.setItem("ws_status", s.key);
       Array.prototype.forEach.call(pillsEl.children, function (c) { c.classList.toggle("active", c.dataset.key === s.key); });
-      touch();
+      publish();
     };
     pillsEl.appendChild(b);
   });
   var pubTimer = null;
-  function debouncedTouch() { clearTimeout(pubTimer); pubTimer = setTimeout(touch, 300); }
-  nameInput.oninput = function () { me.name = nameInput.value.trim(); LS.setItem("ws_name", me.name); debouncedTouch(); };
-  msgInput.oninput = function () { me.message = msgInput.value; LS.setItem("ws_msg", me.message); debouncedTouch(); };
+  function debouncedPublish() { clearTimeout(pubTimer); pubTimer = setTimeout(publish, 300); }
+  nameInput.oninput = function () { me.name = nameInput.value.trim(); LS.setItem("ws_name", me.name); debouncedPublish(); };
+  msgInput.oninput = function () { me.message = msgInput.value; LS.setItem("ws_msg", me.message); debouncedPublish(); };
 
-  // ---------- WebRTC 信令编解码（原生 gzip 压缩 + URL 安全 base64）----------
-  function b64urlFromBytes(bytes) {
-    var bin = ""; for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  // ---------- Firebase ----------
+  function parseConfig(text) {
+    text = (text || "").trim();
+    var s = text.indexOf("{"), e = text.lastIndexOf("}");
+    if (s < 0 || e < 0) throw new Error("没找到配置对象 {…}");
+    var body = text.slice(s, e + 1);
+    var obj = Function('"use strict";return (' + body + ");")();
+    if (!obj || !obj.databaseURL) throw new Error("配置里缺少 databaseURL（请确认已创建 Realtime Database）");
+    return obj;
   }
-  function bytesFromB64url(s) {
-    s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "=";
-    var bin = atob(s), b = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
-    return b;
+  function setConn(state, txt) {
+    connected = (state === "online");
+    connEl.classList.toggle("online", connected);
+    connText.textContent = txt || (connected ? "已连接" : "连接中…");
   }
-  function gzip(str) {
-    var cs = new CompressionStream("gzip");
-    return new Response(new Blob([new TextEncoder().encode(str)]).stream().pipeThrough(cs))
-      .arrayBuffer().then(function (b) { return new Uint8Array(b); });
-  }
-  function gunzip(bytes) {
-    var ds = new DecompressionStream("gzip");
-    return new Response(new Blob([bytes]).stream().pipeThrough(ds))
-      .arrayBuffer().then(function (b) { return new TextDecoder().decode(b); });
-  }
-  function encode(desc) {
-    var json = JSON.stringify({ t: desc.type, s: desc.sdp });
-    if (typeof CompressionStream !== "undefined") {
-      return gzip(json).then(function (gz) { return "g" + b64urlFromBytes(gz); });
-    }
-    return Promise.resolve("b" + b64urlFromBytes(new TextEncoder().encode(json)));
-  }
-  function decode(code) {
-    code = (code || "").trim();
-    var mark = code.charAt(0), body = code.slice(1), bytes = bytesFromB64url(body);
-    var jsonP = (mark === "g") ? gunzip(bytes) : Promise.resolve(new TextDecoder().decode(bytes));
-    return jsonP.then(function (json) { var o = JSON.parse(json); return { type: o.t, sdp: o.s }; });
-  }
-  function waitIce(pc) {
-    return new Promise(function (resolve) {
-      if (pc.iceGatheringState === "complete") return resolve();
-      var done = false;
-      function finish() { if (done) return; done = true; pc.removeEventListener("icegatheringstatechange", check); resolve(); }
-      function check() { if (pc.iceGatheringState === "complete") finish(); }
-      pc.addEventListener("icegatheringstatechange", check);
-      setTimeout(finish, 3500);   // 兜底：部分网络迟迟不 complete
+  function publish() {
+    if (!myRef) return;
+    me.updatedAt = Date.now();
+    myRef.set({
+      id: me.id, name: me.name || "匿名", status: me.status, message: me.message,
+      tz: me.tz, ip: me.ip || "", loc: me.loc || "", updatedAt: me.updatedAt
     });
   }
+  function connectFirebase(config, room) {
+    if (!firebase.apps.length) firebase.initializeApp(config);
+    db = firebase.database();
+    usersRef = db.ref("rooms/" + room + "/users");
+    myRef = usersRef.child(MY_ID);
 
-  function newLink() {
-    var pc = new RTCPeerConnection(rtcConfig());
-    var link = { pc: pc, dc: null };
-    links.push(link);
-    pc.ondatachannel = function (e) { attachDC(link, e.channel); };
-    pc.onconnectionstatechange = function () {
-      if (pc.connectionState === "failed" || pc.connectionState === "closed" || pc.connectionState === "disconnected") updateConn();
-    };
-    return link;
-  }
-  function attachDC(link, dc) {
-    link.dc = dc;
-    dc.onopen = function () { updateConn(); sendStates(dc); };
-    dc.onclose = function () { updateConn(); };
-    dc.onmessage = function (e) { onMsg(link, e.data); };
-  }
-
-  // 发起方：生成邀请码（offer）
-  function createInvite() {
-    var link = newLink();
-    var dc = link.pc.createDataChannel("status");
-    attachDC(link, dc);
-    pendingInvite = link;
-    return link.pc.createOffer()
-      .then(function (o) { return link.pc.setLocalDescription(o); })
-      .then(function () { return waitIce(link.pc); })
-      .then(function () { return encode(link.pc.localDescription); });
-  }
-  // 加入方：用邀请码生成应答码（answer）
-  function makeAnswer(inviteCode) {
-    var link = newLink();
-    return decode(inviteCode)
-      .then(function (d) { return link.pc.setRemoteDescription(d); })
-      .then(function () { return link.pc.createAnswer(); })
-      .then(function (a) { return link.pc.setLocalDescription(a); })
-      .then(function () { return waitIce(link.pc); })
-      .then(function () { return encode(link.pc.localDescription); });
-  }
-  // 发起方：粘贴应答码，完成连接
-  function finishInvite(answerCode) {
-    if (!pendingInvite) return Promise.reject(new Error("请先在本页生成邀请"));
-    return decode(answerCode)
-      .then(function (d) { return pendingInvite.pc.setRemoteDescription(d); })
-      .then(function () { pendingInvite = null; });
-  }
-
-  // ---------- 消息收发 / gossip 扩散 ----------
-  function sendStates(dc) { try { dc.send(JSON.stringify({ t: "states", states: states })); } catch (e) {} }
-  function broadcast(except) {
-    var payload = JSON.stringify({ t: "states", states: states });
-    links.forEach(function (l) {
-      if (l.dc && l.dc.readyState === "open" && l.dc !== except) { try { l.dc.send(payload); } catch (e) {} }
+    db.ref(".info/connected").on("value", function (snap) {
+      if (snap.val() === true) {
+        setConn("online", "已连接");
+        myRef.onDisconnect().update({ status: "offline", updatedAt: firebase.database.ServerValue.TIMESTAMP });
+        publish();
+      } else { setConn("offline", "连接中…"); }
     });
-  }
-  function onMsg(link, raw) {
-    var m; try { m = JSON.parse(raw); } catch (e) { return; }
-    if (!m || m.t !== "states" || !m.states) return;
-    var changed = false;
-    Object.keys(m.states).forEach(function (id) {
-      if (id === MY_ID) return;                         // 不覆盖自己
-      var inc = m.states[id];
-      if (!inc || !inc.id) return;
-      var cur = states[id];
-      if (!cur || (inc.updatedAt || 0) > (cur.updatedAt || 0)) {  // 仅接受更新的
-        states[id] = inc; changed = true; maybeNotify(inc);
-      }
-    });
-    if (changed) { render(); broadcast(link.dc); }      // 把更新继续转发给其他人（排除来源）
-  }
-  function touch() {
-    me.updatedAt = Date.now(); states[MY_ID] = me; broadcast(null);
-  }
 
-  // ---------- 连接状态显示 ----------
-  function openCount() {
-    var n = 0; links.forEach(function (l) { if (l.dc && l.dc.readyState === "open") n++; }); return n;
-  }
-  function updateConn() {
-    var n = openCount();
-    connEl.classList.toggle("online", n > 0);
-    connText.textContent = n > 0 ? ("已连接 " + n + " 人") : "未连接";
+    usersRef.on("value", function (snap) {
+      var val = snap.val() || {};
+      others = {};
+      Object.keys(val).forEach(function (id) {
+        if (id === MY_ID) return;
+        others[id] = val[id];
+        maybeNotify(val[id]);
+      });
+      render();
+    }, function (err) {
+      setConn("offline", "读取失败");
+      alert("连接数据库失败：" + (err && err.message || err) + "\n\n多半是数据库规则不允许读写，请按设置里的步骤把规则设为允许，或用「测试模式」。");
+    });
+
+    setInterval(function () { if (connected) publish(); }, HEARTBEAT_MS);
+    window.addEventListener("beforeunload", function () { try { me.status = "offline"; publish(); } catch (e) {} });
   }
 
   // ---------- 渲染 ----------
   function initials(name) { var t = (name || "").trim(); return t ? t.slice(0, 1).toUpperCase() : "?"; }
-  function colorFor(id) { var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360; return "hsl(" + h + ",55%,45%)"; }
+  function colorFor(id) { var h = 0; for (var i = 0; i < (id||"").length; i++) h = (h * 31 + id.charCodeAt(i)) % 360; return "hsl(" + h + ",55%,45%)"; }
   function fmtTime(tz) {
     try { return new Intl.DateTimeFormat("zh-CN", { timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date()); }
     catch (e) { return "--:--:--"; }
@@ -509,21 +418,16 @@
     return div;
   }
   function render() {
-    // 清理过久没更新的远端
-    Object.keys(states).forEach(function (id) {
-      if (id !== MY_ID && (Date.now() - (states[id].updatedAt || 0)) > DROP_MS) delete states[id];
-    });
     peopleEl.innerHTML = "";
     peopleEl.appendChild(personCard(me, true));
-    var ids = Object.keys(states).filter(function (id) { return id !== MY_ID; })
-      .sort(function (a, b) { return (states[b].updatedAt || 0) - (states[a].updatedAt || 0); });
+    var ids = Object.keys(others).sort(function (a, b) { return (others[b].updatedAt || 0) - (others[a].updatedAt || 0); });
     if (ids.length === 0) {
       var e = document.createElement("div");
       e.className = "empty";
-      e.textContent = "还没连上任何人。用上面的「建立连接」和对方交换邀请码/应答码。";
+      e.textContent = myRef ? "已连接房间，等待对方进入同一房间…" : "请先在上方填入 Firebase 配置和房间名并「保存并连接」。";
       peopleEl.appendChild(e);
     } else {
-      ids.forEach(function (id) { peopleEl.appendChild(personCard(states[id], false)); });
+      ids.forEach(function (id) { peopleEl.appendChild(personCard(others[id], false)); });
     }
   }
   setInterval(function () {
@@ -532,105 +436,79 @@
   }, 1000);
   setInterval(render, 5000);
 
-  // ---------- 连接 UI 交互 ----------
+  // ---------- 配置 UI ----------
   function flash(el, msg) { el.textContent = msg; el.className = "ok-flash"; setTimeout(function () { el.textContent = ""; }, 2000); }
-  function copyText(text, okEl) {
-    if (!text) { flash(okEl, "暂无内容"); return; }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { flash(okEl, "已复制 ✓"); }).catch(function () { flash(okEl, "复制失败，请手动选择"); });
-    } else { flash(okEl, "请手动选择复制"); }
+  function b64uEnc(str) { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+  function b64uDec(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return decodeURIComponent(escape(atob(s))); }
+  function buildShareLink(config, room) {
+    return location.origin + location.pathname + "#cfg=" + b64uEnc(JSON.stringify(config)) + "&room=" + encodeURIComponent(room);
   }
-  function shareUrl(param, code) {
-    return location.origin + location.pathname + "#" + param + "=" + code;
-  }
-  function renderQR(el, text) {
-    el.innerHTML = "";
-    if (typeof qrcode === "undefined") { el.innerHTML = '<span class="hint">二维码组件未加载（离线时不可用），请用链接或文本</span>'; return; }
-    try {
-      var qr = qrcode(0, "L"); qr.addData(text); qr.make();
-      el.innerHTML = qr.createImgTag(4, 8);
-    } catch (e) {
-      el.innerHTML = '<span class="hint">⚠️ 信令太长，二维码放不下；请改用「链接」或「文本」发送。</span>';
-    }
-  }
-  function showBanner(msg) { var b = $("hashBanner"); b.innerHTML = msg; b.hidden = false; }
+  $("saveBtn").onclick = function () {
+    var room = roomIn.value.trim();
+    if (!room) { alert("请填房间名（你和对方要一致）"); return; }
+    var config;
+    try { config = parseConfig(cfgIn.value); }
+    catch (err) { alert("Firebase 配置解析失败：" + err.message); return; }
+    LS.setItem("ws_fb_cfg", JSON.stringify(config));
+    LS.setItem("ws_fb_room", room);
+    location.href = location.origin + location.pathname;   // 干净重载，进入已配置状态
+    location.reload();
+  };
+  $("copyShare").onclick = function () {
+    var v = $("shareLink").value;
+    if (!v) { flash($("copyShareOk"), "请先保存连接"); return; }
+    if (navigator.clipboard) navigator.clipboard.writeText(v).then(function(){ flash($("copyShareOk"), "已复制 ✓"); }).catch(function(){ flash($("copyShareOk"), "请手动复制"); });
+    else flash($("copyShareOk"), "请手动复制");
+  };
+  $("clearBtn").onclick = function () {
+    if (!confirm("清除本机保存的 Firebase 配置和房间？")) return;
+    LS.removeItem("ws_fb_cfg"); LS.removeItem("ws_fb_room");
+    location.href = location.origin + location.pathname; location.reload();
+  };
 
-  function showInviteShare(code) {
-    $("inviteOut").value = code;
-    $("inviteLink").value = shareUrl("i", code);
-    renderQR($("inviteQr"), $("inviteLink").value);
-    $("finishInvite").disabled = false;
-  }
-  function showAnswerShare(code) {
-    $("answerOut").value = code;
-    $("answerLink").value = shareUrl("a", code);
-    renderQR($("answerQr"), $("answerLink").value);
-  }
-
-  $("tabInvite").onclick = function () {
-    $("tabInvite").classList.add("active"); $("tabJoin").classList.remove("active");
-    document.querySelector('[data-pane="invite"]').hidden = false;
-    document.querySelector('[data-pane="join"]').hidden = true;
-  };
-  $("tabJoin").onclick = function () {
-    $("tabJoin").classList.add("active"); $("tabInvite").classList.remove("active");
-    document.querySelector('[data-pane="join"]').hidden = false;
-    document.querySelector('[data-pane="invite"]').hidden = true;
-  };
-  $("genInvite").onclick = function () {
-    var btn = this; btn.disabled = true; btn.textContent = "生成中…";
-    createInvite().then(function (code) {
-      showInviteShare(code);
-      btn.disabled = false; btn.textContent = "重新生成邀请";
-    }).catch(function (err) { alert("生成失败：" + err); btn.disabled = false; btn.textContent = "① 生成邀请"; });
-  };
-  $("copyInvite").onclick = function () { copyText($("inviteOut").value, $("copyInviteOk")); };
-  $("copyInviteLink").onclick = function () { copyText($("inviteLink").value, $("copyInviteLinkOk")); };
-  $("finishInvite").onclick = function () {
-    var code = $("answerIn").value.trim();
-    if (!code) { alert("请先粘贴对方回传的应答码"); return; }
-    finishInvite(code).then(function () { flash($("finishOk"), "连接已建立 ✓"); })
-      .catch(function (err) { alert("完成连接失败：" + err); });
-  };
-  function doGenAnswer() {
-    var code = $("inviteIn").value.trim();
-    if (!code) { alert("请先粘贴对方发来的邀请码"); return; }
-    var btn = $("genAnswer"); btn.disabled = true; btn.textContent = "生成中…";
-    return makeAnswer(code).then(function (ans) {
-      showAnswerShare(ans); btn.disabled = false; btn.textContent = "② 生成应答";
-    }).catch(function (err) { alert("生成应答失败（邀请码可能无效）：" + err); btn.disabled = false; btn.textContent = "② 生成应答"; });
-  }
-  $("genAnswer").onclick = doGenAnswer;
-  $("copyAnswer").onclick = function () { copyText($("answerOut").value, $("copyAnswerOk")); };
-  $("copyAnswerLink").onclick = function () { copyText($("answerLink").value, $("copyAnswerLinkOk")); };
-
-  // 处理链接里的信令：#i=邀请码（自动加入并生成应答）/ #a=应答码（提示发起方粘贴）
-  function handleHash() {
+  // 解析链接里的配置：#cfg=...&room=...
+  function readHash() {
     var h = location.hash || "";
-    var m = h.match(/^#(i|a)=([\s\S]+)$/);
-    if (!m) return;
-    var kind = m[1], code = m[2];
-    history.replaceState(null, "", location.pathname + location.search);  // 清掉 hash，避免刷新重复触发
-    if (kind === "i") {
-      $("tabJoin").click();
-      $("inviteIn").value = code;
-      showBanner("✅ 已从链接载入邀请码，正在自动生成「应答」——把下方的应答链接 / 二维码 / 文本回传给发起方，对方粘贴后即连上。");
-      doGenAnswer();
-    } else {
-      $("tabInvite").click();
-      $("answerIn").value = code;
-      showBanner("已载入应答码。请确认这<strong>正是你点「生成邀请」的那个页面</strong>，然后点「完成连接」。若页面刷新过，原连接已失效，需重新发起。");
-    }
+    if (h.indexOf("cfg=") < 0) return null;
+    try {
+      var cfgM = h.match(/cfg=([^&]+)/), roomM = h.match(/room=([^&]+)/);
+      if (!cfgM) return null;
+      var config = JSON.parse(b64uDec(cfgM[1]));
+      var room = roomM ? decodeURIComponent(roomM[1]) : "";
+      return { config: config, room: room };
+    } catch (e) { return null; }
   }
 
   // ---------- 启动 ----------
   updateNotifyBtn();
-  updateConn();
+
+  var fromHash = readHash();
+  if (fromHash) {
+    LS.setItem("ws_fb_cfg", JSON.stringify(fromHash.config));
+    if (fromHash.room) LS.setItem("ws_fb_room", fromHash.room);
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+
+  var savedCfg = LS.getItem("ws_fb_cfg"), savedRoom = LS.getItem("ws_fb_room") || "";
+  var cfgObj = null;
+  if (savedCfg) { try { cfgObj = JSON.parse(savedCfg); } catch (e) {} }
+  if (!cfgObj) cfgObj = BUILTIN_CONFIG;                 // 没存过就用内置默认配置
+  var room = savedRoom || DEFAULT_ROOM;                 // 没填过就用默认房间
+  cfgIn.value = JSON.stringify(cfgObj, null, 2);
+  roomIn.value = room;
+  if (cfgObj && room) {
+    try {
+      connectFirebase(cfgObj, room);
+      $("shareLink").value = buildShareLink(cfgObj, room);
+      $("setupState").textContent = "· 已连接房间「" + room + "」";
+    } catch (err) {
+      setConn("offline", "初始化失败");
+      alert("Firebase 初始化失败：" + (err && err.message || err));
+    }
+  }
+
   render();
-  handleHash();
-  fetchIp().then(function () { touch(); render(); });
-  setInterval(function () { touch(); }, HEARTBEAT_MS);   // 心跳：刷新在线 + 扩散
-  window.addEventListener("beforeunload", function () { me.status = "offline"; me.updatedAt = Date.now(); broadcast(null); });
+  fetchIp().then(function () { publish(); render(); });
 })();
 </script>
 </body>

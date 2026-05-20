@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WorkSync · 跨时区状态同步（纯 P2P · 手动信令）</title>
+<style>
+  :root {
+    --bg: #0f1115; --card: #1a1d24; --card-2: #232730; --border: #2d323d;
+    --text: #e6e8ec; --muted: #8a909c; --accent: #5b8cff;
+    --green: #34d399; --amber: #fbbf24; --red: #f87171; --gray: #6b7280; --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, #1b2333 0%, var(--bg) 55%);
+    color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 28px 18px 60px; }
+
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .logo { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--accent), #9b6bff); display: grid; place-items: center; font-size: 20px; }
+  .brand h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
+  .brand p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+
+  .conn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .conn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gray); }
+  .conn.online .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+  .notify-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 9px; padding: 6px 11px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .notify-btn:hover { border-color: var(--accent); }
+  .notify-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* connection card */
+  .conn-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; }
+  .conn-card h2 { font-size: 14px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+  .conn-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+  .conn-tabs button { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 7px 14px; border-radius: 9px; cursor: pointer; font-size: 13px; }
+  .conn-tabs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .conn-step { font-size: 13px; color: var(--text); margin: 12px 0 6px; font-weight: 500; }
+  .conn-card textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 9px 11px; font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; resize: vertical; min-height: 60px; word-break: break-all; outline: none; }
+  .conn-card textarea:focus { border-color: var(--accent); }
+  .btn { background: var(--accent); color: #fff; border: none; border-radius: 9px; padding: 9px 14px; font-size: 13px; cursor: pointer; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+  .btn.sec { background: var(--card-2); border: 1px solid var(--border); color: var(--text); }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .stun-row { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--muted); margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.65; margin: 8px 0 0; }
+  .ok-flash { color: var(--green); font-size: 12px; margin-left: 4px; }
+  .conn-card .link-in { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; color: var(--accent); padding: 9px 11px; font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; outline: none; word-break: break-all; }
+  .conn-card .link-in:focus { border-color: var(--accent); }
+  .qr { margin-top: 10px; min-height: 0; }
+  .qr img { display: block; background: #fff; padding: 8px; border-radius: 8px; max-width: 220px; height: auto; }
+  .hash-banner { background: #1e2a44; border: 1px solid #34507f; color: #cfe0ff; border-radius: 10px; padding: 10px 13px; font-size: 13px; margin-bottom: 14px; line-height: 1.55; }
+  .or-sep { font-size: 12px; color: var(--muted); margin: 12px 0 4px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+  .section-title { font-size: 13px; color: var(--muted); margin: 6px 2px 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+  .me { background: linear-gradient(180deg, var(--card-2), var(--card)); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .me .row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .field { flex: 1; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; color: var(--text); padding: 9px 11px; font-size: 14px; outline: none; font-family: inherit; }
+  .field textarea { resize: vertical; min-height: 38px; }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); }
+
+  .status-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill { border: 1px solid var(--border); background: var(--bg); border-radius: 999px; padding: 7px 13px; font-size: 13px; cursor: pointer; color: var(--text); display: inline-flex; align-items: center; gap: 6px; transition: all .12s; }
+  .pill:hover { border-color: var(--accent); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .people { display: flex; flex-direction: column; gap: 12px; }
+  .person { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 16px; display: flex; gap: 14px; align-items: flex-start; }
+  .person.self { border-color: #3a4660; background: var(--card-2); }
+  .avatar { width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center; font-size: 18px; font-weight: 700; color: #fff; }
+  .pinfo { flex: 1; min-width: 0; }
+  .pname { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; font-weight: 500; }
+  .badge .d { width: 7px; height: 7px; border-radius: 50%; }
+  .pmsg { font-size: 13px; color: var(--text); margin-top: 5px; word-break: break-word; }
+  .pmsg:empty { display: none; }
+  .pmeta { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.7; }
+  .pmeta .clock { color: var(--text); font-variant-numeric: tabular-nums; }
+  .stale { color: var(--amber); }
+  .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 24px; }
+
+  footer { margin-top: 30px; text-align: center; font-size: 12px; color: var(--muted); line-height: 1.8; }
+  footer code { background: var(--card); padding: 2px 6px; border-radius: 5px; color: var(--text); }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">🛰️</div>
+      <div>
+        <h1>WorkSync</h1>
+        <p>跨时区 · 实时状态同步 · 纯 P2P（无后端 / 无中继）</p>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+      <span class="conn" id="conn"><span class="dot"></span><span id="connText">未连接</span></span>
+      <button class="notify-btn" id="notifyBtn" title="开启桌面通知，对方状态变化时提醒你">🔕 通知</button>
+    </div>
+  </header>
+
+  <!-- 连接管理 -->
+  <div class="conn-card">
+    <div id="hashBanner" class="hash-banner" hidden></div>
+    <h2>🔗 建立连接 <span style="font-weight:400;color:var(--muted);font-size:12px;">（手动交换信令，数据设备直连）</span></h2>
+    <div class="conn-tabs">
+      <button data-tab="invite" class="active" id="tabInvite">我来发起</button>
+      <button data-tab="join" id="tabJoin">我来加入</button>
+    </div>
+
+    <!-- 发起方 -->
+    <div data-pane="invite">
+      <div class="btn-row">
+        <button class="btn" id="genInvite">① 生成邀请</button>
+        <span class="hint" style="margin:0;">把下面的链接 / 二维码 / 文本任选一种发给对方</span>
+      </div>
+
+      <div class="conn-step">邀请链接（对方点开自动载入并生成应答）：</div>
+      <input id="inviteLink" class="link-in" readonly placeholder="点上面「生成邀请」后出现…" />
+      <div class="btn-row"><button class="btn sec" id="copyInviteLink">复制链接</button><span id="copyInviteLinkOk"></span></div>
+      <div id="inviteQr" class="qr"></div>
+
+      <div class="or-sep">— 或者复制文本邀请码 —</div>
+      <textarea id="inviteOut" readonly placeholder="点上面「生成邀请」…"></textarea>
+      <div class="btn-row"><button class="btn sec" id="copyInvite">复制邀请码</button><span id="copyInviteOk"></span></div>
+
+      <div class="conn-step">② 粘贴对方回传的「应答码」，完成连接：</div>
+      <textarea id="answerIn" placeholder="把对方生成的应答码粘到这里…"></textarea>
+      <div class="btn-row"><button class="btn" id="finishInvite" disabled>完成连接</button><span id="finishOk"></span></div>
+    </div>
+
+    <!-- 加入方 -->
+    <div data-pane="join" hidden>
+      <div class="conn-step">① 粘贴对方发来的「邀请码」（若是点链接进来的已自动填好）：</div>
+      <textarea id="inviteIn" placeholder="把对方发来的邀请码粘到这里…"></textarea>
+      <div class="btn-row"><button class="btn" id="genAnswer">② 生成应答</button></div>
+
+      <div class="conn-step">应答链接 / 二维码 / 文本（回传给发起方，对方粘到 TA 那一页即连上）：</div>
+      <input id="answerLink" class="link-in" readonly placeholder="生成应答后出现…" />
+      <div class="btn-row"><button class="btn sec" id="copyAnswerLink">复制应答链接</button><span id="copyAnswerLinkOk"></span></div>
+      <div id="answerQr" class="qr"></div>
+      <div class="or-sep">— 或者复制文本应答码 —</div>
+      <textarea id="answerOut" readonly placeholder="生成后把这段回传给发起方…"></textarea>
+      <div class="btn-row"><button class="btn sec" id="copyAnswer">复制应答码</button><span id="copyAnswerOk"></span></div>
+    </div>
+
+    <label class="stun-row">
+      <input type="checkbox" id="stunChk" checked />
+      使用公共 STUN 辅助穿透（推荐；它只帮发现公网地址、不转发数据。关掉则仅限同一局域网）
+    </label>
+    <div id="diag" class="hint" style="margin-top:10px; padding:10px 12px; background:var(--bg); border:1px solid var(--border); border-radius:10px;">🩺 诊断：生成邀请或应答后这里会显示连接细节</div>
+    <p class="hint">💡 多人时不必两两都连：只要大家整体连成一张图（如 A—B—C），状态会自动在所有人之间扩散。要再加一个人，重新「生成邀请」与 TA 握手即可。<br/>
+    🔗 链接用的是当前页面地址，所以把本页托管到一个公网地址（GitHub Pages 等）链接才能跨设备点开；若以本地文件打开，链接只在同机有效，跨设备请用「文本」方式。</p>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="section-title">我的状态</div>
+      <div class="me">
+        <div class="row">
+          <div class="field"><label>昵称</label><input id="nameInput" placeholder="你的名字" maxlength="20" /></div>
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>状态</label>
+          <div class="status-pills" id="statusPills"></div>
+        </div>
+        <div class="field">
+          <label>留言 / 备注（可选）</label>
+          <textarea id="msgInput" placeholder="例：12:00 后有空 / 在写需求文档…" maxlength="120"></textarea>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">大家的状态</div>
+      <div class="people" id="people"></div>
+    </div>
+  </div>
+
+  <footer>
+    纯 WebRTC 点对点：状态数据经加密的数据通道在你们设备之间<strong>直连传输，不经过任何服务器</strong>。<br/>
+    没有后端、没有中继；仅在开启时用一次性的公共 STUN 做 NAT 地址发现。<br/>
+    可直接把本页文件双击打开，或扔到任意静态托管（GitHub Pages 等）。
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- 状态定义 ----------
+  var STATUSES = [
+    { key: "working", label: "工作中", ic: "💼", color: "#34d399" },
+    { key: "focus",   label: "专注勿扰", ic: "🎯", color: "#5b8cff" },
+    { key: "meeting", label: "开会中", ic: "📞", color: "#a78bfa" },
+    { key: "break",   label: "休息", ic: "☕", color: "#fbbf24" },
+    { key: "lunch",   label: "吃饭", ic: "🍜", color: "#fb923c" },
+    { key: "away",    label: "离开", ic: "🚶", color: "#9ca3af" },
+    { key: "offline", label: "下班", ic: "🌙", color: "#6b7280" }
+  ];
+  function statusOf(key) {
+    for (var i = 0; i < STATUSES.length; i++) if (STATUSES[i].key === key) return STATUSES[i];
+    return STATUSES[STATUSES.length - 1];
+  }
+
+  var HEARTBEAT_MS = 8000, STALE_MS = 25000, DROP_MS = 5 * 60 * 1000;
+
+  // ---------- 身份 ----------
+  var LS = window.localStorage;
+  // 身份 ID 放在 sessionStorage（每个标签页独立、刷新保持不变），
+  // 避免同一浏览器开两个标签页时共用同一 ID，导致彼此被当成"自己"而互相看不到。
+  function getId() {
+    var id = sessionStorage.getItem("ws_uid");
+    if (!id) { id = "u_" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); sessionStorage.setItem("ws_uid", id); }
+    return id;
+  }
+  var MY_ID = getId();
+  var MY_TZ = (Intl.DateTimeFormat().resolvedOptions().timeZone) || "UTC";
+
+  // ---------- 我的状态 + 全体状态表 ----------
+  var me = {
+    id: MY_ID,
+    name: LS.getItem("ws_name") || "",
+    status: LS.getItem("ws_status") || "working",
+    message: LS.getItem("ws_msg") || "",
+    tz: MY_TZ, ip: "", loc: "",
+    updatedAt: Date.now()
+  };
+  var states = {};            // id -> state（含自己）
+  states[MY_ID] = me;
+  var links = [];             // 每条 P2P 连接 { pc, dc }
+  var pendingInvite = null;   // 发起方待 finalize 的 link
+
+  // ---------- DOM ----------
+  var $ = function (id) { return document.getElementById(id); };
+  var nameInput = $("nameInput"), msgInput = $("msgInput"), pillsEl = $("statusPills");
+  var peopleEl = $("people"), connEl = $("conn"), connText = $("connText"), notifyBtn = $("notifyBtn");
+  var stunChk = $("stunChk");
+
+  nameInput.value = me.name;
+  msgInput.value = me.message;
+
+  // ---------- STUN ----------
+  var useStun = LS.getItem("ws_stun") !== "0";
+  stunChk.checked = useStun;
+  stunChk.onchange = function () { useStun = stunChk.checked; LS.setItem("ws_stun", useStun ? "1" : "0"); };
+  function rtcConfig() {
+    return { iceServers: useStun ? [
+      { urls: "stun:stun.cloudflare.com:3478" },   // 全球可达
+      { urls: "stun:stun.qq.com:3478" },           // 腾讯（中国可用）
+      { urls: "stun:stun.miwifi.com:3478" },       // 小米（中国可用）
+      { urls: "stun:stun.l.google.com:19302" },    // Google（中国大陆可能被屏蔽）
+      { urls: "stun:stun1.l.google.com:19302" }
+    ] : [] };
+  }
+
+  // ---------- 通知 ----------
+  var notifyOn = LS.getItem("ws_notify") === "1";
+  var notifyReady = false;
+  setTimeout(function () { notifyReady = true; }, 3500);
+  var lastSeen = {};
+  function notifySupported() { return ("Notification" in window); }
+  function updateNotifyBtn() {
+    var granted = notifySupported() && Notification.permission === "granted";
+    var on = notifyOn && granted;
+    notifyBtn.classList.toggle("on", on);
+    notifyBtn.textContent = on ? "🔔 通知开" : "🔕 通知";
+  }
+  notifyBtn.onclick = function () {
+    if (!notifySupported()) { alert("当前浏览器不支持桌面通知"); return; }
+    if (Notification.permission === "granted") {
+      notifyOn = !notifyOn; LS.setItem("ws_notify", notifyOn ? "1" : "0"); updateNotifyBtn();
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(function (p) {
+        notifyOn = (p === "granted"); LS.setItem("ws_notify", notifyOn ? "1" : "0"); updateNotifyBtn();
+        if (notifyOn) fireNotify("WorkSync 通知已开启", "对方状态变化时会提醒你");
+      });
+    } else { alert("通知权限已被浏览器拒绝，请在浏览器站点设置里手动允许。"); }
+  };
+  function fireNotify(title, body) {
+    try { new Notification(title, { body: body || "", tag: "worksync", renotify: true }); } catch (e) {}
+  }
+  function maybeNotify(d) {
+    var prev = lastSeen[d.id];
+    lastSeen[d.id] = { status: d.status, message: d.message, name: d.name };
+    if (!notifyOn || !(notifySupported() && Notification.permission === "granted") || !notifyReady) return;
+    if (!prev) { fireNotify((d.name || "新成员") + " 加入了", statusOf(d.status).label); return; }
+    if (prev.status !== d.status) fireNotify((d.name || "对方") + " · " + statusOf(d.status).label, d.message || "");
+    else if (prev.message !== d.message && d.message) fireNotify((d.name || "对方") + " 更新了留言", d.message);
+  }
+
+  // ---------- 公网 IP（仅展示用，按序回退）----------
+  var IP_PROVIDERS = [
+    { url: "https://ipapi.co/json/",           parse: function (j) { return { ip: j.ip, loc: [j.city, j.region, j.country_name].filter(Boolean).join(", ") }; } },
+    { url: "https://ipinfo.io/json",           parse: function (j) { return { ip: j.ip, loc: [j.city, j.region, j.country].filter(Boolean).join(", ") }; } },
+    { url: "https://api.ipify.org?format=json", parse: function (j) { return { ip: j.ip, loc: "" }; } }
+  ];
+  function fetchIp() {
+    var i = 0;
+    function tryNext() {
+      if (i >= IP_PROVIDERS.length) return;
+      var p = IP_PROVIDERS[i++];
+      return fetch(p.url).then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (j) { var d = p.parse(j); if (!d.ip) throw 0; me.ip = d.ip; me.loc = d.loc || ""; })
+        .catch(function () { return tryNext(); });
+    }
+    return tryNext();
+  }
+
+  // ---------- 状态 pills ----------
+  STATUSES.forEach(function (s) {
+    var b = document.createElement("button");
+    b.className = "pill" + (s.key === me.status ? " active" : "");
+    b.dataset.key = s.key;
+    b.innerHTML = '<span>' + s.ic + '</span>' + s.label;
+    b.onclick = function () {
+      me.status = s.key; LS.setItem("ws_status", s.key);
+      Array.prototype.forEach.call(pillsEl.children, function (c) { c.classList.toggle("active", c.dataset.key === s.key); });
+      touch();
+    };
+    pillsEl.appendChild(b);
+  });
+  var pubTimer = null;
+  function debouncedTouch() { clearTimeout(pubTimer); pubTimer = setTimeout(touch, 300); }
+  nameInput.oninput = function () { me.name = nameInput.value.trim(); LS.setItem("ws_name", me.name); debouncedTouch(); };
+  msgInput.oninput = function () { me.message = msgInput.value; LS.setItem("ws_msg", me.message); debouncedTouch(); };
+
+  // ---------- WebRTC 信令编解码（原生 gzip 压缩 + URL 安全 base64）----------
+  function b64urlFromBytes(bytes) {
+    var bin = ""; for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function bytesFromB64url(s) {
+    s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "=";
+    var bin = atob(s), b = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+    return b;
+  }
+  function gzip(str) {
+    var cs = new CompressionStream("gzip");
+    return new Response(new Blob([new TextEncoder().encode(str)]).stream().pipeThrough(cs))
+      .arrayBuffer().then(function (b) { return new Uint8Array(b); });
+  }
+  function gunzip(bytes) {
+    var ds = new DecompressionStream("gzip");
+    return new Response(new Blob([bytes]).stream().pipeThrough(ds))
+      .arrayBuffer().then(function (b) { return new TextDecoder().decode(b); });
+  }
+  function encode(desc) {
+    var json = JSON.stringify({ t: desc.type, s: desc.sdp });
+    if (typeof CompressionStream !== "undefined") {
+      return gzip(json).then(function (gz) { return "g" + b64urlFromBytes(gz); });
+    }
+    return Promise.resolve("b" + b64urlFromBytes(new TextEncoder().encode(json)));
+  }
+  function decode(code) {
+    code = (code || "").trim();
+    var mark = code.charAt(0), body = code.slice(1), bytes = bytesFromB64url(body);
+    var jsonP = (mark === "g") ? gunzip(bytes) : Promise.resolve(new TextDecoder().decode(bytes));
+    return jsonP.then(function (json) { var o = JSON.parse(json); return { type: o.t, sdp: o.s }; });
+  }
+  function waitIce(pc) {
+    return new Promise(function (resolve) {
+      if (pc.iceGatheringState === "complete") return resolve();
+      var done = false;
+      function finish() { if (done) return; done = true; pc.removeEventListener("icegatheringstatechange", check); resolve(); }
+      function check() { if (pc.iceGatheringState === "complete") finish(); }
+      pc.addEventListener("icegatheringstatechange", check);
+      setTimeout(finish, 6000);   // 兜底：部分网络（含 STUN 被屏蔽时）迟迟不 complete
+    });
+  }
+
+  // ---------- 连接诊断 ----------
+  var diag = { gather: "-", ice: "-", conn: "-", cands: {}, errors: [] };
+  function updateDiag() {
+    var el = $("diag"); if (!el) return;
+    var c = diag.cands, parts = Object.keys(c).map(function (k) { return k + "×" + c[k]; });
+    var pub = c.srflx
+      ? '<span style="color:var(--green)">✓ 已取得公网地址 (srflx)，具备跨网络条件</span>'
+      : '<span style="color:var(--amber)">⚠ 暂未取得公网地址 (srflx)——STUN 可能被屏蔽或仍在收集</span>';
+    el.innerHTML = "🩺 诊断 · ICE收集: " + diag.gather + " | ICE连接: " + diag.ice + " | 连接: " + diag.conn +
+      "<br/>候选: " + (parts.join("  ") || "(无)") + "<br/>" + pub +
+      (diag.errors.length ? '<br/><span style="color:var(--red)">STUN 错误: ' + diag.errors.slice(0, 4).join("; ") + '</span>' : "");
+  }
+
+  function newLink() {
+    var pc = new RTCPeerConnection(rtcConfig());
+    var link = { pc: pc, dc: null };
+    links.push(link);
+    pc.ondatachannel = function (e) { attachDC(link, e.channel); };
+    pc.onicecandidate = function (e) {
+      if (e.candidate && e.candidate.type) { diag.cands[e.candidate.type] = (diag.cands[e.candidate.type] || 0) + 1; updateDiag(); }
+    };
+    pc.onicecandidateerror = function (e) {
+      var msg = (e.url || "") + " #" + (e.errorCode || "?");
+      if (diag.errors.indexOf(msg) < 0) diag.errors.push(msg);
+      updateDiag();
+    };
+    pc.onicegatheringstatechange = function () { diag.gather = pc.iceGatheringState; updateDiag(); };
+    pc.oniceconnectionstatechange = function () { diag.ice = pc.iceConnectionState; updateDiag(); };
+    pc.onconnectionstatechange = function () {
+      diag.conn = pc.connectionState; updateDiag();
+      if (pc.connectionState === "failed" || pc.connectionState === "closed" || pc.connectionState === "disconnected") updateConn();
+    };
+    return link;
+  }
+  function attachDC(link, dc) {
+    link.dc = dc;
+    dc.onopen = function () { updateConn(); sendStates(dc); };
+    dc.onclose = function () { updateConn(); };
+    dc.onmessage = function (e) { onMsg(link, e.data); };
+  }
+
+  // 发起方：生成邀请码（offer）
+  function createInvite() {
+    var link = newLink();
+    var dc = link.pc.createDataChannel("status");
+    attachDC(link, dc);
+    pendingInvite = link;
+    return link.pc.createOffer()
+      .then(function (o) { return link.pc.setLocalDescription(o); })
+      .then(function () { return waitIce(link.pc); })
+      .then(function () { return encode(link.pc.localDescription); });
+  }
+  // 加入方：用邀请码生成应答码（answer）
+  function makeAnswer(inviteCode) {
+    var link = newLink();
+    return decode(inviteCode)
+      .then(function (d) { return link.pc.setRemoteDescription(d); })
+      .then(function () { return link.pc.createAnswer(); })
+      .then(function (a) { return link.pc.setLocalDescription(a); })
+      .then(function () { return waitIce(link.pc); })
+      .then(function () { return encode(link.pc.localDescription); });
+  }
+  // 发起方：粘贴应答码，完成连接
+  function finishInvite(answerCode) {
+    if (!pendingInvite) return Promise.reject(new Error("请先在本页生成邀请"));
+    return decode(answerCode)
+      .then(function (d) { return pendingInvite.pc.setRemoteDescription(d); })
+      .then(function () { pendingInvite = null; });
+  }
+
+  // ---------- 消息收发 / gossip 扩散 ----------
+  function sendStates(dc) { try { dc.send(JSON.stringify({ t: "states", states: states })); } catch (e) {} }
+  function broadcast(except) {
+    var payload = JSON.stringify({ t: "states", states: states });
+    links.forEach(function (l) {
+      if (l.dc && l.dc.readyState === "open" && l.dc !== except) { try { l.dc.send(payload); } catch (e) {} }
+    });
+  }
+  function onMsg(link, raw) {
+    var m; try { m = JSON.parse(raw); } catch (e) { return; }
+    if (!m || m.t !== "states" || !m.states) return;
+    var changed = false;
+    Object.keys(m.states).forEach(function (id) {
+      if (id === MY_ID) return;                         // 不覆盖自己
+      var inc = m.states[id];
+      if (!inc || !inc.id) return;
+      var cur = states[id];
+      if (!cur || (inc.updatedAt || 0) > (cur.updatedAt || 0)) {  // 仅接受更新的
+        states[id] = inc; changed = true; maybeNotify(inc);
+      }
+    });
+    if (changed) { render(); broadcast(link.dc); }      // 把更新继续转发给其他人（排除来源）
+  }
+  function touch() {
+    me.updatedAt = Date.now(); states[MY_ID] = me; broadcast(null);
+  }
+
+  // ---------- 连接状态显示 ----------
+  function openCount() {
+    var n = 0; links.forEach(function (l) { if (l.dc && l.dc.readyState === "open") n++; }); return n;
+  }
+  function updateConn() {
+    var n = openCount();
+    connEl.classList.toggle("online", n > 0);
+    connText.textContent = n > 0 ? ("已连接 " + n + " 人") : "未连接";
+  }
+
+  // ---------- 渲染 ----------
+  function initials(name) { var t = (name || "").trim(); return t ? t.slice(0, 1).toUpperCase() : "?"; }
+  function colorFor(id) { var h = 0; for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360; return "hsl(" + h + ",55%,45%)"; }
+  function fmtTime(tz) {
+    try { return new Intl.DateTimeFormat("zh-CN", { timeZone: tz, hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date()); }
+    catch (e) { return "--:--:--"; }
+  }
+  function tzOffsetLabel(tz) {
+    try {
+      var p = new Intl.DateTimeFormat("en-US", { timeZone: tz, timeZoneName: "shortOffset" }).formatToParts(new Date());
+      for (var i = 0; i < p.length; i++) if (p[i].type === "timeZoneName") return p[i].value;
+    } catch (e) {}
+    return "";
+  }
+  function shortTz(tz) { var p = (tz || "").split("/"); return p[p.length - 1].replace(/_/g, " "); }
+  function ago(ts) {
+    if (!ts) return "未知";
+    var s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 5) return "刚刚"; if (s < 60) return s + " 秒前";
+    var mn = Math.floor(s / 60); if (mn < 60) return mn + " 分钟前";
+    var h = Math.floor(mn / 60); if (h < 24) return h + " 小时前";
+    return Math.floor(h / 24) + " 天前";
+  }
+  function escapeHtml(s) {
+    return (s || "").replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
+  }
+  function personCard(d, isSelf) {
+    var st = statusOf(d.status);
+    var stale = (Date.now() - (d.updatedAt || 0)) > STALE_MS && d.status !== "offline";
+    var effLabel = stale ? "不活跃" : st.label, effColor = stale ? "var(--gray)" : st.color;
+    var div = document.createElement("div");
+    div.className = "person" + (isSelf ? " self" : "");
+    div.innerHTML =
+      '<div class="avatar" style="background:' + colorFor(d.id) + '">' + initials(d.name) + '</div>' +
+      '<div class="pinfo">' +
+        '<div class="pname">' + escapeHtml(d.name || "匿名") +
+          (isSelf ? ' <span style="font-size:11px;color:var(--muted)">（我）</span>' : '') +
+          '<span class="badge" style="background:' + effColor + '22;color:' + effColor + '">' +
+            '<span class="d" style="background:' + effColor + '"></span>' + st.ic + ' ' + effLabel + '</span>' +
+        '</div>' +
+        '<div class="pmsg">' + escapeHtml(d.message) + '</div>' +
+        '<div class="pmeta">' +
+          '🕐 当地时间 <span class="clock" data-tz="' + d.tz + '">' + fmtTime(d.tz) + '</span> ' +
+            '<span style="color:var(--muted)">(' + tzOffsetLabel(d.tz) + ' · ' + shortTz(d.tz) + ')</span><br/>' +
+          (d.ip ? '🌍 IP ' + escapeHtml(d.ip) + (d.loc ? ' <span style="color:var(--muted)">· ' + escapeHtml(d.loc) + '</span>' : '') + '<br/>' : '') +
+          '<span class="' + (stale ? 'stale' : '') + '">更新于 ' + ago(d.updatedAt) + '</span>' +
+        '</div>' +
+      '</div>';
+    return div;
+  }
+  function render() {
+    // 清理过久没更新的远端
+    Object.keys(states).forEach(function (id) {
+      if (id !== MY_ID && (Date.now() - (states[id].updatedAt || 0)) > DROP_MS) delete states[id];
+    });
+    peopleEl.innerHTML = "";
+    peopleEl.appendChild(personCard(me, true));
+    var ids = Object.keys(states).filter(function (id) { return id !== MY_ID; })
+      .sort(function (a, b) { return (states[b].updatedAt || 0) - (states[a].updatedAt || 0); });
+    if (ids.length === 0) {
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "还没连上任何人。用上面的「建立连接」和对方交换邀请码/应答码。";
+      peopleEl.appendChild(e);
+    } else {
+      ids.forEach(function (id) { peopleEl.appendChild(personCard(states[id], false)); });
+    }
+  }
+  setInterval(function () {
+    var clocks = peopleEl.querySelectorAll(".clock");
+    Array.prototype.forEach.call(clocks, function (c) { c.textContent = fmtTime(c.dataset.tz); });
+  }, 1000);
+  setInterval(render, 5000);
+
+  // ---------- 连接 UI 交互 ----------
+  function flash(el, msg) { el.textContent = msg; el.className = "ok-flash"; setTimeout(function () { el.textContent = ""; }, 2000); }
+  function copyText(text, okEl) {
+    if (!text) { flash(okEl, "暂无内容"); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { flash(okEl, "已复制 ✓"); }).catch(function () { flash(okEl, "复制失败，请手动选择"); });
+    } else { flash(okEl, "请手动选择复制"); }
+  }
+  function shareUrl(param, code) {
+    return location.origin + location.pathname + "#" + param + "=" + code;
+  }
+  function renderQR(el, text) {
+    el.innerHTML = "";
+    if (typeof qrcode === "undefined") { el.innerHTML = '<span class="hint">二维码组件未加载（离线时不可用），请用链接或文本</span>'; return; }
+    try {
+      var qr = qrcode(0, "L"); qr.addData(text); qr.make();
+      el.innerHTML = qr.createImgTag(4, 8);
+    } catch (e) {
+      el.innerHTML = '<span class="hint">⚠️ 信令太长，二维码放不下；请改用「链接」或「文本」发送。</span>';
+    }
+  }
+  function showBanner(msg) { var b = $("hashBanner"); b.innerHTML = msg; b.hidden = false; }
+
+  function showInviteShare(code) {
+    $("inviteOut").value = code;
+    $("inviteLink").value = shareUrl("i", code);
+    renderQR($("inviteQr"), $("inviteLink").value);
+    $("finishInvite").disabled = false;
+  }
+  function showAnswerShare(code) {
+    $("answerOut").value = code;
+    $("answerLink").value = shareUrl("a", code);
+    renderQR($("answerQr"), $("answerLink").value);
+  }
+
+  $("tabInvite").onclick = function () {
+    $("tabInvite").classList.add("active"); $("tabJoin").classList.remove("active");
+    document.querySelector('[data-pane="invite"]').hidden = false;
+    document.querySelector('[data-pane="join"]').hidden = true;
+  };
+  $("tabJoin").onclick = function () {
+    $("tabJoin").classList.add("active"); $("tabInvite").classList.remove("active");
+    document.querySelector('[data-pane="join"]').hidden = false;
+    document.querySelector('[data-pane="invite"]').hidden = true;
+  };
+  $("genInvite").onclick = function () {
+    var btn = this; btn.disabled = true; btn.textContent = "生成中…";
+    createInvite().then(function (code) {
+      showInviteShare(code);
+      btn.disabled = false; btn.textContent = "重新生成邀请";
+    }).catch(function (err) { alert("生成失败：" + err); btn.disabled = false; btn.textContent = "① 生成邀请"; });
+  };
+  $("copyInvite").onclick = function () { copyText($("inviteOut").value, $("copyInviteOk")); };
+  $("copyInviteLink").onclick = function () { copyText($("inviteLink").value, $("copyInviteLinkOk")); };
+  $("finishInvite").onclick = function () {
+    var code = $("answerIn").value.trim();
+    if (!code) { alert("请先粘贴对方回传的应答码"); return; }
+    finishInvite(code).then(function () { flash($("finishOk"), "连接已建立 ✓"); })
+      .catch(function (err) { alert("完成连接失败：" + err); });
+  };
+  function doGenAnswer() {
+    var code = $("inviteIn").value.trim();
+    if (!code) { alert("请先粘贴对方发来的邀请码"); return; }
+    var btn = $("genAnswer"); btn.disabled = true; btn.textContent = "生成中…";
+    return makeAnswer(code).then(function (ans) {
+      showAnswerShare(ans); btn.disabled = false; btn.textContent = "② 生成应答";
+    }).catch(function (err) { alert("生成应答失败（邀请码可能无效）：" + err); btn.disabled = false; btn.textContent = "② 生成应答"; });
+  }
+  $("genAnswer").onclick = doGenAnswer;
+  $("copyAnswer").onclick = function () { copyText($("answerOut").value, $("copyAnswerOk")); };
+  $("copyAnswerLink").onclick = function () { copyText($("answerLink").value, $("copyAnswerLinkOk")); };
+
+  // 处理链接里的信令：#i=邀请码（自动加入并生成应答）/ #a=应答码（提示发起方粘贴）
+  function handleHash() {
+    var h = location.hash || "";
+    var m = h.match(/^#(i|a)=([\s\S]+)$/);
+    if (!m) return;
+    var kind = m[1], code = m[2];
+    history.replaceState(null, "", location.pathname + location.search);  // 清掉 hash，避免刷新重复触发
+    if (kind === "i") {
+      $("tabJoin").click();
+      $("inviteIn").value = code;
+      showBanner("✅ 已从链接载入邀请码，正在自动生成「应答」——把下方的应答链接 / 二维码 / 文本回传给发起方，对方粘贴后即连上。");
+      doGenAnswer();
+    } else {
+      $("tabInvite").click();
+      $("answerIn").value = code;
+      showBanner("已载入应答码。请确认这<strong>正是你点「生成邀请」的那个页面</strong>，然后点「完成连接」。若页面刷新过，原连接已失效，需重新发起。");
+    }
+  }
+
+  // ---------- 启动 ----------
+  updateNotifyBtn();
+  updateConn();
+  render();
+  handleHash();
+  fetchIp().then(function () { touch(); render(); });
+  setInterval(function () { touch(); }, HEARTBEAT_MS);   // 心跳：刷新在线 + 扩散
+  window.addEventListener("beforeunload", function () { me.status = "offline"; me.updatedAt = Date.now(); broadcast(null); });
+})();
+</script>
+</body>
+</html>
