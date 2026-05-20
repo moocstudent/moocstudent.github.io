@@ -128,6 +128,10 @@
         <span class="lbl">② 房间名（你和对方填一样的，建议用随机串）</span>
         <input class="t" id="roomIn" placeholder="如 jody-alex-7x9k" />
       </div>
+      <div class="grow">
+        <span class="lbl">🔒 加密口令（可选，两人须一致）</span>
+        <input class="t" id="keyIn" placeholder="留空=不加密；填了=端到端加密" />
+      </div>
       <button class="btn" id="saveBtn">保存并连接</button>
     </div>
 
@@ -243,7 +247,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var nameInput = $("nameInput"), msgInput = $("msgInput"), pillsEl = $("statusPills");
   var peopleEl = $("people"), connEl = $("conn"), connText = $("connText"), notifyBtn = $("notifyBtn");
-  var cfgIn = $("cfgIn"), roomIn = $("roomIn");
+  var cfgIn = $("cfgIn"), roomIn = $("roomIn"), keyIn = $("keyIn");
 
   nameInput.value = me.name; msgInput.value = me.message;
 
@@ -315,6 +319,39 @@
   nameInput.oninput = function () { me.name = nameInput.value.trim(); LS.setItem("ws_name", me.name); debouncedPublish(); };
   msgInput.oninput = function () { me.message = msgInput.value; LS.setItem("ws_msg", me.message); debouncedPublish(); };
 
+  // ---------- 内容端到端加密（AES-GCM；口令经 PBKDF2 派生，口令永不入库）----------
+  var SECRET = "";            // 加密口令（来自本机/链接），为空则不加密
+  var _keyP = null, _keyFor = null;
+  function cryptoOk() { return (window.crypto && crypto.subtle); }
+  function getKey() {
+    if (_keyP && _keyFor === SECRET) return _keyP;
+    _keyFor = SECRET;
+    var enc = new TextEncoder();
+    _keyP = crypto.subtle.importKey("raw", enc.encode(SECRET), "PBKDF2", false, ["deriveKey"])
+      .then(function (bk) {
+        return crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: enc.encode("worksync-v1"), iterations: 100000, hash: "SHA-256" },
+          bk, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+      });
+    return _keyP;
+  }
+  function b64FromBytes(b) { var s = ""; for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return btoa(s); }
+  function bytesFromB64(s) { var bin = atob(s), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
+  function encryptObj(obj) {
+    return getKey().then(function (key) {
+      var iv = crypto.getRandomValues(new Uint8Array(12));
+      return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, new TextEncoder().encode(JSON.stringify(obj)))
+        .then(function (ct) { return b64FromBytes(iv) + "." + b64FromBytes(new Uint8Array(ct)); });
+    });
+  }
+  function decryptStr(s) {
+    if (!s || s.indexOf(".") < 0) return Promise.resolve(null);
+    var p = s.split("."), iv = bytesFromB64(p[0]), ct = bytesFromB64(p[1]);
+    return getKey().then(function (key) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: iv }, key, ct); })
+      .then(function (buf) { return JSON.parse(new TextDecoder().decode(buf)); })
+      .catch(function () { return null; });
+  }
+
   // ---------- Firebase ----------
   function parseConfig(text) {
     text = (text || "").trim();
@@ -333,10 +370,18 @@
   function publish() {
     if (!myRef) return;
     me.updatedAt = Date.now();
-    myRef.set({
-      id: me.id, name: me.name || "匿名", status: me.status, message: me.message,
-      tz: me.tz, ip: me.ip || "", loc: me.loc || "", updatedAt: me.updatedAt
-    });
+    var base = { id: me.id, status: me.status, tz: me.tz, updatedAt: me.updatedAt };
+    var content = { name: me.name || "匿名", message: me.message || "", ip: me.ip || "", loc: me.loc || "" };
+    if (SECRET && cryptoOk()) {
+      encryptObj(content)
+        .then(function (enc) { base.enc = enc; myRef.set(base); })
+        .catch(function () {           // 加密异常时退回明文，避免丢更新
+          base.name = content.name; base.message = content.message; base.ip = content.ip; base.loc = content.loc; myRef.set(base);
+        });
+    } else {
+      base.name = content.name; base.message = content.message; base.ip = content.ip; base.loc = content.loc;
+      myRef.set(base);
+    }
   }
   function connectFirebase(config, room) {
     if (!firebase.apps.length) firebase.initializeApp(config);
@@ -354,13 +399,21 @@
 
     usersRef.on("value", function (snap) {
       var val = snap.val() || {};
-      others = {};
-      Object.keys(val).forEach(function (id) {
-        if (id === MY_ID) return;
-        others[id] = val[id];
-        maybeNotify(val[id]);
+      var ids = Object.keys(val).filter(function (id) { return id !== MY_ID; });
+      Promise.all(ids.map(function (id) {
+        var d = val[id];
+        var make = function (c) { return { id: d.id, status: d.status || "offline", tz: d.tz || "UTC", updatedAt: d.updatedAt || 0, name: c.name || "匿名", message: c.message || "", ip: c.ip || "", loc: c.loc || "" }; };
+        if (d.enc) {
+          return decryptStr(d.enc).then(function (b) {
+            return b ? make(b) : make({ name: "🔒 加密内容", message: "（加密口令不符，无法解密）", ip: "", loc: "" });
+          });
+        }
+        return Promise.resolve(make({ name: d.name, message: d.message, ip: d.ip, loc: d.loc }));
+      })).then(function (arr) {
+        others = {};
+        arr.forEach(function (o) { others[o.id] = o; maybeNotify(o); });
+        render();
       });
-      render();
     }, function (err) {
       setConn("offline", "读取失败");
       alert("连接数据库失败：" + (err && err.message || err) + "\n\n多半是数据库规则不允许读写，请按设置里的步骤把规则设为允许，或用「测试模式」。");
@@ -443,8 +496,10 @@
   function flash(el, msg) { el.textContent = msg; el.className = "ok-flash"; setTimeout(function () { el.textContent = ""; }, 2000); }
   function b64uEnc(str) { return btoa(unescape(encodeURIComponent(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
   function b64uDec(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return decodeURIComponent(escape(atob(s))); }
-  function buildShareLink(config, room) {
-    return location.origin + location.pathname + "#cfg=" + b64uEnc(JSON.stringify(config)) + "&room=" + encodeURIComponent(room);
+  function buildShareLink(config, room, key) {
+    var u = location.origin + location.pathname + "#cfg=" + b64uEnc(JSON.stringify(config)) + "&room=" + encodeURIComponent(room);
+    if (key) u += "&k=" + b64uEnc(key);   // 口令放在 hash 里，仅客户端、不会发往服务器
+    return u;
   }
   $("saveBtn").onclick = function () {
     var room = roomIn.value.trim();
@@ -454,6 +509,7 @@
     catch (err) { alert("Firebase 配置解析失败：" + err.message); return; }
     LS.setItem("ws_fb_cfg", JSON.stringify(config));
     LS.setItem("ws_fb_room", room);
+    LS.setItem("ws_fb_key", keyIn.value);   // 口令仅存本机，绝不写入数据库
     location.href = location.origin + location.pathname;   // 干净重载，进入已配置状态
     location.reload();
   };
@@ -476,16 +532,17 @@
       .catch(function (e) { alert("清空失败：" + (e && e.message || e)); });
   };
 
-  // 解析链接里的配置：#cfg=...&room=...
+  // 解析链接里的配置：#cfg=...&room=...&k=...
   function readHash() {
     var h = location.hash || "";
     if (h.indexOf("cfg=") < 0) return null;
     try {
-      var cfgM = h.match(/cfg=([^&]+)/), roomM = h.match(/room=([^&]+)/);
+      var cfgM = h.match(/cfg=([^&]+)/), roomM = h.match(/room=([^&]+)/), kM = h.match(/k=([^&]+)/);
       if (!cfgM) return null;
       var config = JSON.parse(b64uDec(cfgM[1]));
       var room = roomM ? decodeURIComponent(roomM[1]) : "";
-      return { config: config, room: room };
+      var key = kM ? b64uDec(kM[1]) : "";
+      return { config: config, room: room, key: key };
     } catch (e) { return null; }
   }
 
@@ -496,10 +553,14 @@
   if (fromHash) {
     LS.setItem("ws_fb_cfg", JSON.stringify(fromHash.config));
     if (fromHash.room) LS.setItem("ws_fb_room", fromHash.room);
+    LS.setItem("ws_fb_key", fromHash.key || "");
     history.replaceState(null, "", location.pathname + location.search);
   }
 
   var savedCfg = LS.getItem("ws_fb_cfg"), savedRoom = LS.getItem("ws_fb_room") || "";
+  var savedKey = LS.getItem("ws_fb_key") || "";
+  SECRET = savedKey;
+  keyIn.value = savedKey;
   var cfgObj = null;
   if (savedCfg) { try { cfgObj = JSON.parse(savedCfg); } catch (e) {} }
   if (!cfgObj) cfgObj = BUILTIN_CONFIG;                 // 没存过就用内置默认配置
@@ -509,8 +570,8 @@
   if (cfgObj && room) {
     try {
       connectFirebase(cfgObj, room);
-      $("shareLink").value = buildShareLink(cfgObj, room);
-      $("setupState").textContent = "· 已连接房间「" + room + "」";
+      $("shareLink").value = buildShareLink(cfgObj, room, savedKey);
+      $("setupState").textContent = "· 已连接房间「" + room + "」" + (savedKey ? " · 🔒已加密" : "");
     } catch (err) {
       setConn("offline", "初始化失败");
       alert("Firebase 初始化失败：" + (err && err.message || err));
