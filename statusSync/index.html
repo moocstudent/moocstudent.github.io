@@ -195,17 +195,9 @@
 (function () {
   "use strict";
 
-  // 内置默认 Firebase 配置（无需手动粘贴；下方仍可覆盖或改房间）
-  var BUILTIN_CONFIG = {
-    apiKey: "***REMOVED***",
-    authDomain: "statussync-4b436.firebaseapp.com",
-    databaseURL: "https://statussync-4b436-default-rtdb.firebaseio.com",
-    projectId: "statussync-4b436",
-    storageBucket: "statussync-4b436.firebasestorage.app",
-    messagingSenderId: "244540775131",
-    appId: "1:244540775131:web:e168e34d4f03711e0b0afe"
-  };
-  var DEFAULT_ROOM = "main";
+  // 不再内置任何 Firebase 配置（避免把可写库的凭证公开）。须自带配置或用邀请链接。
+  var BUILTIN_CONFIG = null;
+  var DEFAULT_ROOM = "";
 
   var STATUSES = [
     { key: "working", label: "工作中", ic: "💼", color: "#34d399" },
@@ -563,9 +555,9 @@
   keyIn.value = savedKey;
   var cfgObj = null;
   if (savedCfg) { try { cfgObj = JSON.parse(savedCfg); } catch (e) {} }
-  if (!cfgObj) cfgObj = BUILTIN_CONFIG;                 // 没存过就用内置默认配置
-  var room = savedRoom || DEFAULT_ROOM;                 // 没填过就用默认房间
-  cfgIn.value = JSON.stringify(cfgObj, null, 2);
+  if (!cfgObj) cfgObj = BUILTIN_CONFIG;                 // 现在没有内置配置 → 仍为 null
+  var room = savedRoom || DEFAULT_ROOM;
+  cfgIn.value = cfgObj ? JSON.stringify(cfgObj, null, 2) : "";
   roomIn.value = room;
   if (cfgObj && room) {
     try {
