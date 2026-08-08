@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>坚持到最后一发炮弹 — 《狂怒》中的战争老爹 | Hold the Crossroads — Wardaddy in Fury</title>
+<meta name="description" content="布拉德·皮特在《狂怒》(2014) 中的战争老爹——一篇关于坚持、以及就业、教育与梦想的双语影评。">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="坚持到最后一发炮弹 — 《狂怒》中的战争老爹 | Hold the Crossroads — Wardaddy in Fury">
+<meta property="og:description" content="布拉德·皮特在《狂怒》(2014) 中的战争老爹——一篇关于坚持、以及就业、教育与梦想的双语影评。">
+<meta property="og:image" content="assets/poster.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>%F0%9F%94%A5</text></svg>">
+</head>
+<body>
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --ground:#DFD9C8;
+  --ground-2:#D2CAB6;
+  --plate:#C6BDA6;
+  --ink:#1B1A13;
+  --ink-soft:#4C4838;
+  --ink-faint:#7A745E;
+  --rule:#B2A88C;
+  --steel:#666A61;
+  --accent:#A03B1E;
+  --brass:#87661C;
+  --frame:#0F100B;
+  --frame-ink:#DCD6C3;
+  --frame-faint:#8B8874;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ground:#131309;
+    --ground-2:#1C1D14;
+    --plate:#23241A;
+    --ink:#E6E1CF;
+    --ink-soft:#A9A48D;
+    --ink-faint:#7C7862;
+    --rule:#33352A;
+    --steel:#828779;
+    --accent:#D7592D;
+    --brass:#C09843;
+    --frame:#0C0D08;
+    --frame-ink:#E6E1CF;
+    --frame-faint:#8B8874;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#131309;
+  --ground-2:#1C1D14;
+  --plate:#23241A;
+  --ink:#E6E1CF;
+  --ink-soft:#A9A48D;
+  --ink-faint:#7C7862;
+  --rule:#33352A;
+  --steel:#828779;
+  --accent:#D7592D;
+  --brass:#C09843;
+  --frame:#0C0D08;
+  --frame-ink:#E6E1CF;
+  --frame-faint:#8B8874;
+}
+:root[data-theme="light"]{
+  --ground:#DFD9C8;
+  --ground-2:#D2CAB6;
+  --plate:#C6BDA6;
+  --ink:#1B1A13;
+  --ink-soft:#4C4838;
+  --ink-faint:#7A745E;
+  --rule:#B2A88C;
+  --steel:#666A61;
+  --accent:#A03B1E;
+  --brass:#87661C;
+  --frame:#0F100B;
+  --frame-ink:#DCD6C3;
+  --frame-faint:#8B8874;
+}
+
+:root{
+  --f-cjk-serif:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC","SimSun","STZhongsong",serif;
+  --f-cjk-sans:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Source Han Sans SC",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+  --f-display:var(--f-cjk-serif);
+  --f-body:var(--f-cjk-sans);
+  --step-0:1.0625rem;
+  --step-1:1.1875rem;
+  --step-2:clamp(1.35rem,1.05rem + 1.1vw,1.75rem);
+  --step-3:clamp(1.7rem,1.25rem + 2vw,2.5rem);
+  --step-4:clamp(2.4rem,1.4rem + 4.6vw,4.6rem);
+}
+:root[data-lang="en"]{
+  --f-display:"Haettenschweiler","Arial Narrow","Helvetica Neue Condensed Bold","Oswald",Impact,sans-serif;
+  --f-body:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:var(--step-0);
+  line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+[data-lang="zh"] [data-l="en"]{display:none !important}
+[data-lang="en"] [data-l="zh"]{display:none !important}
+
+/* ---------- top bar ---------- */
+.bar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.55rem clamp(1rem,4vw,2.5rem);
+  background:color-mix(in srgb, var(--ground) 86%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--rule);
+  font-family:var(--f-mono);
+  font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.bar__id{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.switch{display:flex;border:1px solid var(--rule);flex:none}
+.switch button{
+  font:inherit;letter-spacing:.16em;
+  background:none;border:0;color:var(--ink-faint);
+  padding:.3rem .7rem;cursor:pointer;
+}
+.switch button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+.switch button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* ---------- page column ---------- */
+:root{--col:35rem;--col-wide:54rem;--pad:1.15rem}
+.page{
+  display:flex;flex-direction:column;align-items:center;
+  gap:1.15rem;
+  padding-bottom:6rem;
+}
+.page > *{width:min(100% - (var(--pad) * 2), var(--col))}
+.page > .wide{width:min(100% - (var(--pad) * 2), var(--col-wide))}
+.page > .full{width:100%}
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative;
+  background:var(--frame);
+  color:var(--frame-ink);
+  overflow:hidden;
+  padding:clamp(3rem,9vw,7rem) clamp(1.15rem,5vw,4rem) 0;
+  margin-bottom:1.4rem;
+  isolation:isolate;
+}
+.hero__inner{
+  max-width:72rem;margin:0 auto;position:relative;z-index:3;
+  display:grid;grid-template-columns:1fr;gap:clamp(2.2rem,5vw,3.5rem);align-items:center;
+  padding-bottom:clamp(2.5rem,7vw,5rem);
+}
+@media (min-width:62rem){ .hero__inner{grid-template-columns:1.02fr .98fr} }
+.hero__poster{margin:0}
+.hero__poster img{
+  display:block;width:100%;height:auto;
+  border:1px solid rgba(220,214,195,.2);
+  box-shadow:0 26px 64px rgba(0,0,0,.6);
+}
+.hero__poster figcaption{
+  margin-top:.75rem;font-family:var(--f-mono);font-size:.63rem;line-height:1.75;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--frame-faint);
+}
+.hero__eyebrow{
+  font-family:var(--f-mono);font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 1.6rem;
+}
+.hero__eyebrow span{color:var(--frame-faint)}
+.hero h1{
+  font-family:var(--f-display);
+  font-size:var(--step-4);
+  line-height:.98;
+  font-weight:700;
+  margin:0 0 1.4rem;
+  text-wrap:balance;
+  letter-spacing:-.005em;
+}
+:root[data-lang="en"] .hero h1{letter-spacing:.01em;text-transform:uppercase}
+.hero__deck{
+  font-size:clamp(1.02rem,.95rem + .45vw,1.28rem);
+  line-height:1.68;
+  color:var(--frame-faint);
+  max-width:46ch;margin:0 0 clamp(2rem,5vw,3.5rem);
+}
+.hero__deck b{color:var(--frame-ink);font-weight:inherit;border-bottom:1px solid var(--accent);padding-bottom:.05em}
+.hero__grain{position:absolute;inset:0;z-index:2;opacity:.16;mix-blend-mode:screen;pointer-events:none}
+.hero__smoke{
+  position:absolute;left:-25%;right:-25%;bottom:0;height:70%;z-index:1;pointer-events:none;
+  background:radial-gradient(60% 100% at 30% 100%, rgba(215,89,45,.22), transparent 70%),
+             radial-gradient(50% 100% at 75% 100%, rgba(192,152,67,.16), transparent 72%);
+  animation:drift 34s ease-in-out infinite alternate;
+}
+@keyframes drift{from{transform:translate3d(-3%,0,0) scaleY(1)}to{transform:translate3d(3%,0,0) scaleY(1.12)}}
+
+/* ---------- closing tank band ---------- */
+.band{
+  background:var(--frame);
+  padding:clamp(1.6rem,4vw,2.6rem) clamp(1.15rem,4vw,3rem) clamp(1.3rem,3vw,2rem);
+  margin-top:clamp(2.6rem,6vw,4rem);
+}
+.plate{display:block;width:100%;max-width:62rem;margin:0 auto}
+.plate .horizon{fill:none;stroke:rgba(220,214,195,.22);stroke-width:1}
+.plate .hull{fill:#06070A}
+.band p{
+  max-width:62rem;margin:.9rem auto 0;
+  font-family:var(--f-mono);font-size:.66rem;line-height:1.85;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--frame-faint);
+}
+
+/* ---------- film stills ---------- */
+.shot{margin:clamp(2.2rem,5.5vw,3.4rem) 0}
+.shot img{display:block;width:100%;height:auto;border:1px solid var(--rule)}
+.shot figcaption{
+  margin-top:.8rem;font-family:var(--f-mono);font-size:.73rem;line-height:1.72;
+  letter-spacing:.04em;color:var(--ink-faint);
+}
+.shot figcaption b{
+  display:block;color:var(--accent);font-weight:400;
+  letter-spacing:.18em;text-transform:uppercase;font-size:.65rem;margin-bottom:.35rem;
+}
+
+/* ---------- section heads ---------- */
+.sec{
+  display:flex;align-items:baseline;gap:.9rem;
+  margin:clamp(2.6rem,6vw,4.5rem) 0 .2rem;
+  padding-top:1.4rem;
+  border-top:1px solid var(--rule);
+}
+.sec__no{
+  font-family:var(--f-mono);font-size:.72rem;letter-spacing:.2em;
+  color:var(--accent);
+  border:1px solid var(--accent);
+  padding:.14rem .45rem;flex:none;
+  transform:translateY(-.15em);
+}
+.sec h2{
+  font-family:var(--f-display);
+  font-size:var(--step-3);line-height:1.12;margin:0;font-weight:700;text-wrap:balance;
+}
+:root[data-lang="en"] .sec h2{text-transform:uppercase;letter-spacing:.01em}
+
+p{margin:0}
+strong{font-weight:700;color:var(--ink)}
+:root[data-lang="zh"] strong{
+  background:linear-gradient(transparent 62%, color-mix(in srgb,var(--brass) 35%,transparent) 62%);
+}
+em{font-style:italic;color:var(--ink-soft)}
+a{color:var(--accent);text-underline-offset:.2em;text-decoration-thickness:1px}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- pull quote ---------- */
+.quote{
+  margin:clamp(2rem,5vw,3.2rem) 0;
+  background:var(--plate);
+  border-left:4px solid var(--accent);
+  padding:clamp(1.4rem,4vw,2.4rem);
+  position:relative;
+}
+.quote blockquote{
+  margin:0;font-family:var(--f-display);
+  font-size:var(--step-2);line-height:1.32;font-weight:700;text-wrap:balance;
+}
+:root[data-lang="en"] .quote blockquote{text-transform:uppercase}
+.quote cite{
+  display:block;margin-top:.9rem;font-style:normal;
+  font-family:var(--f-mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);
+}
+
+/* ---------- figures ---------- */
+figure{margin:clamp(2rem,5vw,3rem) 0}
+figure svg{display:block;width:100%;height:auto;background:var(--ground-2);border:1px solid var(--rule)}
+figcaption{
+  margin-top:.7rem;font-family:var(--f-mono);font-size:.7rem;line-height:1.6;
+  letter-spacing:.06em;color:var(--ink-faint);
+}
+.fig-t{font-family:var(--f-mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;fill:var(--ink-faint)}
+.fig-l{font-family:var(--f-mono);font-size:15px;letter-spacing:.04em;fill:var(--ink)}
+.fig-n{font-family:var(--f-mono);font-size:13px;fill:var(--accent)}
+.fig-line{stroke:var(--rule);stroke-width:1;fill:none}
+.fig-body{fill:none;stroke:var(--steel);stroke-width:1.5}
+.fig-dot{fill:var(--accent)}
+
+/* ---------- arc (numbered sequence) ---------- */
+.arc{list-style:none;margin:clamp(1.8rem,4vw,2.6rem) 0;padding:0;display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.arc li{background:var(--ground);padding:1.05rem 1.15rem;display:grid;grid-template-columns:2.6rem 1fr;gap:.9rem;align-items:start}
+.arc b{
+  font-family:var(--f-mono);font-size:.78rem;letter-spacing:.1em;color:var(--accent);
+  border-bottom:1px solid var(--accent);padding-bottom:.15rem;align-self:start;
+}
+.arc h3{margin:0 0 .25rem;font-family:var(--f-display);font-size:1.06rem;line-height:1.3;font-weight:700}
+:root[data-lang="en"] .arc h3{text-transform:uppercase;letter-spacing:.02em;font-size:1.2rem}
+.arc p{font-size:.96rem;line-height:1.66;color:var(--ink-soft)}
+
+/* ---------- decision grid ---------- */
+.grid4{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--rule);
+  border:1px solid var(--rule);margin:1.6rem 0 .8rem;
+}
+.grid4 > div{background:var(--ground);padding:1.1rem 1.15rem;display:flex;flex-direction:column;gap:.45rem}
+.grid4 .tag{font-family:var(--f-mono);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint)}
+.grid4 h3{margin:0;font-family:var(--f-display);font-size:1.12rem;line-height:1.25;font-weight:700}
+:root[data-lang="en"] .grid4 h3{text-transform:uppercase}
+.grid4 p{font-size:.93rem;line-height:1.62;color:var(--ink-soft)}
+.grid4 .hot h3{color:var(--accent)}
+.grid4 .hot{box-shadow:inset 3px 0 0 var(--accent)}
+.axes{
+  display:flex;justify-content:space-between;gap:1rem;
+  font-family:var(--f-mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);
+}
+@media (max-width:34rem){ .grid4{grid-template-columns:1fr} }
+
+/* ---------- notes / sources ---------- */
+.note{
+  background:var(--ground-2);border:1px solid var(--rule);
+  padding:1.2rem 1.25rem;font-size:.94rem;line-height:1.68;color:var(--ink-soft);
+  margin-top:clamp(2.4rem,6vw,4rem);
+}
+.note h3{margin:0 0 .6rem;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink)}
+.srcs{list-style:none;margin:.6rem 0 0;padding:0;display:grid;gap:.35rem;font-family:var(--f-mono);font-size:.76rem}
+.srcs a{word-break:break-word}
+
+.end{
+  margin-top:clamp(2.6rem,6vw,4rem);padding-top:1.3rem;border-top:1px solid var(--rule);
+  font-family:var(--f-mono);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-faint);
+}
+
+/* ---------- reveal ---------- */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  .hero__smoke{animation:none}
+}
+</style>
+
+<div class="bar">
+  <div class="bar__id">FURY (2014) · David Ayer · Sony Pictures · <span data-l="zh">影评与评述</span><span data-l="en">Essay &amp; appraisal</span></div>
+  <div class="switch" role="group" aria-label="Language">
+    <button type="button" data-set="zh" aria-pressed="true">中文</button>
+    <button type="button" data-set="en" aria-pressed="false">EN</button>
+  </div>
+</div>
+
+<header class="hero">
+  <canvas class="hero__grain" aria-hidden="true"></canvas>
+  <div class="hero__smoke" aria-hidden="true"></div>
+
+  <div class="hero__inner">
+    <div class="hero__text">
+    <p class="hero__eyebrow">
+      <span data-l="zh">1945年4月 · 德国腹地 · 第2装甲师</span>
+      <span data-l="en">April 1945 · Inside Germany · 2nd Armored Division</span>
+      &nbsp;<span>//</span>&nbsp; M4A3E8 “FURY”
+    </p>
+
+    <h1>
+      <span data-l="zh">坚持到<br>最后一发炮弹</span>
+      <span data-l="en">Hold the<br>Crossroads</span>
+    </h1>
+
+    <p class="hero__deck">
+      <span data-l="zh">布拉德·皮特在《狂怒》里演的不是英雄，是一个<b>知道自己会输、还是决定守住路口的人</b>。十二年过去，我们仍在谈论这个角色——因为就业、教育、梦想这三件事，正把同一道题重新摆到每个人面前：什么值得你留下来？</span>
+      <span data-l="en">Brad Pitt does not play a hero in Fury. He plays a man who <b>knows the fight is lost and holds the crossroads anyway</b>. Twelve years on we still argue about him — because work, education and ambition keep putting the same question back in front of us: what is worth staying for?</span>
+    </p>
+    </div>
+
+    <figure class="hero__poster">
+      <img src="assets/poster.jpg" width="1200" height="759" alt="Fury 先导海报：科利尔伏在炮管上，炮管上手写着 FURY">
+      <figcaption>
+        <span data-l="zh">先导海报 · 他趴在自己的炮管上休息 · © 2014 哥伦比亚影业 / 索尼</span>
+        <span data-l="en">Teaser poster · resting on his own gun barrel · © 2014 Columbia Pictures / Sony</span>
+      </figcaption>
+    </figure>
+  </div>
+</header>
+
+<article class="page">
+
+  <!-- ============ 01 ============ -->
+  <div class="sec reveal">
+    <span class="sec__no">01</span>
+    <h2><span data-l="zh">「我干过最好的工作」</span><span data-l="en">Best job I ever had</span></h2>
+  </div>
+
+  <p class="reveal" data-l="zh">1945年4月，欧洲战场只剩下几周。所有人都知道结局，包括德国人自己。就在这个时候，一辆叫「狂怒」的 M4A3E8 谢尔曼坦克还在往德国腹地开。</p>
+  <p class="reveal" data-l="en">April 1945. Europe has weeks left to run and everybody knows it, the Germans included. And an M4A3E8 Sherman named <em>Fury</em> is still driving deeper into Germany.</p>
+
+  <p class="reveal" data-l="zh">车长是唐·科利尔中士，绰号 战争老爹（Wardaddy）。全片被重复最多的一句台词，是他嘴里的五个词：<strong>Best job I ever had</strong>——我干过最好的工作。</p>
+  <p class="reveal" data-l="en">Its commander is Staff Sergeant Don “Wardaddy” Collier. The single most repeated line in the film is five words out of his mouth: <strong>“Best job I ever had.”</strong></p>
+
+  <p class="reveal" data-l="zh">第一次听到，它像反讽。他的「工作」是钻进一个铁盒子：柴油、汗、火药和血的味道混在一起，上一个副驾驶的半张脸还留在他脚边的钢板上，他得亲手把它擦掉。这份工作一点都不好。</p>
+  <p class="reveal" data-l="en">The first time you hear it, it lands as irony. His “job” is a steel box that smells of diesel, sweat, cordite and blood; part of the last assistant driver’s face is still on the plating by his boot, and he has to wipe it off himself. Nothing about the job is good.</p>
+
+  <p class="reveal" data-l="zh">但每打完一仗，全车人会轮流把这句话说一遍。它慢慢变成了别的东西——不是对工作条件的评价，而是一种<strong>把自己按回岗位上的方法</strong>。它真正的意思是：我认这个位置。</p>
+  <p class="reveal" data-l="en">Yet after every action the crew passes the line around like a canteen. It stops being a verdict on working conditions and becomes something else — <strong>a way of pressing yourself back into your seat</strong>. What it actually means is: I accept this position.</p>
+
+  <p class="reveal" data-l="zh">皮特这场表演最厉害的地方，是他从不演「燃」。他把科利尔演成一个<em>长期在岗的人</em>：疲惫、精算、说话短、几乎不解释；只有在没人看见的时候，他会背过身去发抖一下，然后转回来，继续下命令。这不是英雄气概，这是职业耐力。一个把「撑住」当成日常技术活的人，长什么样——他演出来了。</p>
+  <p class="reveal" data-l="en">The best thing about Pitt’s performance is that he never plays the swell of it. He plays Collier as <em>a man long on the job</em>: tired, calculating, short-spoken, allergic to explanation. Only when nobody is watching does he turn away and shake for a second before turning back and issuing the next order. That is not heroism. That is occupational endurance — what it looks like when holding on has become a daily technical skill.</p>
+
+  <div class="quote reveal">
+    <blockquote>
+      <span data-l="zh">「理想是和平的。历史是暴力的。」</span>
+      <span data-l="en">“Ideals are peaceful. History is violent.”</span>
+    </blockquote>
+    <cite data-l="zh">唐·科利尔（战争老爹）· 《狂怒》(2014)</cite>
+    <cite data-l="en">Don “Wardaddy” Collier · Fury (2014)</cite>
+  </div>
+
+  <!-- ============ 02 ============ -->
+  <div class="sec reveal">
+    <span class="sec__no">02</span>
+    <h2><span data-l="zh">五个人，一辆坦克：岗位不是身份</span><span data-l="en">Five men, one tank: a station is not an identity</span></h2>
+  </div>
+
+  <p class="reveal" data-l="zh">谢尔曼是一台需要五个人同时工作的机器。少一个人，整台机器的战斗力不是掉五分之一，而是掉到零。《狂怒》几乎所有的戏剧张力都建在这个结构上：<strong>这是一个没有替补席的团队</strong>。</p>
+  <p class="reveal" data-l="en">A Sherman is a machine that needs five people working at once. Lose one and the machine does not lose a fifth of its fighting power — it goes to zero. Almost all of the film’s tension is built on that fact: <strong>this is a team with no bench</strong>.</p>
+
+  <figure class="wide reveal">
+    <svg viewBox="0 0 900 380" role="img" aria-label="Crew stations diagram">
+      <text class="fig-t" x="24" y="32" data-l="zh">车组编制 · 五个岗位 · M4A3E8</text>
+      <text class="fig-t" x="24" y="32" data-l="en">Crew stations · five roles · M4A3E8</text>
+      <line class="fig-line" x1="24" y1="48" x2="876" y2="48"></line>
+
+      <!-- turret ring -->
+      <circle class="fig-body" cx="280" cy="180" r="88"></circle>
+      <text class="fig-t" x="280" y="316" text-anchor="middle" data-l="zh">炮塔</text>
+      <text class="fig-t" x="280" y="316" text-anchor="middle" data-l="en">Turret</text>
+
+      <!-- hull box -->
+      <rect class="fig-body" x="470" y="110" width="340" height="140"></rect>
+      <text class="fig-t" x="640" y="316" text-anchor="middle" data-l="zh">车体</text>
+      <text class="fig-t" x="640" y="316" text-anchor="middle" data-l="en">Hull</text>
+
+      <line class="fig-line" x1="368" y1="180" x2="470" y2="180" stroke-dasharray="5 5"></line>
+
+      <!-- turret stations -->
+      <circle class="fig-dot" cx="280" cy="92" r="6"></circle>
+      <text class="fig-l" x="280" y="72" text-anchor="middle" data-l="zh">车长 · 战争老爹</text>
+      <text class="fig-l" x="280" y="72" text-anchor="middle" data-l="en">Commander · Wardaddy</text>
+
+      <circle class="fig-dot" cx="218" cy="242" r="6"></circle>
+      <text class="fig-l" x="196" y="272" text-anchor="end" data-l="zh">炮手 · 圣经</text>
+      <text class="fig-l" x="196" y="272" text-anchor="end" data-l="en">Gunner · Bible</text>
+
+      <circle class="fig-dot" cx="342" cy="242" r="6"></circle>
+      <text class="fig-l" x="364" y="272" data-l="zh">装填手 · 格雷迪</text>
+      <text class="fig-l" x="364" y="272" data-l="en">Loader · Grady</text>
+
+      <!-- hull stations -->
+      <circle class="fig-dot" cx="560" cy="180" r="6"></circle>
+      <text class="fig-l" x="560" y="158" text-anchor="middle" data-l="zh">驾驶员 · 戈多</text>
+      <text class="fig-l" x="560" y="158" text-anchor="middle" data-l="en">Driver · Gordo</text>
+
+      <circle class="fig-dot" cx="720" cy="180" r="6"></circle>
+      <text class="fig-l" x="720" y="158" text-anchor="middle" data-l="zh">副驾驶 · 诺曼</text>
+      <text class="fig-l" x="720" y="158" text-anchor="middle" data-l="en">Bow gunner · Norman</text>
+      <text class="fig-n" x="720" y="212" text-anchor="middle" data-l="zh">入伍第 8 周</text>
+      <text class="fig-n" x="720" y="212" text-anchor="middle" data-l="en">8 weeks in uniform</text>
+
+      <text class="fig-t" x="24" y="358" data-l="zh">少一个人 = 整车归零 · 原创示意图</text>
+      <text class="fig-t" x="24" y="358" data-l="en">Lose one seat and the whole vehicle goes to zero · original diagram</text>
+    </svg>
+    <figcaption data-l="zh">五个岗位彼此咬合：车长看见战场，炮手看见十字线，装填手只看见炮弹，驾驶员只看见泥。没有人拥有全景，但所有人必须同步。</figcaption>
+    <figcaption data-l="en">Five interlocking stations: the commander sees the battlefield, the gunner sees crosshairs, the loader sees shells, the driver sees mud. Nobody owns the whole picture, and everyone must move together.</figcaption>
+  </figure>
+
+  <figure class="shot wide reveal">
+    <img src="assets/crew.jpg" width="1200" height="790" loading="lazy" alt="狂怒号车组与搭车的步兵挤在坦克上，炮管指向镜头">
+    <figcaption>
+      <b data-l="zh">车组 · 以及所有搭这趟车的人</b>
+      <b data-l="en">The crew · and everyone riding along</b>
+      <span data-l="zh">没有人在看同一个方向，但他们坐在同一块钢板上。坦克开动的那一刻，个人的判断就让位给了车组的节奏。© 2014 哥伦比亚影业 / 索尼</span>
+      <span data-l="en">Nobody is looking the same way, and they are all sitting on the same plate of steel. The moment it moves, individual judgement gives way to the crew’s tempo. © 2014 Columbia Pictures / Sony</span>
+    </figcaption>
+  </figure>
+
+  <p class="reveal" data-l="zh">值得注意的是科利尔怎么分配位置。他不问「你想干什么」，他问「这台机器现在缺什么」。诺曼·埃里森是个每分钟能打六十字的文书兵，被塞进坦克当副驾驶——荒谬，但战场就是这么配人的。<strong>岗位是机器的需要，不是你的自我介绍。</strong></p>
+  <p class="reveal" data-l="en">Notice how Collier assigns seats. He never asks what you want to do; he asks what the machine is missing. Norman Ellison is a clerk-typist who does sixty words a minute, and he gets dropped into a tank as bow gunner — absurd, and exactly how war staffs people. <strong>A station is what the machine needs, not your self-introduction.</strong></p>
+
+  <p class="reveal" data-l="zh">这一点对今天的求职者刺耳，但有用。很多人的职业焦虑，本质是把「我是谁」和「我此刻坐在哪个位置」焊死了：一旦岗位不体面、不对口、不是当初想要的，人就整个塌掉。科利尔的做法相反——他把身份挂在<em>能不能让这台机器继续开</em>上，而不是挂在职位名称上。这不是让你认命，是让你在位置很烂的那几年里，仍然保留一个可以变强的支点。</p>
+  <p class="reveal" data-l="en">That is a harsh note for anyone job-hunting today, and a useful one. A lot of career anxiety comes from welding “who I am” to “where I happen to be sitting”: the moment the role is unglamorous, off-track, or not the one you wanted, the whole person caves in. Collier does the opposite. He hangs identity on <em>whether the machine keeps moving</em>, not on a job title. That is not resignation — it is how you keep a foothold for getting better during the years when the seat is bad.</p>
+
+  <!-- ============ 03 ============ -->
+  <div class="sec reveal">
+    <span class="sec__no">03</span>
+    <h2><span data-l="zh">诺曼的五天：教育交付不了的那部分</span><span data-l="en">Norman’s five days: the part school cannot deliver</span></h2>
+  </div>
+
+  <p class="reveal" data-l="zh">《狂怒》名义上是皮特的电影，实际上是诺曼的成长故事，而皮特演的是那个把成长强行灌进去的人。这条线之所以让人不适，正因为它诚实：<strong>新人不是被教会的，是被放到真实责任里逼出来的。</strong></p>
+  <p class="reveal" data-l="en">Fury is nominally Pitt’s film; structurally it is Norman’s coming-of-age, and Pitt plays the man force-feeding that education. The thread is uncomfortable because it is honest: <strong>a novice is not taught into competence, he is pushed into real responsibility until it appears.</strong></p>
+
+  <figure class="shot wide reveal">
+    <img src="assets/assignment.jpg" width="1200" height="793" loading="lazy" alt="泥泞的野战营地里，科利尔伸手指着刚报到的诺曼">
+    <figcaption>
+      <b data-l="zh">报到 · 泥地里的第一次分配</b>
+      <b data-l="en">Reporting in · the first assignment, in the mud</b>
+      <span data-l="zh">他没有问诺曼会什么、想干什么。他伸手一指，位置就定了——这就是绝大多数人真实的入职流程。© 2014 哥伦比亚影业 / 索尼</span>
+      <span data-l="en">He does not ask what Norman can do or wants to do. He points, and the seat is assigned — which is how most people’s first day actually goes. © 2014 Columbia Pictures / Sony</span>
+    </figcaption>
+  </figure>
+
+  <ol class="arc reveal">
+    <li>
+      <b>01</b>
+      <div>
+        <h3><span data-l="zh">报到</span><span data-l="en">Reporting in</span></h3>
+        <p data-l="zh">八周兵龄，专业是打字。他连坦克的门都不知道从哪儿开。派他来的人不在乎，因为战线不等他。</p>
+        <p data-l="en">Eight weeks in uniform, trained to type. He does not know which hatch is his. The people who assigned him do not care, because the front does not wait.</p>
+      </div>
+    </li>
+    <li>
+      <b>02</b>
+      <div>
+        <h3><span data-l="zh">第一次拒绝</span><span data-l="en">The first refusal</span></h3>
+        <p data-l="zh">他不肯开枪。代价立刻具体化：整车人的命被挂在他的犹豫上。电影没给他「慢慢适应」的时间——现实里往往也没有。</p>
+        <p data-l="en">He will not fire. The cost is instantly concrete: four other lives hang on his hesitation. The film gives him no ramp-up period, and reality often doesn’t either.</p>
+      </div>
+    </li>
+    <li>
+      <b>03</b>
+      <div>
+        <h3><span data-l="zh">被按着开的第一枪</span><span data-l="en">The first shot, forced</span></h3>
+        <p data-l="zh">科利尔押着他处决一名德军战俘。这是全片最不舒服的一场戏，也是本文必须说清楚的一点：<em>这个教法是错的</em>。它有效，但它把一个人的道德底线当成训练消耗品。</p>
+        <p data-l="en">Collier forces his hand onto the trigger over a German prisoner. It is the film’s most repellent scene, and the honest reading has to say so plainly: <em>the method is wrong</em>. It works, and it spends a man’s moral floor as training material.</p>
+      </div>
+    </li>
+    <li>
+      <b>04</b>
+      <div>
+        <h3><span data-l="zh">那顿早餐</span><span data-l="en">The breakfast</span></h3>
+        <p data-l="zh">在一间德国公寓里，诺曼短暂地做回了人：钢琴、鸡蛋、艾玛。然后一发炮弹把它拿走。电影用最直白的方式说明：战场不允许你保留一份并行的正常生活。</p>
+        <p data-l="en">In a German apartment Norman is briefly a person again: a piano, eggs, Emma. Then a shell takes it away. The film’s bluntest statement — the front does not let you keep a parallel normal life running.</p>
+      </div>
+    </li>
+    <li>
+      <b>05</b>
+      <div>
+        <h3><span data-l="zh">路口，他自己选择留下</span><span data-l="en">At the crossroads, he chooses to stay</span></h3>
+        <p data-l="zh">最后一战前，没人再逼他。他自己爬回车里。科利尔给了他一个绰号：<strong>「机器」</strong>。这个绰号既是承认，也是讣告。</p>
+        <p data-l="en">Before the last fight nobody makes him. He climbs back in himself, and Collier gives him a nickname: <strong>“Machine.”</strong> The name is both a promotion and an obituary.</p>
+      </div>
+    </li>
+  </ol>
+
+  <figure class="shot wide reveal">
+    <img src="assets/emma.jpg" width="1200" height="777" loading="lazy" alt="德国公寓里，艾玛坐在床边为诺曼看手相">
+    <figcaption>
+      <b data-l="zh">那顿早餐 · 诺曼与艾玛</b>
+      <b data-l="en">The breakfast · Norman and Emma</b>
+      <span data-l="zh">全片唯一一场没有钢铁的戏。她握着他的手看掌纹——那是电影里最后一次有人把他当成一个有未来的人。© 2014 哥伦比亚影业 / 索尼</span>
+      <span data-l="en">The only scene in the film with no steel in it. She reads his palm — the last time anyone treats him as a person with a future. © 2014 Columbia Pictures / Sony</span>
+    </figcaption>
+  </figure>
+
+  <p class="reveal" data-l="zh">把这条线放回今天，它对应的是一个非常具体的问题：<strong>学校交付的是「理想」，工作现场交付的是「历史」。</strong>课程是完整的、评分是可预期的、题目有标准答案；而现场是信息不全的、目标会变的、没有参考答案的。诺曼会打字、会算，这些能力并不假，只是坐标系换了。</p>
+  <p class="reveal" data-l="en">Transposed to now, that arc points at something concrete: <strong>school delivers the ideal; the job delivers the history.</strong> A syllabus is complete, grading is predictable, questions have answers. A workplace is under-informed, its goals move, and nothing has an answer key. Norman can type and calculate; those skills are not fake. The coordinate system changed.</p>
+
+  <p class="reveal" data-l="zh">所以「毕业即失业」这个说法，一半是真的、一半是误诊。真的部分是：教育本来就<em>不负责</em>交付现场，它交付的是坐标系和学习速度。误诊的部分是：把「我还没被现场训练过」当成「我不行」。诺曼在坦克里五天学到的东西，训练营八周教不了——不是训练营差，是那些东西只能在有真实后果的地方长出来。</p>
+  <p class="reveal" data-l="en">Which makes “graduate straight into unemployment” half true and half a misdiagnosis. True: education is <em>not responsible</em> for delivering the field. It delivers a coordinate system and a learning rate. Misdiagnosed: treating “I have not been trained by the field yet” as “I am not capable.” What Norman learns in five days inside the tank, eight weeks of basic could not teach — not because basic is bad, but because those things only grow where consequences are real.</p>
+
+  <p class="reveal" data-l="zh">对今天的人，这意味着一件实际的事：<strong>尽早找到有真实后果的位置</strong>——真项目、开源仓库、有人会验收的实习、会被客户骂的活。而对带人的人，科利尔留下的是一个反面警示：把新人放进真实责任是对的，用羞辱和越界当教具是错的。这两件事可以分开做，电影没分开，我们可以。</p>
+  <p class="reveal" data-l="en">For anyone starting out, the practical version is: <strong>get to a position with real consequences early</strong> — a real project, an open-source repo, an internship where someone signs off on your work, a job where a customer can shout at you. For anyone leading juniors, Collier is a warning label: putting a novice into real responsibility is right; using humiliation and coercion as the teaching aid is wrong. Those two can be separated. The film doesn’t. We can.</p>
+
+  <!-- ============ 04 ============ -->
+  <div class="sec reveal">
+    <span class="sec__no">04</span>
+    <h2><span data-l="zh">十字路口：坚持不等于殉道</span><span data-l="en">The crossroads: persistence is not martyrdom</span></h2>
+  </div>
+
+  <p class="reveal" data-l="zh">影片最后，一颗地雷把「狂怒」瘫在一个十字路口上，一个党卫军营正沿路开来。科利尔做了那个决定：<strong>不走，守住路口。</strong>其他人一个个选择留下，然后一个个死掉。</p>
+  <p class="reveal" data-l="en">In the last act a mine strands <em>Fury</em> at a crossroads with an SS battalion coming up the road. Collier makes the call: <strong>stay and hold it.</strong> One by one the others choose to stay too, and one by one they are killed.</p>
+
+  <p class="reveal" data-l="zh">这里必须小心。把这场戏读成「坚持就会有好结果」是彻底的误读——他们全死了。也不能读成「所以坚持没用」。<strong>科利尔守的不是这辆坦克，是那个路口</strong>：一条被卡住的补给线，后方一个野战医院。他坚持的对象是一个具体的、可辩护的理由，不是他自己的执念。</p>
+  <p class="reveal" data-l="en">Careful here. Reading the scene as “hold on and it works out” is flatly wrong — they all die. Reading it as “so persistence is pointless” is no better. <strong>Collier is not holding the tank, he is holding the junction</strong>: a supply road, and a field hospital behind it. What he persists for is a specific, defensible reason rather than his own attachment.</p>
+
+  <p class="reveal" data-l="zh">这是把「坚持到底」翻译成现代生活时最容易丢的一步。今天鼓励人硬撑的话术非常多，但很少有人先问：<em>你守的是什么？</em>下面这张表是我从这场戏里拆出来的判断结构——两个问题，四种处境。</p>
+  <p class="reveal" data-l="en">This is the step most often dropped when “never give up” gets translated into modern life. There is no shortage of encouragement to endure, and very little asking of the prior question: <em>what exactly are you holding?</em> The grid below is that scene’s decision structure — two questions, four situations.</p>
+
+  <div class="wide reveal">
+    <div class="axes">
+      <span data-l="zh">纵：你是否还在变强</span><span data-l="zh">横：代价是否可承受</span>
+      <span data-l="en">Down: still getting stronger?</span><span data-l="en">Across: is the cost bearable?</span>
+    </div>
+    <div class="grid4">
+      <div class="hot">
+        <span class="tag" data-l="zh">还在变强 · 代价可承受</span>
+        <span class="tag" data-l="en">Growing · cost bearable</span>
+        <h3><span data-l="zh">守住路口</span><span data-l="en">Hold the crossroads</span></h3>
+        <p data-l="zh">这是唯一真正值得「坚持到底」的一格。慢没关系，难没关系——只要能力线还在往上，身体和关系还没被抵押掉。</p>
+        <p data-l="en">The only square where “see it through” is genuinely the answer. Slow is fine, hard is fine — as long as the skill curve still climbs and you have not mortgaged your body or your people.</p>
+      </div>
+      <div>
+        <span class="tag" data-l="zh">还在变强 · 代价过高</span>
+        <span class="tag" data-l="en">Growing · cost too high</span>
+        <h3><span data-l="zh">换阵地，别换方向</span><span data-l="en">Change ground, not bearing</span></h3>
+        <p data-l="zh">换公司、换城市、换节奏，但别把手艺一起扔掉。多数「我转行失败了」的故事，其实是在这一格里做了整体放弃。</p>
+        <p data-l="en">Change employer, city, tempo — do not throw the craft out with them. Most “my career change failed” stories are a wholesale surrender made from this square.</p>
+      </div>
+      <div>
+        <span class="tag" data-l="zh">不再变强 · 代价可承受</span>
+        <span class="tag" data-l="en">Not growing · cost bearable</span>
+        <h3><span data-l="zh">温水</span><span data-l="en">The warm bath</span></h3>
+        <p data-l="zh">最危险的一格，因为它不疼。稳定、体面、无损耗，但三年后你的能力和三年前一样。它不会逼你走，所以你得自己设期限。</p>
+        <p data-l="en">The most dangerous square, because it does not hurt. Stable, respectable, low-attrition — and in three years you are exactly as capable as you are now. Nothing here will force your hand, so you have to set the clock yourself.</p>
+      </div>
+      <div class="hot">
+        <span class="tag" data-l="zh">不再变强 · 代价过高</span>
+        <span class="tag" data-l="en">Not growing · cost too high</span>
+        <h3><span data-l="zh">从底舱爬出去</span><span data-l="en">Out through the escape hatch</span></h3>
+        <p data-l="zh">科利尔让诺曼从车底逃生口爬出去的那一格。留下不产生任何价值，只产生损耗。撤退在这里不是失败，是唯一正确的战术动作。</p>
+        <p data-l="en">The square where Collier tells Norman to go out through the belly hatch. Staying produces no value, only damage. Withdrawal here is not failure; it is the only correct tactical move.</p>
+      </div>
+    </div>
+    <figcaption data-l="zh">判断结构改写自影片最后一场戏 · 原创图表</figcaption>
+    <figcaption data-l="en">Decision structure abstracted from the film’s final sequence · original chart</figcaption>
+  </div>
+
+  <p class="reveal" data-l="zh">注意最后一格。电影里唯一活下来的人是诺曼，因为科利尔在最后一刻把他从底舱逃生口推了出去。这是全片对「坚持」最完整的定义：<strong>真正的坚持里，总有一部分是替别人留出来的出口。</strong>一个只知道全员殉葬的车长，不是好车长。</p>
+  <p class="reveal" data-l="en">Note that last square. The one survivor is Norman, because at the end Collier pushes him out through the belly hatch. That is the film’s complete definition of persistence: <strong>real persistence always reserves an exit for somebody else.</strong> A commander who only knows how to take everyone down with him is not a good commander.</p>
+
+  <!-- ============ 05 ============ -->
+  <div class="sec reveal">
+    <span class="sec__no">05</span>
+    <h2><span data-l="zh">梦想：不是终点，是你愿意反复回到的位置</span><span data-l="en">Dreams: not a destination, but the seat you keep returning to</span></h2>
+  </div>
+
+  <p class="reveal" data-l="zh">科利尔从头到尾只说过一个愿望，而且说得很小：<em>把我的人活着带回家。</em>他没做到。五个人死了四个。</p>
+  <p class="reveal" data-l="en">Collier states exactly one wish in the whole film, and states it small: <em>get my men home alive.</em> He fails. Four of the five die.</p>
+
+  <p class="reveal" data-l="zh">但这个愿望有一个结构上的好处：它不是一个终点，它是一个<strong>每天都能重新执行一次的方向</strong>。今天很多人的梦想是写成终点的——「我要成为X」「我要三十岁前实现Y」。终点式的梦想很脆：一旦时间表错位、行业下行、一次裁员，它就整个作废，连带着把人一起作废。</p>
+  <p class="reveal" data-l="en">But that wish has a structural advantage: it is not an endpoint, it is <strong>a bearing you can re-execute every single day</strong>. Most modern ambitions are written as endpoints — “I will become X,” “I will have achieved Y by thirty.” Endpoint ambitions are brittle: one slipped timeline, one industry downturn, one layoff and the whole thing is void, and it voids the person with it.</p>
+
+  <figure class="shot wide reveal">
+    <img src="assets/seat.jpg" width="1200" height="788" loading="lazy" alt="诺曼坐在坦克炮塔上，身后炮管上手写着 FURY">
+    <figcaption>
+      <b data-l="zh">位置 · 炮管上那四个手写的字母</b>
+      <b data-l="en">The seat · four letters, hand-painted on the barrel</b>
+      <span data-l="zh">「狂怒」不是编号，是车组自己刷上去的名字。人给自己的位置起了名字之后，那个位置才开始变成他的。© 2014 哥伦比亚影业 / 索尼</span>
+      <span data-l="en">“Fury” is not a serial number; the crew painted it on themselves. A seat only starts to belong to you once you have given it a name. © 2014 Columbia Pictures / Sony</span>
+    </figcaption>
+  </figure>
+
+  <p class="reveal" data-l="zh">位置式的梦想结实得多。「我愿意长期待在哪一类问题旁边」——这个句式扛得住失业、扛得住转行、扛得住行业周期，因为它不依赖某一家公司、某一个头衔在特定年份还存在。科利尔的坦克换过、车组换过、战线换过，位置没换。</p>
+  <p class="reveal" data-l="en">Bearing-shaped ambitions are far more robust. “What kind of problem am I willing to sit next to for a long time” survives unemployment, survives a career change, survives the cycle, because it does not depend on a particular company or a particular title still existing in a particular year. Collier changed tanks, changed crew, changed fronts. The seat stayed the same.</p>
+
+  <p class="reveal" data-l="zh">而这恰恰解释了那句「我干过最好的工作」为什么不是反讽。它不是在说这份工作好，它是在说：<strong>我知道我为什么坐在这里。</strong>能说出这句话的人，在被裁、被降级、被安排到一个烂项目上的时候，不会整个塌掉。</p>
+  <p class="reveal" data-l="en">Which is finally why “best job I ever had” is not ironic. It is not a claim about the job. It is a claim about the man: <strong>I know why I am in this seat.</strong> A person who can say that does not cave in when they are laid off, demoted, or parked on a bad project.</p>
+
+  <div class="quote reveal">
+    <blockquote>
+      <span data-l="zh">「我干过最好的工作。」</span>
+      <span data-l="en">“Best job I ever had.”</span>
+    </blockquote>
+    <cite data-l="zh">全片重复最多的一句话 · 由车长起头，全车轮流复述</cite>
+    <cite data-l="en">The film’s most repeated line · started by the commander, passed around the crew</cite>
+  </div>
+
+  <!-- ============ closing band ============ -->
+  <div class="band full">
+    <!-- Original silhouette drawing: M4A3E8 Sherman, side profile, gun forward-left -->
+    <svg class="plate" viewBox="0 0 900 300" role="img" aria-label="Sherman tank silhouette — original drawing 谢尔曼坦克剪影（原创绘制）">
+      <line class="horizon" x1="0" y1="269" x2="900" y2="269"></line>
+      <g class="hull" fill="#06070A">
+        <rect x="84" y="122" width="24" height="20" rx="3"></rect>
+        <rect x="104" y="127" width="180" height="10" rx="5"></rect>
+        <rect x="266" y="112" width="44" height="34" rx="8"></rect>
+        <path d="M300 152 L300 116 Q300 104 314 104 L474 104 Q490 104 490 118 L490 152 Z"></path>
+        <rect x="438" y="82" width="36" height="26" rx="12"></rect>
+        <circle cx="456" cy="64" r="11"></circle>
+        <path d="M436 84 Q456 68 476 84 Z"></path>
+        <path d="M64 206 L124 150 L692 150 L716 206 Z"></path>
+        <rect x="60" y="200" width="662" height="14"></rect>
+        <rect x="58" y="206" width="666" height="60" rx="30"></rect>
+        <rect x="640" y="128" width="60" height="24" rx="3"></rect>
+      </g>
+      <g fill="#1A1C16">
+        <circle cx="98" cy="236" r="26"></circle>
+        <circle cx="688" cy="236" r="24"></circle>
+        <circle cx="180" cy="241" r="18"></circle><circle cx="222" cy="241" r="18"></circle>
+        <circle cx="362" cy="241" r="18"></circle><circle cx="404" cy="241" r="18"></circle>
+        <circle cx="544" cy="241" r="18"></circle><circle cx="586" cy="241" r="18"></circle>
+        <circle cx="292" cy="212" r="8"></circle><circle cx="474" cy="212" r="8"></circle><circle cx="646" cy="212" r="8"></circle>
+      </g>
+      <text x="128" y="120" fill="#D7592D" style="font-family:var(--f-mono);font-size:15px;letter-spacing:.42em">FURY</text>
+    </svg>
+    <p data-l="zh">路口 · 一辆瘫掉的谢尔曼 · 车长仍在炮塔上 · 原创绘制</p>
+    <p data-l="en">The crossroads · one dead Sherman · the commander still in the cupola · original drawing</p>
+  </div>
+
+  <!-- ============ coda ============ -->
+  <div class="sec reveal">
+    <span class="sec__no">尾</span>
+    <h2><span data-l="zh">评价</span><span data-l="en">Verdict</span></h2>
+  </div>
+
+  <p class="reveal" data-l="zh">《狂怒》不是一部完美的电影。它的德军在最后一战里薄得像靶子，那场公寓戏拖得太长，个别道德困境被处理得比它应得的更省事。但皮特这个角色立住了，而且是靠减法立住的——没有慷慨陈词，没有觉醒时刻，只有一个人在一个越来越不可能的位置上，一天一天地继续上岗。</p>
+  <p class="reveal" data-l="en">Fury is not a perfect film. Its Germans thin out into targets in the last fight, the apartment sequence runs long, and one or two moral problems get resolved more cheaply than they deserve. But Pitt’s character holds, and holds by subtraction — no speech, no awakening, just a man reporting for duty one more day in an increasingly impossible position.</p>
+
+  <p class="reveal" data-l="zh">值得从这部电影里带走的不是「坚持就会赢」。带走这句：<strong>先弄清楚你守的是哪个路口，再决定要不要留下；决定留下之后，别忘了给身边的人留一个逃生口。</strong>就业、教育、梦想，三件事在这句话里是同一件事。</p>
+  <p class="reveal" data-l="en">What is worth taking from it is not “persistence wins.” Take this instead: <strong>work out which crossroads you are actually holding before you decide to stay — and once you have decided, leave somebody an escape hatch.</strong> Work, education and ambition are one subject inside that sentence.</p>
+
+  <div class="note reveal">
+    <h3 data-l="zh">关于配图</h3>
+    <h3 data-l="en">About the artwork</h3>
+    <figure class="shot" style="margin:0 0 1.1rem">
+      <img src="assets/bts.jpg" width="1200" height="790" loading="lazy" alt="拍摄现场：两辆谢尔曼坦克载着演员行进，摄影机在右侧跟拍">
+      <figcaption>
+        <b data-l="zh">拍摄现场</b>
+        <b data-l="en">On set</b>
+        <span data-l="zh">右边那台摄影机提醒我们：上面每一张图都是被安排出来的。这不削弱它们，只是让「真实」这个词需要加个引号。© 2014 哥伦比亚影业 / 索尼</span>
+        <span data-l="en">The camera on the right is the reminder: every image above was staged. That doesn’t weaken them — it just means “real” needs quotation marks. © 2014 Columbia Pictures / Sony</span>
+      </figcaption>
+    </figure>
+    <p data-l="zh">海报与剧照版权归 <b>© 2014 Columbia Pictures / Sony Pictures Entertainment</b> 所有，在此仅作影评引用。坦克剪影、车组编制图、四象限判断表以及页面颗粒质感是为这篇文章原创绘制的（SVG / Canvas）。官方物料见下方链接。</p>
+    <p data-l="en">Poster and stills are <b>© 2014 Columbia Pictures / Sony Pictures Entertainment</b>, reproduced here for criticism and comment. The tank silhouette, crew diagram, four-quadrant grid and the page’s film grain were drawn for this piece (SVG / Canvas). Official materials are linked below.</p>
+    <ul class="srcs">
+      <li><a href="https://en.wikipedia.org/wiki/Fury_(2014_film)" target="_blank" rel="noopener">Wikipedia — Fury (2014 film)</a></li>
+      <li><a href="https://www.imdb.com/title/tt2713180/" target="_blank" rel="noopener">IMDb — Fury (2014)</a></li>
+      <li><a href="https://en.wikiquote.org/wiki/Fury_(2014_film)" target="_blank" rel="noopener">Wikiquote — Fury (2014 film)</a></li>
+      <li><a href="https://www.rottentomatoes.com/m/fury_2015" target="_blank" rel="noopener">Rotten Tomatoes — Fury</a></li>
+    </ul>
+  </div>
+
+  <p class="end">— <span data-l="zh">全文完 · FURY · 1945</span><span data-l="en">End · FURY · 1945</span> —</p>
+</article>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  root.setAttribute('data-lang', 'zh');
+
+  var btns = document.querySelectorAll('.switch button');
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var next = b.getAttribute('data-set');
+      root.setAttribute('data-lang', next);
+      btns.forEach(function (o) {
+        o.setAttribute('aria-pressed', String(o.getAttribute('data-set') === next));
+      });
+    });
+  });
+
+  // film-stock grain on the hero plate
+  var c = document.querySelector('.hero__grain');
+  if (c) {
+    var draw = function () {
+      var w = Math.min(c.clientWidth, 900) | 0;
+      var h = Math.min(c.clientHeight, 700) | 0;
+      if (!w || !h) return;
+      c.width = w; c.height = h;
+      var ctx = c.getContext('2d');
+      var img = ctx.createImageData(w, h);
+      var d = img.data;
+      for (var i = 0; i < d.length; i += 4) {
+        var v = 90 + ((Math.random() * 165) | 0);
+        d[i] = v; d[i + 1] = v; d[i + 2] = v;
+        d[i + 3] = (Math.random() * 46) | 0;
+      }
+      ctx.putImageData(img, 0, 0);
+    };
+    draw();
+    var t;
+    addEventListener('resize', function () { clearTimeout(t); t = setTimeout(draw, 220); });
+  }
+
+  // scroll reveals
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var items = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) {
+    items.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    items.forEach(function (el) { io.observe(el); });
+  }
+})();
+</script>
+
+</body>
+</html>
